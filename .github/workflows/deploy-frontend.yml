@@ -46,11 +46,6 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Ensure 404.html and .nojekyll exist for GitHub Pages SPA
-        run: |
-          cp frontend/dist/index.html frontend/dist/404.html
-          touch frontend/dist/.nojekyll
-
       - name: Verify GitHub Pages SPA distribution artifacts
         run: |
           echo "Verifying frontend/dist build artifacts..."
@@ -62,15 +57,23 @@ jobs:
             echo "::error::frontend/dist/404.html is missing!"
             exit 1
           fi
+          if [ ! -f frontend/dist/.nojekyll ]; then
+            echo "::error::frontend/dist/.nojekyll is missing!"
+            exit 1
+          fi
           if ! grep -q 'id="root"' frontend/dist/index.html; then
             echo "::error::frontend/dist/index.html does not contain the React root element!"
             exit 1
           fi
-          if ! grep -q 'id="root"' frontend/dist/404.html; then
-            echo "::error::frontend/dist/404.html does not contain the React root element!"
+          if ! grep -q 'spa-github-pages' frontend/dist/index.html; then
+            echo "::error::frontend/dist/index.html does not contain the SPA URL restoration script!"
             exit 1
           fi
-          echo "Verified: index.html and 404.html both exist and contain the React root element."
+          if ! grep -q 'pathSegmentsToKeep' frontend/dist/404.html; then
+            echo "::error::frontend/dist/404.html does not contain the SPA redirect script!"
+            exit 1
+          fi
+          echo "Verified: index.html (with URL restoration) and 404.html (with SPA redirect) are present."
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
