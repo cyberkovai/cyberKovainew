@@ -35,6 +35,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
@@ -43,11 +46,31 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Copy index.html to 404.html for SPA fallback
-        run: cp frontend/dist/index.html frontend/dist/404.html
+      - name: Ensure 404.html and .nojekyll exist for GitHub Pages SPA
+        run: |
+          cp frontend/dist/index.html frontend/dist/404.html
+          touch frontend/dist/.nojekyll
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+      - name: Verify GitHub Pages SPA distribution artifacts
+        run: |
+          echo "Verifying frontend/dist build artifacts..."
+          if [ ! -f frontend/dist/index.html ]; then
+            echo "::error::frontend/dist/index.html is missing!"
+            exit 1
+          fi
+          if [ ! -f frontend/dist/404.html ]; then
+            echo "::error::frontend/dist/404.html is missing!"
+            exit 1
+          fi
+          if ! grep -q 'id="root"' frontend/dist/index.html; then
+            echo "::error::frontend/dist/index.html does not contain the React root element!"
+            exit 1
+          fi
+          if ! grep -q 'id="root"' frontend/dist/404.html; then
+            echo "::error::frontend/dist/404.html does not contain the React root element!"
+            exit 1
+          fi
+          echo "Verified: index.html and 404.html both exist and contain the React root element."
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
