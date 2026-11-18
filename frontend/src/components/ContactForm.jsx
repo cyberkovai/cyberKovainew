@@ -1,11 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { submitContact, getCyberServices, getInvestigationServices } from '../api/client';
 import { useTrack } from '../context/TrackContext';
 
-export default function ContactForm({ cyberServices = [], investigationServices = [], initialService = '' }) {
+const EMPTY_SERVICES_ARRAY = [];
+
+export default function ContactForm({
+  cyberServices = EMPTY_SERVICES_ARRAY,
+  investigationServices = EMPTY_SERVICES_ARRAY,
+  initialService = '',
+}) {
   const { activeTrack } = useTrack();
   const [fetchedCyberServices, setFetchedCyberServices] = useState([]);
   const [fetchedInvServices, setFetchedInvServices] = useState([]);
+
+  const cyberFetchedRef = useRef(false);
+  const invFetchedRef = useRef(false);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,7 +28,14 @@ export default function ContactForm({ cyberServices = [], investigationServices 
   });
 
   useEffect(() => {
-    if (!cyberServices || cyberServices.length === 0) {
+    if (initialService) {
+      setFormData(prev => ({ ...prev, service: initialService }));
+    }
+  }, [initialService]);
+
+  useEffect(() => {
+    if ((!cyberServices || cyberServices.length === 0) && !cyberFetchedRef.current) {
+      cyberFetchedRef.current = true;
       getCyberServices()
         .then((data) => {
           if (data && typeof data === 'object') {
@@ -28,8 +45,11 @@ export default function ContactForm({ cyberServices = [], investigationServices 
         })
         .catch(() => {});
     }
+  }, [cyberServices?.length]);
 
-    if (!investigationServices || investigationServices.length === 0) {
+  useEffect(() => {
+    if ((!investigationServices || investigationServices.length === 0) && !invFetchedRef.current) {
+      invFetchedRef.current = true;
       getInvestigationServices()
         .then((list) => {
           if (Array.isArray(list)) {
@@ -38,7 +58,7 @@ export default function ContactForm({ cyberServices = [], investigationServices 
         })
         .catch(() => {});
     }
-  }, [cyberServices, investigationServices]);
+  }, [investigationServices?.length]);
 
   const effectiveCyberServices = (cyberServices && cyberServices.length > 0) ? cyberServices : fetchedCyberServices;
   const effectiveInvServices = (investigationServices && investigationServices.length > 0) ? investigationServices : fetchedInvServices;
