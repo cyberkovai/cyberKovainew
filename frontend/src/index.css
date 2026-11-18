@@ -1,0 +1,69 @@
+@import "./style.css";
+@import "./admin.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth ScrollTo Animations */
+html {
+  scroll-behavior: smooth !important;
+}
+
+/* Offset for in-page anchors and sticky headers */
+[id] {
+  scroll-margin-top: 96px;
+}
+
+/* Ensure fonts and core container behaviors */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg, #050511);
+  color: var(--text, #f7f5ff);
+  overflow-x: hidden;
+}
+
+/* Enhanced Cyber Tag & Pulse Dots */
+.section-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a855f7;
+  box-shadow: 0 0 10px #a855f7;
+  display: inline-block;
+  animation: pulseGlowDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlowDot {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+    box-shadow: 0 0 14px #c084fc;
+  }
+}
+
+/* Typewriter Cursor */
+.ci-typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: #c084fc;
+  vertical-align: middle;
+  margin-left: 4px;
+  animation: typewriterBlink 0.9s infinite step-end;
+}
+
+@keyframes typewriterBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

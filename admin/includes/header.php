@@ -1,0 +1,199 @@
+<?php
+/**
+ * Cyber Kovai - Admin Header & Layout Framework
+ */
+
+require_once __DIR__ . '/auth.php';
+
+if (empty($allowGuest)) {
+    ck_admin_require_login();
+}
+
+$currentUser = ck_admin_current_user();
+$currentFile = basename($_SERVER['PHP_SELF']);
+$header2faStatus = ($currentUser && !empty($currentUser['username']))
+    ? ck_two_factor_service()->getStatus((string) $currentUser['username'])
+    : ['enabled' => false, 'pending_setup' => false];
+
+// Retrieve counts for sidebar badges
+$cyberServicesCount  = count(ck_get_cyber_services(true));
+$cyberPracticesCount = function_exists('ck_get_cyber_practices') ? count(ck_get_cyber_practices(true)) : 0;
+$invServicesCount    = count(ck_get_investigation_services(true));
+$threatsCount       = function_exists('ck_get_investigation_threats') ? count(ck_get_investigation_threats(true)) : 0;
+$testimonialsCount  = count(ck_get_testimonials(true));
+$faqsCount          = function_exists('ck_get_faqs') ? count(ck_get_faqs('all', true)) : 0;
+$clientsCount       = function_exists('ck_get_clients') ? count(ck_get_clients('all', true)) : 0;
+$accredsCount       = function_exists('ck_get_accreditations') ? count(ck_get_accreditations('all', true)) : 0;
+$teamCount          = count(ck_get_team_members(true));
+
+$pageTitle = $adminPageTitle ?? 'Admin Console';
+$flash = ck_get_flash();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pageTitle) ?> | Cyber Kovai Admin</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/admin.css?v=<?= filemtime(__DIR__ . '/../assets/admin.css') ?>">
+</head>
+<body class="admin-body">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <a href="index.php" class="sidebar-logo">
+                <img src="../assets/images/logo.png" alt="Cyber Kovai">
+                <span class="logo-text">Cyber <strong>Kovai</strong></span>
+            </a>
+            <span class="sidebar-badge">SOC</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Overview</div>
+            <a href="index.php" class="sidebar-link <?= ($currentFile === 'index.php') ? 'active' : '' ?>">
+                <span class="link-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="nav-section-title">Services Management</div>
+            <a href="services-cyber.php" class="sidebar-link <?= ($currentFile === 'services-cyber.php') ? 'active' : '' ?>">
+                <span class="link-icon">🛡️</span>
+                <span>Cyber Services</span>
+                <span class="badge-count"><?= $cyberServicesCount ?></span>
+            </a>
+            <a href="cyber-practices.php" class="sidebar-link <?= ($currentFile === 'cyber-practices.php') ? 'active' : '' ?>">
+                <span class="link-icon">⚡</span>
+                <span>Core Practices (Bento)</span>
+                <span class="badge-count"><?= $cyberPracticesCount ?></span>
+            </a>
+            <a href="services-investigation.php" class="sidebar-link <?= ($currentFile === 'services-investigation.php') ? 'active' : '' ?>">
+                <span class="link-icon">🔍</span>
+                <span>Investigation Services</span>
+                <span class="badge-count"><?= $invServicesCount ?></span>
+            </a>
+            <a href="investigation-threats.php" class="sidebar-link <?= ($currentFile === 'investigation-threats.php') ? 'active' : '' ?>">
+                <span class="link-icon">🎯</span>
+                <span>Threats &amp; Incidents</span>
+                <span class="badge-count"><?= $threatsCount ?></span>
+            </a>
+
+            <div class="nav-section-title">Content &amp; Leadership</div>
+            <a href="faqs.php" class="sidebar-link <?= ($currentFile === 'faqs.php') ? 'active' : '' ?>">
+                <span class="link-icon">❓</span>
+                <span>FAQs (Cyber &amp; Inv)</span>
+                <span class="badge-count"><?= $faqsCount ?></span>
+            </a>
+            <a href="testimonials.php" class="sidebar-link <?= ($currentFile === 'testimonials.php') ? 'active' : '' ?>">
+                <span class="link-icon">⭐</span>
+                <span>Testimonials</span>
+                <span class="badge-count"><?= $testimonialsCount ?></span>
+            </a>
+            <a href="clients.php" class="sidebar-link <?= ($currentFile === 'clients.php') ? 'active' : '' ?>">
+                <span class="link-icon">🏢</span>
+                <span>Clients &amp; Logos</span>
+                <span class="badge-count"><?= $clientsCount ?></span>
+            </a>
+            <a href="accreditations.php" class="sidebar-link <?= ($currentFile === 'accreditations.php') ? 'active' : '' ?>">
+                <span class="link-icon">🏅</span>
+                <span>Accreditations &amp; Badges</span>
+                <span class="badge-count"><?= $accredsCount ?></span>
+            </a>
+            <a href="team.php" class="sidebar-link <?= ($currentFile === 'team.php') ? 'active' : '' ?>">
+                <span class="link-icon">👥</span>
+                <span>Our Team</span>
+                <span class="badge-count"><?= $teamCount ?></span>
+            </a>
+            <a href="legal-pages.php" class="sidebar-link <?= ($currentFile === 'legal-pages.php') ? 'active' : '' ?>">
+                <span class="link-icon">📜</span>
+                <span>Legal &amp; Policies</span>
+            </a>
+
+            <div class="nav-section-title">Configuration</div>
+            <a href="section-visibility.php" class="sidebar-link <?= ($currentFile === 'section-visibility.php') ? 'active' : '' ?>">
+                <span class="link-icon">👁️</span>
+                <span>Section Visibility</span>
+            </a>
+            <a href="settings.php" class="sidebar-link <?= ($currentFile === 'settings.php') ? 'active' : '' ?>">
+                <span class="link-icon">⚙️</span>
+                <span>Site &amp; Contact Info</span>
+            </a>
+            <a href="profile.php" class="sidebar-link <?= ($currentFile === 'profile.php') ? 'active' : '' ?>">
+                <span class="link-icon">👤</span>
+                <span>Admin Profile</span>
+            </a>
+            <a href="profile.php#two-factor-security" class="sidebar-link">
+                <span class="link-icon">🔐</span>
+                <span>Two-Factor Auth (2FA)</span>
+                <span class="badge-count" style="<?= !empty($header2faStatus['enabled']) ? 'background: rgba(0,230,118,0.18); color: #00e676;' : 'background: rgba(255,171,0,0.18); color: #ffab00;' ?>">
+                    <?= !empty($header2faStatus['enabled']) ? 'ON' : 'OFF' ?>
+                </span>
+            </a>
+
+            <div class="nav-section-title">Session</div>
+            <a href="logout.php" class="sidebar-link sidebar-link-logout" title="Sign out of Admin Console">
+                <span class="link-icon">🚪</span>
+                <span>Log Out</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="profile.php" class="admin-user-pill" title="Edit Profile">
+                <div class="admin-avatar-small">
+                    <?= strtoupper(substr($currentUser['username'] ?? 'A', 0, 1)) ?>
+                </div>
+                <div class="admin-user-info">
+                    <div class="admin-name"><?= htmlspecialchars($currentUser['username'] ?? 'Admin') ?></div>
+                    <div class="admin-role">Superadmin</div>
+                </div>
+            </a>
+            <a href="logout.php" class="btn-sidebar-logout" title="Sign Out">
+                <span>🚪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT WRAPPER ================= -->
+    <div class="admin-main-wrap">
+
+        <!-- ================= TOPBAR ================= -->
+        <header class="admin-topbar">
+            <div style="display: flex; align-items: center;">
+                <button type="button" class="mobile-menu-toggle" id="mobileSidebarToggle" aria-label="Toggle Sidebar">
+                    ☰
+                </button>
+                <div class="topbar-breadcrumbs">
+                    <a href="index.php">Admin</a>
+                    <span class="sep">/</span>
+                    <span class="current"><?= htmlspecialchars($pageTitle) ?></span>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <a href="../index.php" target="_blank" rel="noopener" class="btn-view-site" title="Open live website in new tab">
+                    <span>🌐</span> View Live Site ➔
+                </a>
+                <a href="logout.php" class="btn-topbar-logout" title="Sign Out of Admin Console">
+                    <span>🚪</span> Log Out
+                </a>
+            </div>
+        </header>
+
+        <!-- ================= CONTENT AREA ================= -->
+        <main class="admin-content">
+
+            <?php if (!empty($flash)): ?>
+            <div class="flash-alert <?= htmlspecialchars($flash['type']) ?>">
+                <span>
+                    <strong><?= ($flash['type'] === 'success') ? '✓ Success:' : (($flash['type'] === 'error') ? '⚠ Error:' : 'Notice:') ?></strong>
+                    <?= htmlspecialchars($flash['message']) ?>
+                </span>
+                <button type="button" class="flash-close-btn" aria-label="Close">&times;</button>
+            </div>
+            <?php endif; ?>
+
