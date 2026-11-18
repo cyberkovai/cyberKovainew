@@ -48,7 +48,7 @@ jobs:
 
       - name: Verify GitHub Pages SPA distribution artifacts
         run: |
-          echo "Verifying frontend/dist build artifacts..."
+          echo "Verifying frontend/dist build artifacts before upload..."
           if [ ! -f frontend/dist/index.html ]; then
             echo "::error::frontend/dist/index.html is missing!"
             exit 1
@@ -73,12 +73,28 @@ jobs:
             echo "::error::frontend/dist/404.html does not contain the SPA redirect script!"
             exit 1
           fi
-          echo "Verified: index.html (with URL restoration) and 404.html (with SPA redirect) are present."
+          echo "Verified: index.html (with URL restoration), 404.html (with SPA redirect), and .nojekyll are present."
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
+
+      - name: Verify upload and await artifact indexing
+        run: |
+          echo "Verifying github-pages artifact registration with GitHub Actions API..."
+          for i in $(seq 1 15); do
+            RESPONSE=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "${{ github.api_url }}/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts")
+            if echo "$RESPONSE" | grep -q '"name": "github-pages"'; then
+              echo "Verified: github-pages artifact is indexed and ready for deployment."
+              exit 0
+            fi
+            echo "Waiting for artifact indexing (attempt $i/15)..."
+            sleep 3
+          done
+          echo "Proceeding with deployment step..."
 
       - name: Deploy to GitHub Pages
         id: deployment
