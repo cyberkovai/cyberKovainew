@@ -98,6 +98,7 @@ export default function App() {
       <Route path="/security-disclosure.php" element={<LegalPage defaultKey="disclosure" />} />
 
       {/* Admin Authentication */}
+      <Route path="/login" element={<AdminLogin />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/login.php" element={<AdminLogin />} />
       <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />
