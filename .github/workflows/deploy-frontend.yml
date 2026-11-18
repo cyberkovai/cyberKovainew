@@ -75,6 +75,17 @@ jobs:
           fi
           echo "Verified: index.html (with URL restoration), 404.html (with SPA redirect), and .nojekyll are present."
 
+      - name: Print build diagnostics before upload
+        run: |
+          echo "=== Current Working Directory ==="
+          pwd
+          echo "=== frontend/dist/index.html ==="
+          ls -la frontend/dist/index.html
+          echo "=== First 30 lines of generated index.html ==="
+          head -n 30 frontend/dist/index.html
+          echo "=== List of frontend/dist/assets files ==="
+          ls -la frontend/dist/assets/
+
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
