@@ -4583,6 +4583,17 @@ button {
     box-shadow: 0 20px 50px rgba(117, 20, 232, 0.12);
 }
 
+#c {
+    display: block;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+#c:active {
+    cursor: grabbing;
+}
+
 #hint {
     position: absolute;
     bottom: 14px;
