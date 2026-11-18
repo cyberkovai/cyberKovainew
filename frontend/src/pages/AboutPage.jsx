@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import LiveChatWidget from '../components/LiveChatWidget';
 import { getSettings, getSections } from '../api/client';
 import { useTrack } from '../context/TrackContext';
+import { getAssetUrl } from '../utils/assets';
 
 export default function AboutPage() {
   const [settings, setSettings] = useState({});
@@ -64,7 +65,7 @@ export default function AboutPage() {
                 <div className="who-we-are-visual">
                   <div className="visual-card-wrapper">
                     <img
-                      src="/assets/images/about_investigator_woman.jpg"
+                      src={getAssetUrl('assets/images/about_investigator_woman.jpg')}
                       alt="Why Organizations Choose CyberKovai"
                       className="investigator-visual-img"
                     />

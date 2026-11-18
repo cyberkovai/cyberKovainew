@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
+import { getAssetUrl } from '../utils/assets';
 
 // Cache loaded TopoJSON in memory so switching pages doesn't trigger re-fetch
 let cachedLandData = null;
@@ -404,7 +405,7 @@ export default function RouteGlobe({ height = 480 }) {
       startRender(cachedLandData);
     } else {
       // Fetch local public copy first, fallback to CDN
-      fetch('/data/land-110m.json')
+      fetch(getAssetUrl('data/land-110m.json'))
         .then((r) => {
           if (!r.ok) throw new Error('Local land-110m.json not found');
           return r.json();

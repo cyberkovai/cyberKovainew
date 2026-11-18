@@ -10,12 +10,10 @@ import {
   updateSettings,
   adminUploadFile,
 } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
-const normalizeImg = (path, fallback = '/assets/images/avatar_karthik.jpg') => {
-  if (!path) return fallback;
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  if (path.startsWith('/')) return path;
-  return `/${path}`;
+const normalizeImg = (path, fallback = 'assets/images/avatar_karthik.jpg') => {
+  return getAssetUrl(path || fallback);
 };
 
 export default function AdminTestimonials() {
@@ -359,7 +357,7 @@ export default function AdminTestimonials() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <a
-            href="/cyber-intelligence#ci-testimonials"
+            href={`${import.meta.env.BASE_URL}cyber-intelligence#ci-testimonials`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-secondary btn-sm"
@@ -541,7 +539,7 @@ export default function AdminTestimonials() {
                     flexShrink: 0,
                   }}
                   onError={(e) => {
-                    e.currentTarget.src = '/assets/images/avatar_karthik.jpg';
+                    e.currentTarget.src = getAssetUrl('assets/images/avatar_karthik.jpg');
                   }}
                 />
                 <input
@@ -648,7 +646,7 @@ export default function AdminTestimonials() {
               All Testimonials ({testimonials.length})
             </h3>
             <a
-              href="/cyber-intelligence#ci-testimonials"
+              href={`${import.meta.env.BASE_URL}cyber-intelligence#ci-testimonials`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
@@ -683,7 +681,7 @@ export default function AdminTestimonials() {
                             alt={t.name || 'Client Avatar'}
                             className="table-avatar"
                             onError={(e) => {
-                              e.currentTarget.src = '/assets/images/avatar_karthik.jpg';
+                              e.currentTarget.src = getAssetUrl('assets/images/avatar_karthik.jpg');
                             }}
                           />
                         </td>

@@ -995,7 +995,7 @@ button {
             var(--hero-overlay-1) 0%,
             var(--hero-overlay-2) 45%,
             var(--hero-overlay-3) 100%),
-        url("assets/images/01_hero_background.png") center / cover no-repeat;
+        url("/assets/images/01_hero_background.png") center / cover no-repeat;
 
     opacity: 0.8;
 

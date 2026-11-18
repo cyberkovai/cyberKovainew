@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getDashboardStats } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
 // Preserve sidebar scroll position across admin route changes without any scrollTo animations
 let savedSidebarScrollTop = 0;
@@ -72,7 +73,7 @@ export default function AdminLayout({ children, pageTitle = 'Dashboard', current
           });
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [location.pathname]);
 
   // Sync currentCount prop if provided by the active section page
@@ -167,7 +168,7 @@ export default function AdminLayout({ children, pageTitle = 'Dashboard', current
       >
         <div className="sidebar-header">
           <Link to="/admin" className="sidebar-logo">
-            <img src="/assets/images/logo.png" alt="Cyber Kovai" />
+            <img src={getAssetUrl('assets/images/logo.png')} alt="Cyber Kovai" />
             <span className="logo-text">Cyber <strong>Kovai</strong></span>
           </Link>
           <span className="sidebar-badge">SOC</span>
@@ -342,7 +343,7 @@ export default function AdminLayout({ children, pageTitle = 'Dashboard', current
           </div>
 
           <div className="topbar-actions">
-            <a href="/" target="_blank" rel="noopener noreferrer" className="btn-view-site" title="Open live website in new tab">
+            <a href={import.meta.env.BASE_URL} target="_blank" rel="noopener noreferrer" className="btn-view-site" title="Open live website in new tab">
               <span>🌐</span> View Live Site ➔
             </a>
             <button type="button" className="btn-topbar-logout" title="Sign Out" onClick={handleLogout}>

@@ -9,11 +9,10 @@ import {
   getSettings,
   updateSettings,
 } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
-const normalizeImg = (path, fallback = '/assets/images/arun_s.png') => {
-  if (!path) return fallback;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) return path;
-  return `/${path}`;
+const normalizeImg = (path, fallback = 'assets/images/arun_s.png') => {
+  return getAssetUrl(path || fallback);
 };
 
 const formatExperience = (exp) => {
@@ -618,7 +617,7 @@ export default function AdminTeam() {
                     flexShrink: 0,
                   }}
                   onError={(e) => {
-                    e.currentTarget.src = '/assets/images/arun_s.png';
+                    e.currentTarget.src = getAssetUrl('assets/images/arun_s.png');
                   }}
                 />
                 <input
@@ -771,7 +770,7 @@ export default function AdminTeam() {
           <div className="admin-card-header">
             <h3 className="admin-card-title">Leadership &amp; Security Architects ({team.length})</h3>
             <a
-              href="/team"
+              href={`${import.meta.env.BASE_URL}team`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
@@ -810,7 +809,7 @@ export default function AdminTeam() {
                             alt={member.name}
                             className="table-thumbnail"
                             onError={(e) => {
-                              e.currentTarget.src = '/assets/images/arun_s.png';
+                              e.currentTarget.src = getAssetUrl('assets/images/arun_s.png');
                             }}
                           />
                         </td>
@@ -852,7 +851,7 @@ export default function AdminTeam() {
                         <td style={{ textAlign: 'right' }}>
                           <div className="action-btns-group" style={{ justifyContent: 'flex-end' }}>
                             <a
-                              href="/team"
+                              href={`${import.meta.env.BASE_URL}team`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn-action view"

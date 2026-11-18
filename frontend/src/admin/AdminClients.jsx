@@ -7,11 +7,10 @@ import {
   adminToggleClient,
   adminUploadFile,
 } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
-const normalizeImg = (path, fallback = '/assets/images/client_copconnect.jpg') => {
-  if (!path) return fallback;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) return path;
-  return `/${path}`;
+const normalizeImg = (path, fallback = 'assets/images/client_copconnect.jpg') => {
+  return getAssetUrl(path || fallback);
 };
 
 const isActiveStatus = (item) => (item?.status ? item.status === 'active' : item?.active !== false);
@@ -261,7 +260,7 @@ export default function AdminClients() {
               <span>+</span> Add New Client
             </button>
             <a
-              href="/cyber-intelligence#ci-clients"
+              href={`${import.meta.env.BASE_URL}cyber-intelligence#ci-clients`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
@@ -270,7 +269,7 @@ export default function AdminClients() {
               Preview Investigation ➔
             </a>
             <a
-              href="/digital-forensics#clients"
+              href={`${import.meta.env.BASE_URL}digital-forensics#clients`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
@@ -444,7 +443,7 @@ export default function AdminClients() {
                         alt="Logo Preview"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = '/assets/images/client_copconnect.jpg';
+                          e.target.src = getAssetUrl('assets/images/client_copconnect.jpg');
                         }}
                         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                       />
@@ -665,7 +664,7 @@ export default function AdminClients() {
                                 alt={c.alt || c.name}
                                 onError={(e) => {
                                   e.target.onerror = null;
-                                  e.target.src = '/assets/images/client_copconnect.jpg';
+                                  e.target.src = getAssetUrl('assets/images/client_copconnect.jpg');
                                 }}
                                 style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                               />

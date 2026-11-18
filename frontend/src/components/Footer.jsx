@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTrack } from '../context/TrackContext';
 import { getInvestigationServices, getCyberServices } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
 export default function Footer({ settings = {} }) {
   const { activeTrack } = useTrack();
@@ -53,7 +54,7 @@ export default function Footer({ settings = {} }) {
         {/* Brand Column */}
         <div className="footer-brand">
           <Link to="/" className="logo" title="Cyber Kovai Home">
-            <img src="/assets/images/logo.png" alt={siteName} />
+            <img src={getAssetUrl('assets/images/logo.png')} alt={siteName} />
             <span>CYBER <strong>KOVAI</strong></span>
           </Link>
 

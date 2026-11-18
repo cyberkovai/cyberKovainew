@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import * as api from '../src/api/client.js';
+import { getAssetUrl } from '../src/utils/assets.js';
 
 describe('Frontend API Client & Helper Logic Test Suite', () => {
   it('should export all required public and admin API methods', () => {
@@ -136,5 +137,27 @@ describe('Frontend API Client & Helper Logic Test Suite', () => {
 
     assert.strictEqual(resolveHomeUrl('cyber'), '/digital-forensics?section=cyber');
     assert.strictEqual(resolveHomeUrl('forensics'), '/cyber-intelligence?section=forensics');
+  });
+
+  it('should verify getAssetUrl correctly handles local assets and Supabase Storage URLs', () => {
+    // 1. External Supabase Storage URLs must remain completely untouched
+    const supabasePublicUrl = 'https://aqplfghbcnadpdnvdiwe.supabase.co/storage/v1/object/public/uploads/test_photo.png';
+    assert.strictEqual(getAssetUrl(supabasePublicUrl), supabasePublicUrl);
+
+    const supabaseSignedUrl = 'https://aqplfghbcnadpdnvdiwe.supabase.co/storage/v1/object/sign/uploads/secure.pdf?token=abc';
+    assert.strictEqual(getAssetUrl(supabaseSignedUrl), supabaseSignedUrl);
+
+    // 2. Data and Blob URIs must remain untouched
+    const dataUri = 'data:image/svg+xml,%3Csvg%3E%3C/svg%3E';
+    assert.strictEqual(getAssetUrl(dataUri), dataUri);
+
+    // 3. Local asset paths
+    assert.strictEqual(getAssetUrl('assets/images/logo.png'), '/assets/images/logo.png');
+    assert.strictEqual(getAssetUrl('/assets/images/logo.png'), '/assets/images/logo.png');
+    assert.strictEqual(getAssetUrl('data/uploads/image.jpg'), '/data/uploads/image.jpg');
+
+    // 4. Null or empty paths
+    assert.strictEqual(getAssetUrl(''), '');
+    assert.strictEqual(getAssetUrl(null), '');
   });
 });

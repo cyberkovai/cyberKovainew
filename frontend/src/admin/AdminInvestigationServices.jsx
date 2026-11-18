@@ -8,6 +8,7 @@ import {
   adminToggleInvestigationService,
   adminUploadFile,
 } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
 export default function AdminInvestigationServices() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -247,9 +248,7 @@ export default function AdminInvestigationServices() {
     }
   };
 
-  const previewImgSrc = formData.image
-    ? (formData.image.startsWith('http') ? formData.image : `/${formData.image.replace(/^\//, '')}`)
-    : '/assets/images/investigation_01_victim_recovery.jpg';
+  const previewImgSrc = getAssetUrl(formData.image || 'assets/images/investigation_01_victim_recovery.jpg');
 
   const isFormView = view === 'add' || view === 'edit';
 
@@ -323,7 +322,7 @@ export default function AdminInvestigationServices() {
               ❓ Investigation FAQs
             </Link>
             <a
-              href="/cyber-intelligence?section=forensics"
+              href={`${import.meta.env.BASE_URL}cyber-intelligence?section=forensics`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
@@ -531,7 +530,7 @@ export default function AdminInvestigationServices() {
                         alt="Preview"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = '/assets/images/investigation_01_victim_recovery.jpg';
+                          e.target.src = getAssetUrl('assets/images/investigation_01_victim_recovery.jpg');
                         }}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
                       />
@@ -684,9 +683,7 @@ export default function AdminInvestigationServices() {
                   ) : displayList.length > 0 ? (
                     displayList.map((svc, index) => {
                       const isActive = svc.status ? svc.status === 'active' : svc.active !== false;
-                      const imageSrc = svc.image
-                        ? (svc.image.startsWith('http') ? svc.image : `/${svc.image.replace(/^\//, '')}`)
-                        : '/assets/images/investigation_01_victim_recovery.jpg';
+                      const imageSrc = getAssetUrl(svc.image || 'assets/images/investigation_01_victim_recovery.jpg');
                       const orderNum = svc.order !== undefined && svc.order !== '' ? svc.order : (index + 1);
 
                       return (
@@ -712,7 +709,7 @@ export default function AdminInvestigationServices() {
                                 alt={svc.title}
                                 onError={(e) => {
                                   e.target.onerror = null;
-                                  e.target.src = '/assets/images/investigation_01_victim_recovery.jpg';
+                                  e.target.src = getAssetUrl('assets/images/investigation_01_victim_recovery.jpg');
                                 }}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }}
                               />
@@ -806,7 +803,7 @@ export default function AdminInvestigationServices() {
                                 </button>
                               )}
                               <a
-                                href={`/cyber-intelligence?section=forensics#svc-${svc.slug}`}
+                                href={`${import.meta.env.BASE_URL}cyber-intelligence?section=forensics#svc-${svc.slug}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-action view"

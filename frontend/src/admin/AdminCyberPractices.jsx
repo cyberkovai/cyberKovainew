@@ -1008,7 +1008,7 @@ export default function AdminCyberPractices() {
             <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>+</span> Add Core Practice
           </button>
           <a
-            href="http://localhost:5173/digital-forensics?section=cyber"
+            href={`${import.meta.env.BASE_URL}digital-forensics?section=cyber`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-secondary btn-sm"
@@ -1405,7 +1405,7 @@ export default function AdminCyberPractices() {
                         <div style={{ fontSize: '0.8rem' }}>
                           {targetLink ? (
                             <a
-                              href={`/${targetLink.replace(/^\/+/, '')}`}
+                              href={`${import.meta.env.BASE_URL}${targetLink.replace(/^\/+/, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{

@@ -287,7 +287,7 @@ export default function AdminFaqs() {
                 <span>+</span> Add New FAQ
               </button>
               <a
-                href="/cyber-intelligence#ci-faq"
+                href={`${import.meta.env.BASE_URL}cyber-intelligence#ci-faq`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary btn-sm"
@@ -297,7 +297,7 @@ export default function AdminFaqs() {
                 Preview Investigation FAQs ➔
               </a>
               <a
-                href="/digital-forensics#faq"
+                href={`${import.meta.env.BASE_URL}digital-forensics#faq`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary btn-sm"

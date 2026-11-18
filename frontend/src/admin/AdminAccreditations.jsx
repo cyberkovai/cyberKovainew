@@ -7,11 +7,10 @@ import {
   adminToggleAccreditation,
   adminUploadFile,
 } from '../api/client';
+import { getAssetUrl } from '../utils/assets';
 
-const normalizeImg = (path, fallback = '/assets/images/aid.png') => {
-  if (!path) return fallback;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) return path;
-  return `/${path}`;
+const normalizeImg = (path, fallback = 'assets/images/aid.png') => {
+  return getAssetUrl(path || fallback);
 };
 
 const isActiveStatus = (item) => (item?.status ? item.status === 'active' : item?.active !== false);
@@ -265,10 +264,10 @@ export default function AdminAccreditations() {
             <button type="button" className="btn btn-primary" onClick={openAdd}>
               <span>+</span> Add New Accreditation
             </button>
-            <a href="/cyber-intelligence#credentials" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Digital Investigation page">
+            <a href={`${import.meta.env.BASE_URL}cyber-intelligence#credentials`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Digital Investigation page">
               Preview Investigation ➔
             </a>
-            <a href="/digital-forensics#credentials" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Cyber Security page">
+            <a href={`${import.meta.env.BASE_URL}digital-forensics#credentials`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Cyber Security page">
               Preview Cyber ➔
             </a>
           </>
@@ -390,7 +389,7 @@ export default function AdminAccreditations() {
                           alt=""
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = '/assets/images/aid.png';
+                            e.target.src = getAssetUrl('assets/images/aid.png');
                           }}
                           style={{ maxHeight: '48px', maxWidth: '155px', objectFit: 'contain' }}
                         />
@@ -533,7 +532,7 @@ export default function AdminAccreditations() {
                                   alt={item.alt || item.short_name || item.name}
                                   onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = '/assets/images/aid.png';
+                                    e.target.src = getAssetUrl('assets/images/aid.png');
                                   }}
                                   style={{ maxHeight: '38px', maxWidth: '100px', objectFit: 'contain' }}
                                 />

@@ -13,12 +13,10 @@ import {
   getInvestigationServices,
 } from '../api/client';
 import { useTrack } from '../context/TrackContext';
+import { getAssetUrl } from '../utils/assets';
 
 function resolveImage(src) {
-  if (!src) return '';
-  const clean = src.replace(/\\/g, '/').trim();
-  if (/^(https?:)?\/\//i.test(clean) || clean.startsWith('/')) return clean;
-  return `/${clean.replace(/^\.?\//, '')}`;
+  return getAssetUrl(src);
 }
 
 export default function ServiceDetailPage() {
@@ -53,9 +51,9 @@ export default function ServiceDetailPage() {
     setLoading(true);
     setOpenFaq(null);
 
-    getSettings().then((s) => !cancelled && s && setSettings(s)).catch(() => {});
-    getSections().then((s) => !cancelled && s && setSections(s)).catch(() => {});
-    getRecaptchaConfig().then((c) => !cancelled && c && setRecaptcha(c)).catch(() => {});
+    getSettings().then((s) => !cancelled && s && setSettings(s)).catch(() => { });
+    getSections().then((s) => !cancelled && s && setSections(s)).catch(() => { });
+    getRecaptchaConfig().then((c) => !cancelled && c && setRecaptcha(c)).catch(() => { });
 
     getFullService(cleanSlug)
       .then((res) => {
@@ -71,7 +69,7 @@ export default function ServiceDetailPage() {
                 setTrackServices(list.filter(s => s.active !== false && s.status !== 'inactive').map(s => s.title));
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         } else {
           getCyberServices()
             .then((obj) => {
@@ -79,7 +77,7 @@ export default function ServiceDetailPage() {
                 setTrackServices(Object.values(obj).filter(s => s.active !== false && s.status !== 'inactive').map(s => s.title));
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         }
       })
       .catch(() => !cancelled && setData(null))
@@ -261,7 +259,7 @@ export default function ServiceDetailPage() {
               <nav className="svc-breadcrumb" aria-label="Breadcrumb">
                 <Link to={homeUrl}>Home</Link>
                 <span className="svc-sep">/</span>
-                <a href={breadcrumbServicesUrl}>Services</a>
+                <Link to={breadcrumbServicesUrl}>Services</Link>
                 <span className="svc-sep">/</span>
                 <span className="svc-cat-crumb">{category.name}</span>
                 <span className="svc-sep">/</span>

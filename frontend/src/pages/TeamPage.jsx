@@ -5,13 +5,12 @@ import Footer from '../components/Footer';
 import LiveChatWidget from '../components/LiveChatWidget';
 import { getSettings, getTeam } from '../api/client';
 import { useTrack } from '../context/TrackContext';
+import { getAssetUrl } from '../utils/assets';
 
 const DEFAULT_PHOTO = 'assets/images/arun_s.png';
 
 const resolvePhotoUrl = (photo) => {
-  const value = (photo || DEFAULT_PHOTO).trim();
-  if (/^(https?:\/\/|\/)/i.test(value)) return value;
-  return `/${value}`;
+  return getAssetUrl(photo || DEFAULT_PHOTO);
 };
 
 const toList = (value) => {
@@ -122,7 +121,7 @@ export default function TeamPage() {
           setTeamMembers(data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';

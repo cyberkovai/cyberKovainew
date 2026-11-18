@@ -137,7 +137,7 @@ export default function AdminLegalPages() {
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <a
-            href={currentMeta.liveUrl}
+            href={`${import.meta.env.BASE_URL}${currentMeta.liveUrl.replace(/^\/+/, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-secondary btn-sm"

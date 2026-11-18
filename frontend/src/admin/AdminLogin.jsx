@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { adminLogin } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { getAssetUrl } from '../utils/assets';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('Kovaicyber@gmail.com');
@@ -48,7 +49,7 @@ export default function AdminLogin() {
     <div className="login-screen-wrap" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#050511', padding: '1.5rem' }}>
       <div className="login-box" style={{ width: '100%', maxWidth: '440px', background: 'rgba(14, 12, 34, 0.95)', border: '1px solid rgba(139, 32, 255, 0.3)', borderRadius: '20px', padding: '2.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
         <div className="login-logo-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <img src="/assets/images/logo.png" alt="Cyber Kovai" style={{ width: '64px', height: '64px', margin: '0 auto 1rem' }} />
+          <img src={getAssetUrl('assets/images/logo.png')} alt="Cyber Kovai" style={{ width: '64px', height: '64px', margin: '0 auto 1rem' }} />
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>Cyber Kovai Admin</h1>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
             Security Operations Center (SOC) Console

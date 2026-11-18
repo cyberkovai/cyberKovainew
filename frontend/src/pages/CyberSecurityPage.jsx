@@ -6,6 +6,7 @@ import LiveChatWidget from '../components/LiveChatWidget';
 import ContactForm from '../components/ContactForm';
 import RouteGlobe from '../components/RouteGlobe';
 import AttackSurfaceHero from '../components/cyber/AttackSurfaceHero';
+import { getAssetUrl } from '../utils/assets';
 import {
   getSettings,
   getSections,
@@ -272,9 +273,7 @@ const DEFAULT_ACCREDS = [
 ];
 
 const normalizeImg = (path, fallback = '') => {
-  if (!path) return fallback;
-  if (path.startsWith('http') || path.startsWith('/')) return path;
-  return '/' + path;
+  return getAssetUrl(path || fallback);
 };
 
 export default function CyberSecurityPage() {
@@ -560,7 +559,7 @@ export default function CyberSecurityPage() {
                     <div className="cyber-grid-mesh" aria-hidden="true"></div>
 
                     <img
-                      src="/assets/images/soc_command_center.jpg"
+                      src={getAssetUrl('assets/images/soc_command_center.jpg')}
                       alt="Cyber Kovai SOC Command Operations Center"
                       className="about-hero-img"
                       loading="lazy"

@@ -11,6 +11,7 @@ import CiProcessTimeline from '../components/forensics/CiProcessTimeline';
 import CiThreatGlobe from '../components/forensics/CiThreatGlobe';
 import CiWorldMap from '../components/forensics/CiWorldMap';
 import CiCtaCanvas from '../components/forensics/CiCtaCanvas';
+import { getAssetUrl } from '../utils/assets';
 import {
   getSettings,
   getSections,
@@ -230,10 +231,7 @@ const DEFAULT_FAQS = [
 ];
 
 const normalizeImg = (path, fallback = '') => {
-  if (!path) return fallback;
-  const clean = path.replace(/\\/g, '/').trim();
-  if (clean.startsWith('http') || clean.startsWith('/')) return clean;
-  return '/' + clean;
+  return getAssetUrl(path || fallback);
 };
 
 export default function ForensicsPage() {

@@ -412,7 +412,7 @@ export default function AdminThreats() {
                 <span>+</span> Add Threat Tag
               </button>
               <a
-                href="/cyber-intelligence#ci-risks"
+                href={`${import.meta.env.BASE_URL}cyber-intelligence#ci-risks`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary btn-sm"

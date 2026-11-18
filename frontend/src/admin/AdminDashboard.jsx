@@ -8,6 +8,7 @@ import {
   getInvestigationServices,
 } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { getAssetUrl } from '../utils/assets';
 
 const DEFAULT_INV_SERVICES = [
   {
@@ -497,15 +498,11 @@ export default function AdminDashboard() {
                 <tr key={svc.slug || svc.id}>
                   <td>
                     <img
-                      src={
-                        svc.image?.startsWith('/')
-                          ? svc.image
-                          : `/${svc.image || 'assets/images/investigation_01_victim_recovery.jpg'}`
-                      }
+                      src={getAssetUrl(svc.image || 'assets/images/investigation_01_victim_recovery.jpg')}
                       alt=""
                       className="table-thumbnail"
                       onError={(e) => {
-                        e.target.src = '/assets/images/investigation_01_victim_recovery.jpg';
+                        e.target.src = getAssetUrl('assets/images/investigation_01_victim_recovery.jpg');
                       }}
                     />
                   </td>
@@ -538,7 +535,7 @@ export default function AdminDashboard() {
                         Edit
                       </Link>
                       <a
-                        href={`/services/${svc.slug}`}
+                        href={`${import.meta.env.BASE_URL}services/${svc.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-action view"

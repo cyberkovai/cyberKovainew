@@ -35,8 +35,10 @@ function Root() {
     };
   }, []);
 
+  const routerBasename = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') || '/';
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename}>
       <AuthProvider>
         <TrackProvider>
           <App />

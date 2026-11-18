@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrack } from '../context/TrackContext';
+import { getAssetUrl } from '../utils/assets';
 
 export default function PortalPage() {
   const { activeTrack, switchTrack } = useTrack();
@@ -39,7 +40,7 @@ export default function PortalPage() {
             {/* Background Visual & Warm Monochrome Overlay */}
             <div className="split-card-bg">
               <img
-                src="/assets/images/homeleft.png"
+                src={getAssetUrl('assets/images/homeleft.png')}
                 alt="Investigation Intelligence and Digital Forensics"
                 className="split-card-art"
                 loading="eager"
@@ -114,7 +115,7 @@ export default function PortalPage() {
             {/* Background Visual & Overlay */}
             <div className="split-card-bg">
               <img
-                src="/assets/images/rightside.png"
+                src={getAssetUrl('assets/images/rightside.png')}
                 alt="Cyber Intelligence and Defense Artwork"
                 className="split-card-art"
                 loading="eager"
