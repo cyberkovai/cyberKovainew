@@ -2415,7 +2415,7 @@ button {
     font-size: 12px;
 }
 
-.faq-question span {
+.faq-question .faq-icon {
     color: #a832ff;
 
     font-size: 18px;
@@ -2443,7 +2443,7 @@ button {
     max-height: 120px;
 }
 
-.faq-item.active .faq-question span {
+.faq-item.active .faq-question .faq-icon {
     transform: rotate(45deg);
 }
 
@@ -7759,7 +7759,7 @@ button {
 
 .ci-services-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 1.5rem;
     margin-top: 1.8rem;
 }
@@ -7773,15 +7773,16 @@ button {
     flex-direction: column;
     position: relative;
     scroll-margin-top: 115px;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        border-color 0.3s ease,
-        box-shadow 0.3s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    will-change: transform;
 }
 
 .ci-svc-card:hover {
-    transform: translateY(-7px);
+    transform: translateY(-5px);
     border-color: rgba(200, 75, 255, 0.55);
-    box-shadow: 0 16px 45px rgba(139, 32, 255, 0.22);
+    box-shadow: 0 12px 35px rgba(139, 32, 255, 0.22);
 }
 
 /* Section 2 Card Highlight (Activated on Section 1 Showcase Click) */
@@ -7867,11 +7868,12 @@ button {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.25s ease-out;
+    will-change: transform;
 }
 
 .ci-svc-card:hover .ci-svc-img {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 .ci-svc-img-gradient {
@@ -9066,7 +9068,8 @@ button {
 }
 
 .ci-faq-item:hover,
-.ci-faq-item.ci-faq-open {
+.ci-faq-item.ci-faq-open,
+.ci-faq-item.active {
     border-color: rgba(200, 75, 255, 0.5);
     box-shadow: 0 4px 20px rgba(139, 32, 255, 0.15);
 }
@@ -9102,7 +9105,8 @@ button {
     justify-content: center;
 }
 
-.ci-faq-open .ci-faq-arrow {
+.ci-faq-open .ci-faq-arrow,
+.ci-faq-item.active .ci-faq-arrow {
     transform: rotate(90deg);
 }
 
@@ -9112,8 +9116,9 @@ button {
     transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
 }
 
-.ci-faq-open .ci-faq-a {
-    max-height: 500px;
+.ci-faq-open .ci-faq-a,
+.ci-faq-item.active .ci-faq-a {
+    max-height: 800px;
 }
 
 .ci-faq-a p {
@@ -15524,9 +15529,10 @@ body.page-enter-from-left {
 /* Scale-in variant for cards */
 .ci-reveal.reveal-scale {
     opacity: 0;
-    transform: translateY(20px) scale(0.96);
-    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 0.22s ease-out,
+                transform 0.22s ease-out;
+    will-change: opacity, transform;
 }
 .ci-reveal.reveal-scale.ci-visible {
     opacity: 1;

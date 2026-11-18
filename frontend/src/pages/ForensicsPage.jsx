@@ -38,6 +38,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '9',
     slug: 'corporate-background-verification-bgv',
     title: 'Corporate Background Verification (BGV)',
+    icon: '📋',
     image: 'assets/images/corporate_background_verification_bgv.jpg',
     description:
       'Comprehensive corporate background verification (BGV), pre-employment screening, executive due diligence, criminal & court record checks, academic/employment validation, and vendor risk verification for enterprises.',
@@ -46,6 +47,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '1',
     slug: 'cybercrime-victim-assistance-account-recovery',
     title: 'Cybercrime Victim Assistance & Account Recovery',
+    icon: '🛡️',
     image: 'assets/images/investigation_01_victim_recovery.jpg',
     description:
       'Support for individuals affected by account hacking, online fraud, phishing, impersonation, and cyber extortion incidents. We assist with incident assessment, evidence preservation, recovery guidance, and strengthening account security to prevent future attacks.',
@@ -54,6 +56,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '2',
     slug: 'digital-investigations-osint',
     title: 'Digital Investigations & OSINT',
+    icon: '🔍',
     image: 'assets/images/investigation_02_osint.jpg',
     description:
       'Comprehensive digital investigations using Open-Source Intelligence (OSINT) techniques to uncover online footprints, verify identities, and assess potential risks. Our reports provide actionable insights for personal, legal, and business decision-making.',
@@ -62,6 +65,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '3',
     slug: 'social-media-investigations-impersonation-removal',
     title: 'Social Media Investigations & Impersonation Removal',
+    icon: '📱',
     image: 'assets/images/investigation_03_social_media.jpg',
     description:
       'Identify and investigate fake profiles, impersonation attempts, account takeovers, and unauthorized content usage across major social media platforms. We help document evidence and support platform reporting and removal processes.',
@@ -70,6 +74,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '4',
     slug: 'cyber-fraud-investigation-support',
     title: 'Cyber Fraud Investigation Support',
+    icon: '💳',
     image: 'assets/images/investigation_04_fraud_support.jpg',
     description:
       'Professional investigation support for financial scams, investment fraud, crypto fraud, romance scams, and online marketplace deception. We analyze digital evidence, trace fraud indicators, and prepare detailed reports suitable for law enforcement review.',
@@ -78,6 +83,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '5',
     slug: 'digital-evidence-preservation-forensics',
     title: 'Digital Evidence Preservation & Forensics',
+    icon: '🔒',
     image: 'assets/images/investigation_05_digital_forensics.jpg',
     description:
       'Secure collection, preservation, and analysis of digital evidence from devices, emails, screenshots, and online accounts. Our forensic documentation helps maintain evidence integrity for investigations, disputes, and legal proceedings.',
@@ -86,6 +92,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '6',
     slug: 'executive-family-digital-protection',
     title: 'Executive & Family Digital Protection',
+    icon: '👥',
     image: 'assets/images/investigation_06_executive_family.jpg',
     description:
       'Proactive cybersecurity services designed to protect business leaders, public figures, families, and high-profile individuals from digital threats. We assess security risks, improve privacy controls, and strengthen account and device protection.',
@@ -94,6 +101,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '7',
     slug: 'cybersecurity-awareness-lea-training',
     title: 'Cybersecurity Awareness & LEA Training',
+    icon: '🎓',
     image: 'assets/images/investigation_07_lea_training.jpg',
     description:
       'Specialized training programs for law enforcement agencies, educational institutions, NGOs, and corporate teams on cybercrime prevention and investigation techniques. Sessions focus on practical skills, digital evidence handling, fraud awareness, and incident response readiness.',
@@ -102,6 +110,7 @@ const DEFAULT_INVESTIGATION_SERVICES = [
     id: '8',
     slug: 'child-digital-safety-protection',
     title: 'Child Digital Safety & Protection',
+    icon: '🧸',
     image: 'assets/images/investigation_08_child_safety.jpg',
     description:
       'We help safeguard children in the digital world through confidential investigations, online threat assessment, and digital evidence analysis. Our services focus on identifying cyberbullying, online harassment, suspicious digital interactions, and potential child exploitation risks, including the identification and reporting of Child Sexual Abuse Material (CSAM).',
@@ -244,33 +253,33 @@ export default function ForensicsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    getSettings().then((s) => s && setSettings(s)).catch(() => {});
-    getSections().then((s) => s && setSections(s)).catch(() => {});
+    getSettings().then((s) => s && setSettings(s)).catch(() => { });
+    getSections().then((s) => s && setSections(s)).catch(() => { });
     getInvestigationServices()
       .then((s) => {
         if (Array.isArray(s) && s.length > 0) setInvServices(s);
       })
-      .catch(() => {});
+      .catch(() => { });
     getTestimonials()
       .then((t) => {
         if (Array.isArray(t) && t.length > 0) setTestimonials(t);
       })
-      .catch(() => {});
+      .catch(() => { });
     getClients('forensics')
       .then((c) => {
         if (Array.isArray(c) && c.length > 0) setClients(c);
       })
-      .catch(() => {});
+      .catch(() => { });
     getAccreditations('forensics')
       .then((a) => {
         if (Array.isArray(a) && a.length > 0) setAccreditations(a);
       })
-      .catch(() => {});
+      .catch(() => { });
     getFaqs('forensics')
       .then((f) => {
         if (Array.isArray(f) && f.length > 0) setFaqs(f);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Handle ?section=forensics (and similar) query param — scroll to #ci-services
@@ -354,21 +363,12 @@ export default function ForensicsPage() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            // Find siblings to stagger animation
-            const parent = e.target.parentElement;
-            const siblings = parent
-              ? Array.from(parent.querySelectorAll('.ci-reveal:not(.ci-visible)'))
-              : [e.target];
-            const idx = siblings.indexOf(e.target);
-            const delay = Math.min(idx * 80, 400);
-            setTimeout(() => {
-              e.target.classList.add('ci-visible');
-            }, delay);
+            e.target.classList.add('ci-visible');
             obs.unobserve(e.target);
           }
         });
       },
-      { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }
+      { threshold: 0.02, rootMargin: '120px 0px 40px 0px' }
     );
 
     els.forEach((el) => obs.observe(el));
@@ -462,39 +462,36 @@ export default function ForensicsPage() {
                 </p>
               </div>
 
-              <div className="ci-services-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-                {invServices.map((svc, idx) => (
-                  <article
-                    key={svc.slug || svc.id || idx}
-                    className="ci-svc-card ci-reveal reveal-scale"
-                    id={`svc-${svc.slug}`}
-                    data-slug={svc.slug}
-                    data-index={idx}
-                    style={{ transitionDelay: `${Math.min(idx * 60, 360)}ms` }}
-                  >
-                    <div className="ci-svc-img-wrap">
-                      {svc.icon && (
-                        <span className="ci-svc-icon-badge" aria-hidden="true">{svc.icon}</span>
-                      )}
-                      <img
-                        src={normalizeImg(svc.image, '/assets/images/investigation_01_victim_recovery.jpg')}
-                        alt={svc.title}
-                        className="ci-svc-img"
-                        loading="lazy"
-                      />
-                      <div className="ci-svc-img-gradient"></div>
-                    </div>
-                    <div className="ci-svc-body">
-                      <h3>{svc.title}</h3>
-                      <p>{svc.description}</p>
-                      <Link to={`/services/${svc.slug}?section=forensics`} className="ci-svc-link">
-                        Explore Investigation <span>➔</span>
-                      </Link>
-                    </div>
-                  </article>
-                ))}
+                <div className="ci-services-grid">
+                  {invServices.map((svc, idx) => (
+                    <article
+                      key={svc.slug || svc.id || idx}
+                      className="ci-svc-card ci-reveal reveal-scale"
+                      id={`svc-${svc.slug}`}
+                      data-slug={svc.slug}
+                      data-index={idx}
+                    >
+                      <div className="ci-svc-img-wrap">
+                        <img
+                          src={normalizeImg(svc.image, '/assets/images/investigation_01_victim_recovery.jpg')}
+                          alt={svc.title}
+                          className="ci-svc-img"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <div className="ci-svc-img-gradient"></div>
+                      </div>
+                      <div className="ci-svc-body">
+                        <h3>{svc.title}</h3>
+                        <p>{svc.description}</p>
+                        <Link to={`/services/${svc.slug}?section=forensics`} className="ci-svc-link">
+                          Explore Investigation <span>➔</span>
+                        </Link>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
           </section>
         )}
 

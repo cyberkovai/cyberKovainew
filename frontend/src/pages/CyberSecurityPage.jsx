@@ -290,7 +290,7 @@ export default function CyberSecurityPage() {
   const [clients, setClients] = useState(DEFAULT_CYBER_CLIENTS);
   const [accreditations, setAccreditations] = useState(DEFAULT_ACCREDS);
   const [faqs, setFaqs] = useState(DEFAULT_CYBER_FAQS);
-  const [openFaq, setOpenFaq] = useState(null);
+  const [openFaq, setOpenFaq] = useState(0);
 
   // Glitch rotator state
   const [glitchIdx, setGlitchIdx] = useState(0);
@@ -1159,55 +1159,62 @@ export default function CyberSecurityPage() {
           </section>
         )}
 
-        {/* ================= 12. FAQ ACCORDION ================= */}
+        {/* ================= 12. FAQ (HELP CENTER) ================= */}
         {sections.cyber_faq !== false && (
-          <section className="section faq-section cyber-faq-section" id="faq">
-            <div className="container" style={{ maxWidth: '860px' }}>
-              <div className="section-heading text-center">
-                <span className="section-tag">FAQ</span>
-                <h2>
-                  Frequently Asked <span>Questions</span>
-                </h2>
-              </div>
+          <section className="section ci-faq-section cyber-faq-section" id="faq">
+            <div className="container">
+              <div className="ci-faq-grid">
+                <div className="ci-faq-left">
+                  <span className="section-tag">
+                    <span className="pulse-dot"></span>
+                    HELP CENTER
+                  </span>
+                  <h2>
+                    Frequently Asked <br />
+                    <span className="ci-grad-text">Questions</span>
+                  </h2>
+                  <p>
+                    Have questions regarding our cybersecurity assessments, penetration testing methodology, or compliance standards? Our security team is ready to assist.
+                  </p>
+                  <a href="#contact" className="btn primary-btn ci-faq-btn">
+                    <span>Ask a Question</span>
+                    <span className="btn-arrow" aria-hidden="true">➔</span>
+                  </a>
+                </div>
 
-              <div className="faq-accordion-list">
-                {faqs.map((faq, idx) => {
-                  const isOpen = openFaq === idx;
-                  return (
-                    <div key={faq.id || idx} className={`faq-item ${isOpen ? 'active' : ''}`}>
-                      <button
-                        className="faq-question"
-                        type="button"
-                        onClick={() => setOpenFaq(isOpen ? null : idx)}
-                      >
-                        <span>{faq.question}</span>
-                        <span
-                          className="arrow-icon"
-                          style={{
-                            transform: isOpen ? 'rotate(180deg)' : 'none',
-                            transition: 'transform 0.25s ease',
-                          }}
+                <div className="ci-faq-list">
+                  {faqs.map((faq, idx) => {
+                    const isOpen = openFaq === idx;
+                    return (
+                      <div key={faq.id || idx} className={`ci-faq-item ${isOpen ? 'active ci-faq-open' : ''}`}>
+                        <button
+                          className="ci-faq-q"
+                          type="button"
+                          aria-expanded={isOpen ? 'true' : 'false'}
+                          onClick={() => setOpenFaq(isOpen ? null : idx)}
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                          </svg>
-                        </span>
-                      </button>
-
-                      {isOpen && (
-                        <div className="faq-answer" style={{ display: 'block' }}>
-                          <p>{faq.answer}</p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="text-center" style={{ marginTop: '2rem' }}>
-                <a href="#contact" className="btn outline-btn">
-                  View All FAQs <span>➔</span>
-                </a>
+                          <span>{faq.question || faq.q}</span>
+                          <span
+                            className="ci-faq-arrow"
+                            style={{
+                              transform: isOpen ? 'rotate(90deg)' : 'none',
+                              transition: 'transform 0.25s ease',
+                            }}
+                          >
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <div className="ci-faq-a" style={{ display: 'block' }}>
+                            <p>{faq.answer || faq.a}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>

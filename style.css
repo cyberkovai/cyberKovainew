@@ -2415,7 +2415,7 @@ button {
     font-size: 12px;
 }
 
-.faq-question span {
+.faq-question .faq-icon {
     color: #a832ff;
 
     font-size: 18px;
@@ -2443,7 +2443,7 @@ button {
     max-height: 120px;
 }
 
-.faq-item.active .faq-question span {
+.faq-item.active .faq-question .faq-icon {
     transform: rotate(45deg);
 }
 
@@ -7759,7 +7759,7 @@ button {
 
 .ci-services-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 1.5rem;
     margin-top: 1.8rem;
 }
@@ -7773,15 +7773,16 @@ button {
     flex-direction: column;
     position: relative;
     scroll-margin-top: 115px;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        border-color 0.3s ease,
-        box-shadow 0.3s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    will-change: transform;
 }
 
 .ci-svc-card:hover {
-    transform: translateY(-7px);
+    transform: translateY(-5px);
     border-color: rgba(200, 75, 255, 0.55);
-    box-shadow: 0 16px 45px rgba(139, 32, 255, 0.22);
+    box-shadow: 0 12px 35px rgba(139, 32, 255, 0.22);
 }
 
 /* Section 2 Card Highlight (Activated on Section 1 Showcase Click) */
@@ -7867,11 +7868,12 @@ button {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.25s ease-out;
+    will-change: transform;
 }
 
 .ci-svc-card:hover .ci-svc-img {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 .ci-svc-img-gradient {
@@ -9066,7 +9068,8 @@ button {
 }
 
 .ci-faq-item:hover,
-.ci-faq-item.ci-faq-open {
+.ci-faq-item.ci-faq-open,
+.ci-faq-item.active {
     border-color: rgba(200, 75, 255, 0.5);
     box-shadow: 0 4px 20px rgba(139, 32, 255, 0.15);
 }
@@ -9102,7 +9105,8 @@ button {
     justify-content: center;
 }
 
-.ci-faq-open .ci-faq-arrow {
+.ci-faq-open .ci-faq-arrow,
+.ci-faq-item.active .ci-faq-arrow {
     transform: rotate(90deg);
 }
 
@@ -9112,8 +9116,9 @@ button {
     transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
 }
 
-.ci-faq-open .ci-faq-a {
-    max-height: 500px;
+.ci-faq-open .ci-faq-a,
+.ci-faq-item.active .ci-faq-a {
+    max-height: 800px;
 }
 
 .ci-faq-a p {
@@ -15506,4 +15511,279 @@ body.page-enter-from-left {
     .ci-trace__dot {
         animation: none !important;
     }
+}
+
+
+/* =========================================
+   ENHANCED SCROLL REVEAL ANIMATIONS
+   (Appended by enhancement pass)
+========================================= */
+
+/* Staggered reveal variants */
+.ci-reveal[data-delay="1"] { transition-delay: 80ms; }
+.ci-reveal[data-delay="2"] { transition-delay: 160ms; }
+.ci-reveal[data-delay="3"] { transition-delay: 240ms; }
+.ci-reveal[data-delay="4"] { transition-delay: 320ms; }
+.ci-reveal[data-delay="5"] { transition-delay: 400ms; }
+
+/* Scale-in variant for cards */
+.ci-reveal.reveal-scale {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 0.22s ease-out,
+                transform 0.22s ease-out;
+    will-change: opacity, transform;
+}
+.ci-reveal.reveal-scale.ci-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Slide-from-left for section headings */
+.ci-reveal.reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ci-reveal.reveal-left.ci-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* =========================================
+   NAVBAR FORENSICS DROPDOWN — DYNAMIC
+   (supports variable number of items)
+========================================= */
+
+.forensics-mega-dropdown .forensics-links-list {
+    max-height: 420px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 32, 255, 0.4) transparent;
+}
+
+.forensics-mega-dropdown .forensics-links-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.forensics-mega-dropdown .forensics-links-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.forensics-mega-dropdown .forensics-links-list::-webkit-scrollbar-thumb {
+    background: rgba(139, 32, 255, 0.4);
+    border-radius: 4px;
+}
+
+/* Loading skeleton for nav dropdown */
+.nav-dropdown-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 0;
+}
+
+.nav-dropdown-skeleton {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg,
+        rgba(139, 32, 255, 0.08) 0%,
+        rgba(139, 32, 255, 0.18) 50%,
+        rgba(139, 32, 255, 0.08) 100%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.5s infinite;
+}
+
+.nav-dropdown-skeleton:nth-child(1) { width: 85%; }
+.nav-dropdown-skeleton:nth-child(2) { width: 100%; }
+.nav-dropdown-skeleton:nth-child(3) { width: 70%; }
+.nav-dropdown-skeleton:nth-child(4) { width: 90%; }
+
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* =========================================
+   CI SERVICE CARD — ENHANCED INTERACTIONS
+========================================= */
+
+/* Number badge on cards */
+.ci-svc-card .ci-svc-num {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(139, 32, 255, 0.85);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    letter-spacing: 0;
+    box-shadow: 0 2px 10px rgba(139, 32, 255, 0.5);
+}
+
+/* Better icon display on card */
+.ci-svc-icon-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.3rem;
+    z-index: 5;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+    line-height: 1;
+}
+
+/* Smooth focus ring for accessibility */
+.ci-svc-link:focus-visible {
+    outline: 2px solid var(--purple-light);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* =========================================
+   SMOOTH HASH SCROLL BEHAVIOR FIX
+========================================= */
+
+/* Sections need scroll-margin so the fixed navbar doesn't cover them */
+#ci-home,
+#ci-services,
+#ci-process,
+#ci-risks,
+#credentials,
+#ci-clients,
+#ci-testimonials,
+#ci-faq,
+#contact,
+#services,
+#about,
+#capabilities,
+#methodology,
+#overview,
+#book-assessment,
+#faqs {
+    scroll-margin-top: 90px;
+}
+
+/* =========================================
+   PAGE TRANSITION FADE-IN
+========================================= */
+
+.cyber-intelligence-page,
+.service-detail-page,
+.about-page,
+.contact-page {
+    animation: pageFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+   NAVBAR ACTIVE LINK INDICATOR
+========================================= */
+
+.nav-main-link {
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+
+.nav-main-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--purple-light);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-main-link:hover,
+.nav-main-link.active {
+    color: var(--purple-light);
+}
+
+.nav-main-link:hover::after,
+.nav-main-link.active::after {
+    transform: scaleX(1);
+}
+
+/* =========================================
+   CI SERVICES SECTION HEADING UPGRADE
+========================================= */
+
+.ci-services-section .section-heading h2 {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+}
+
+.ci-services-section .section-heading p {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.65;
+}
+
+/* =========================================
+   ENHANCED BUTTON INTERACTIONS
+========================================= */
+
+.btn {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.2s ease,
+                background 0.25s ease !important;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.primary-btn:hover {
+    box-shadow: 0 8px 25px rgba(139, 32, 255, 0.4);
+}
+
+/* =========================================
+   FOOTER NAVIGATION LINK FIX
+========================================= */
+
+.footer-service-link {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    padding: 3px 0;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-service-link:hover {
+    color: var(--purple-light);
+    transform: translateX(3px);
 }
