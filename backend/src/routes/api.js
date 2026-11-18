@@ -12,6 +12,21 @@ const router = express.Router();
 // PUBLIC ROUTES
 // ==========================================
 
+// API root info
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Cyber Kovai API is running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      settings: '/api/settings',
+      services: '/api/services/cyber',
+      login: '/api/auth/login',
+    },
+  });
+});
+
 // Site Settings & Visibility
 router.get('/settings', publicController.getSettings);
 router.get('/sections', publicController.getSectionVisibility);

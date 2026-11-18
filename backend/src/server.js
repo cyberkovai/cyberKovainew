@@ -9,25 +9,58 @@ dotenv.config();
 
 const app = express();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-
-const allowedOrigins = [
-  FRONTEND_URL,
-  'http://localhost:3000',
+// Allowed origins
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://cyberkovai.github.io',
   'http://localhost:5173',
+  'http://localhost:3000',
   'http://127.0.0.1:5173',
-].filter(Boolean);
+  'http://127.0.0.1:3000',
+];
 
-// Middleware
-app.use(cors({
+const normalizeOrigin = (val) => {
+  if (!val || typeof val !== 'string') return '';
+  const trimmed = val.trim();
+  try {
+    return new URL(trimmed).origin.toLowerCase();
+  } catch {
+    return trimmed.replace(/\/+$/, '').toLowerCase();
+  }
+};
+
+const getAllowedOrigins = () => {
+  const set = new Set(DEFAULT_ALLOWED_ORIGINS.map(normalizeOrigin));
+  if (process.env.FRONTEND_URL) {
+    const envOrigin = normalizeOrigin(process.env.FRONTEND_URL);
+    if (envOrigin) set.add(envOrigin);
+  }
+  return set;
+};
+
+const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow non-browser clients (e.g. mobile apps, curl, server-to-server)
+    if (!origin) {
       return callback(null, true);
     }
-    return callback(new Error('Not allowed by CORS'));
+    const reqOrigin = normalizeOrigin(origin);
+    const allowed = getAllowedOrigins();
+    if (allowed.has(reqOrigin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS origin not allowed: ${origin}`));
   },
   credentials: true,
-}));
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+};
+
+// 1. CORS middleware for all routes
+app.use(cors(corsOptions));
+
+// 2. Explicit OPTIONS preflight handler for all routes
+app.options('*', cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
@@ -61,6 +94,13 @@ app.get('/', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
+  if (err.message && err.message.includes('CORS')) {
+    return res.status(403).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
   console.error('Server error:', err);
 
   res.status(err.status || 500).json({
@@ -72,8 +112,9 @@ app.use((err, req, res, next) => {
 // Export for Vercel
 export default app;
 
-// Local development only
-if (process.env.NODE_ENV !== 'production') {
+// Local development only (avoid port binding in serverless or test environment)
+const isDirectEntry = process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].endsWith('server'));
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'test' && isDirectEntry) {
   const PORT = process.env.PORT || 5000;
 
   app.listen(PORT, () => {
