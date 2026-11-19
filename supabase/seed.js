@@ -124,10 +124,55 @@ async function seed() {
   }
 
   // 8. Testimonials
-  const testimonials = readJson('testimonials.json', []);
+  const testimonials = readJson('testimonials.json', [
+    {
+      testi_id: 'testi-1',
+      quote: "CyberKovai's digital forensics team recovered critical deleted evidence and provided an airtight forensic report that proved decisive in our corporate litigation. Exceptional discretion and technical test.",
+      name: 'Rajesh M.',
+      role: 'Managing Partner, Legal Advisory',
+      avatar: 'assets/images/avatar_karthik.jpg',
+      rating: 5,
+      tag: 'Digital Forensics',
+      status: 'active',
+      sort_order: 1
+    },
+    {
+      testi_id: 'testi-2',
+      quote: 'Their cyber fraud tracing and blockchain analysis uncovered the illicit movement of funds after our firm suffered a major financial wire fraud. The dossier provided to law enforcement led directly to key recoveries.',
+      name: 'Priya S.',
+      role: 'Chief Financial Officer, Enterprise Logistics',
+      avatar: 'assets/images/avatar_priya.jpg',
+      rating: 5,
+      tag: 'Cyber Fraud Tracing',
+      status: 'active',
+      sort_order: 2
+    },
+    {
+      testi_id: 'testi-3',
+      quote: 'We faced an aggressive online harassment and executive impersonation campaign. CyberKovai identified the perpetrators through OSINT within 72 hours and facilitated swift platform takedowns.',
+      name: 'Aravind K.',
+      role: 'VP Operations & Corporate Affairs',
+      avatar: 'assets/images/avatar_aravind.jpg',
+      rating: 5,
+      tag: 'OSINT & Brand Defense',
+      status: 'active',
+      sort_order: 3
+    }
+  ]);
   if (testimonials.length > 0) {
-    await supabase.from('testimonials').upsert(testimonials, { onConflict: 'id' });
-    console.log(`Seeded ${testimonials.length} testimonials.`);
+    const formatted = testimonials.map(t => ({
+      testi_id: t.testi_id || t.id,
+      quote: t.quote || t.content || '',
+      name: t.name || '',
+      role: t.role || '',
+      avatar: t.avatar || 'assets/images/avatar_karthik.jpg',
+      rating: Number(t.rating) || 5,
+      tag: t.tag || 'Digital Forensics',
+      sort_order: Number(t.order || t.sort_order) || 1,
+      status: t.status || 'active'
+    }));
+    await supabase.from('testimonials').upsert(formatted, { onConflict: 'testi_id' });
+    console.log(`Seeded ${formatted.length} testimonials.`);
   }
 
   // 9. Clients

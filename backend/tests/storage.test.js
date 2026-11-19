@@ -148,4 +148,14 @@ describe('Storage & CRUD Operations Test Suite', () => {
     const found = leads.find(l => l.id === saved.id);
     assert.ok(found, 'Lead must be found in stored leads list');
   });
+
+  it('should fetch testimonials without relying on testimonials.json', async () => {
+    const fs = await import('fs');
+    const testimonialsJsonPath = path.resolve(__dirname, '../../data/testimonials.json');
+    assert.strictEqual(fs.existsSync(testimonialsJsonPath), false, 'testimonials.json must not exist');
+
+    const testimonials = await storageService.getTestimonials(true);
+    assert.ok(Array.isArray(testimonials), 'getTestimonials must return an array');
+    assert.strictEqual(fs.existsSync(testimonialsJsonPath), false, 'testimonials.json must not be recreated');
+  });
 });

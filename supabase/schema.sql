@@ -472,7 +472,6 @@ VALUES
 
 -- =============================================================================
 -- TABLE: testimonials
--- Source: data/testimonials.json
 -- =============================================================================
 CREATE TABLE "testimonials" (
 
@@ -507,7 +506,17 @@ VALUES
     ('testi-3',
      'We faced an aggressive online harassment and executive impersonation campaign. CyberKovai identified the perpetrators through OSINT within 72 hours and facilitated swift platform takedowns.',
      'Aravind K.', 'VP Operations & Corporate Affairs', 'assets/images/avatar_aravind.jpg',
-     5, 'OSINT & Brand Defense', 3, 'active', '2026-11-05 07:24:50');
+     5, 'OSINT & Brand Defense', 3, 'active', '2026-11-05 07:24:50'),
+
+    ('testi-ui-test-1794824157073',
+     'CyberKovai provided an airtight forensic report that proved decisive in our corporate litigation. Discretion and technical precision were exceptional.',
+     'Rajesh M. (Live UI Test)', 'Managing Partner, Legal Advisory', 'assets/images/avatar_karthik.jpg',
+     5, 'Digital Forensics', 4, 'active', '2026-11-16 10:15:57'),
+
+    ('testi-1794893581893',
+     'Developer',
+     'Arjun', 'Developer', 'assets/images/avatar_karthik.jpg',
+     4, 'Development', 5, 'active', '2026-11-17 05:33:32');
 
 
 -- =============================================================================
@@ -1080,5 +1089,33 @@ FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_timestamp();
 CREATE TRIGGER "section_visibility_set_updated_at"
 BEFORE UPDATE ON "section_visibility"
 FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_timestamp();
+
+-- =============================================================================
+-- ROLES & PERMISSIONS
+-- Grant necessary privileges to Supabase built-in roles (anon, authenticated, service_role)
+-- =============================================================================
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+
+-- Row Level Security policies for testimonials
+ALTER TABLE "testimonials" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can view active testimonials" ON "testimonials";
+CREATE POLICY "Public can view active testimonials"
+    ON "testimonials" FOR SELECT
+    USING (status = 'active');
+
+DROP POLICY IF EXISTS "Service role has full access to testimonials" ON "testimonials";
+CREATE POLICY "Service role has full access to testimonials"
+    ON "testimonials" FOR ALL
+    TO service_role
+    USING (true)
+    WITH CHECK (true);
 
 -- End of Supabase PostgreSQL schema.

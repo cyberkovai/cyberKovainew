@@ -993,6 +993,7 @@ export const storageService = {
   // TESTIMONIALS
   // Table: testimonials (id, testi_id, quote, name, role, avatar, rating, tag, sort_order, status, created_at, updated_at)
   // Constraint: UNIQUE (testi_id)
+  // Testimonials are managed and fetched exclusively from Supabase
   // ==========================================
   async getTestimonials(includeInactive = true) {
     if (isSupabaseConfigured) {
@@ -1000,36 +1001,39 @@ export const storageService = {
         let query = supabase.from('testimonials').select('*').order('sort_order', { ascending: true });
         if (!includeInactive) query = query.eq('status', 'active');
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (error) {
+          console.error('[Supabase Error] getTestimonials:', error.message);
+          return [];
+        }
+        if (Array.isArray(data)) {
           return data.map(t => ({
             id: t.testi_id || String(t.id),
             testi_id: t.testi_id || String(t.id),
             name: t.name,
-            role: t.role,
-            quote: t.quote,
-            content: t.quote,
-            avatar: t.avatar,
+            role: t.role || '',
+            quote: t.quote || '',
+            content: t.quote || '',
+            avatar: t.avatar || 'assets/images/avatar_karthik.jpg',
             rating: Number(t.rating) || 5,
             tag: t.tag || 'Digital Forensics',
             order: Number(t.sort_order) || 1,
             sort_order: Number(t.sort_order) || 1,
-            status: t.status,
+            status: t.status || 'active',
             active: t.status === 'active',
             created_at: t.created_at,
             updated_at: t.updated_at,
           }));
         }
       } catch (e) {
-        console.warn('Supabase testimonials fallback:', e.message);
+        console.warn('[Supabase Exception] getTestimonials:', e.message);
+        return [];
       }
     }
-    const list = readJson('testimonials.json', []);
-    return includeInactive ? list : list.filter(t => (t.status ? t.status === 'active' : t.active !== false));
+    return [];
   },
 
   async saveTestimonial(data, id = null) {
-    const list = readJson('testimonials.json', []);
-    const testId = id || data.id || `testi-${Date.now()}`;
+    const testId = id || data.id || data.testi_id || `testi-${Date.now()}`;
     const isActive = data.status !== undefined ? (data.status === 'active') : (data.active !== false);
     const now = new Date().toISOString();
     const item = {
@@ -1043,19 +1047,12 @@ export const storageService = {
       tag: data.tag || data.track || 'Digital Forensics',
       rating: data.rating !== undefined ? Number(data.rating) : 5,
       avatar: data.avatar || 'assets/images/avatar_karthik.jpg',
-      order: data.order !== undefined ? Number(data.order) : (list.length + 1),
+      order: data.order !== undefined ? Number(data.order) : 1,
+      sort_order: data.order !== undefined ? Number(data.order) : 1,
       status: isActive ? 'active' : 'inactive',
       active: isActive,
       updated_at: now,
     };
-
-    const idx = list.findIndex(t => String(t.id) === String(testId));
-    if (idx >= 0) {
-      list[idx] = { ...list[idx], ...item };
-    } else {
-      list.push(item);
-    }
-    writeJson('testimonials.json', list);
 
     if (isSupabaseConfigured) {
       try {
@@ -1074,53 +1071,83 @@ export const storageService = {
         const { error } = await supabase.from('testimonials').upsert([dbRow], { onConflict: 'testi_id' });
         if (error) {
           console.error('[Supabase Error] saveTestimonial:', error.message);
+          throw new Error(error.message);
         } else {
           console.log(`✅ Testimonial [${item.name}] saved to Supabase.`);
         }
       } catch (e) {
-        console.warn('Supabase saveTestimonial fallback:', e.message);
+        console.warn('Supabase saveTestimonial error:', e.message);
+        throw e;
       }
     }
     return item;
   },
 
   async deleteTestimonial(id) {
-    let list = readJson('testimonials.json', []);
-    list = list.filter(t => String(t.id) !== String(id));
-    writeJson('testimonials.json', list);
-
     if (isSupabaseConfigured) {
       try {
-        await supabase.from('testimonials').delete().eq('testi_id', String(id));
+        const { error } = await supabase.from('testimonials').delete().eq('testi_id', String(id));
+        if (error) {
+          console.error('[Supabase Error] deleteTestimonial:', error.message);
+          throw new Error(error.message);
+        }
+        console.log(`✅ Testimonial [${id}] deleted from Supabase.`);
       } catch (e) {
-        console.warn('Supabase deleteTestimonial fallback:', e.message);
+        console.warn('Supabase deleteTestimonial error:', e.message);
+        throw e;
       }
     }
     return true;
   },
 
   async toggleTestimonialStatus(id) {
-    const list = readJson('testimonials.json', []);
-    const item = list.find(t => String(t.id) === String(id));
-    if (!item) return null;
-    const currentActive = item.status ? item.status === 'active' : item.active !== false;
-    const nextActive = !currentActive;
-    item.active = nextActive;
-    item.status = nextActive ? 'active' : 'inactive';
-    item.updated_at = new Date().toISOString();
-    writeJson('testimonials.json', list);
-
     if (isSupabaseConfigured) {
       try {
-        await supabase
+        const { data, error } = await supabase
           .from('testimonials')
-          .update({ status: item.status, updated_at: item.updated_at })
+          .select('*')
+          .eq('testi_id', String(id))
+          .single();
+
+        if (error || !data) {
+          console.error('[Supabase Error] toggleTestimonialStatus fetch:', error?.message);
+          throw new Error(error?.message || 'Testimonial not found in Supabase');
+        }
+
+        const nextStatus = data.status === 'active' ? 'inactive' : 'active';
+        const updatedAt = new Date().toISOString();
+        const { error: updateError } = await supabase
+          .from('testimonials')
+          .update({ status: nextStatus, updated_at: updatedAt })
           .eq('testi_id', String(id));
+
+        if (updateError) {
+          console.error('[Supabase Error] toggleTestimonialStatus update:', updateError.message);
+          throw new Error(updateError.message);
+        }
+
+        return {
+          id: data.testi_id,
+          testi_id: data.testi_id,
+          name: data.name,
+          role: data.role,
+          quote: data.quote,
+          content: data.quote,
+          avatar: data.avatar,
+          rating: Number(data.rating) || 5,
+          tag: data.tag,
+          order: Number(data.sort_order) || 1,
+          sort_order: Number(data.sort_order) || 1,
+          status: nextStatus,
+          active: nextStatus === 'active',
+          updated_at: updatedAt,
+        };
       } catch (e) {
-        console.warn('Supabase toggleTestimonialStatus fallback:', e.message);
+        console.warn('Supabase toggleTestimonialStatus error:', e.message);
+        throw e;
       }
     }
-    return item;
+    return null;
   },
 
   // ==========================================
