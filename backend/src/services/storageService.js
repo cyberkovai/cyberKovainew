@@ -1965,16 +1965,24 @@ export const storageService = {
 
     if (isSupabaseConfigured) {
       try {
-        const { data, error } = await supabase
+        let res = await supabase
           .from('admins')
           .select('*')
-          .or(`username.ilike.${norm},email.ilike.${norm}`)
+          .ilike('username', norm)
           .maybeSingle();
 
-        if (!error && data) {
+        if (!res.data) {
+          res = await supabase
+            .from('admins')
+            .select('*')
+            .ilike('email', norm)
+            .maybeSingle();
+        }
+
+        if (!res.error && res.data) {
           return {
-            ...data,
-            two_fa_enabled: Boolean(data.two_fa_enabled === 1 || data.two_fa_enabled === true || data.two_fa_enabled === '1'),
+            ...res.data,
+            two_fa_enabled: Boolean(res.data.two_fa_enabled === 1 || res.data.two_fa_enabled === true || res.data.two_fa_enabled === '1'),
           };
         }
       } catch (e) {
@@ -2004,14 +2012,16 @@ export const storageService = {
           two_fa_enabled: adminData.two_fa_enabled ? 1 : 0,
           updated_at: now,
         };
-        const { data, error } = await supabase
-          .from('admins')
-          .upsert([dbRow], { onConflict: 'username' })
-          .select()
-          .maybeSingle();
+        const existing = await this.getAdmin(adminData.username);
+        let res;
+        if (existing && existing.id) {
+          res = await supabase.from('admins').update(dbRow).eq('id', existing.id).select().maybeSingle();
+        } else {
+          res = await supabase.from('admins').upsert([dbRow], { onConflict: 'username' }).select().maybeSingle();
+        }
 
-        if (error) {
-          console.error('[Supabase Error] saveAdmin:', error.message);
+        if (res && res.error) {
+          console.error('[Supabase Error] saveAdmin:', res.error.message);
         } else {
           console.log(`✅ Admin [${username}] saved to Supabase.`);
         }
@@ -2021,10 +2031,8 @@ export const storageService = {
       return { ...adminData, updated_at: now };
     }
 
-    const all = readJson('admins.json', {});
-    all[username] = { ...adminData, updated_at: now };
-    writeJson('admins.json', all);
-    return all[username];
+    inMemoryTestAdmins[username] = { ...adminData, updated_at: now };
+    return inMemoryTestAdmins[username];
   },
 
   async updateAdminProfile(currentUsername, newUsername, email, passwordHash = null, name = null) {
@@ -2054,13 +2062,15 @@ export const storageService = {
           updated_at: now,
         };
 
-        if (newUsername.toLowerCase().trim() !== currentUsername.toLowerCase().trim()) {
-          await supabase.from('admins').delete().ilike('username', currentUsername);
+        let res;
+        if (current.id) {
+          res = await supabase.from('admins').update(dbRow).eq('id', current.id);
+        } else {
+          res = await supabase.from('admins').update(dbRow).ilike('username', currentUsername);
         }
 
-        const { error } = await supabase.from('admins').upsert([dbRow], { onConflict: 'username' });
-        if (error) {
-          console.error('[Supabase Error] updateAdminProfile:', error.message);
+        if (res && res.error) {
+          console.error('[Supabase Error] updateAdminProfile:', res.error.message);
         } else {
           console.log(`✅ Admin profile [${newUsername}] updated in Supabase.`);
         }
@@ -2070,12 +2080,10 @@ export const storageService = {
       return updated;
     }
 
-    const all = readJson('admins.json', {});
-    if (newUsername !== currentUsername) {
-      delete all[currentUsername];
+    if (inMemoryTestAdmins[currentUsername]) {
+      delete inMemoryTestAdmins[currentUsername];
+      inMemoryTestAdmins[newUsername] = updated;
     }
-    all[newUsername] = updated;
-    writeJson('admins.json', all);
     return updated;
   },
 
@@ -2090,18 +2098,50 @@ export const storageService = {
 
     if (isSupabaseConfigured) {
       try {
-        const { data, error } = await supabase
+        let res = await supabase
           .from('admins')
           .select('two_fa_secret, two_fa_enabled, backup_codes')
-          .or(`username.ilike.${norm},email.ilike.${norm}`)
+          .ilike('username', norm)
           .maybeSingle();
 
-        if (!error && data && data.two_fa_secret) {
+        if (res.error && res.error.message && res.error.message.includes('backup_codes')) {
+          res = await supabase
+            .from('admins')
+            .select('two_fa_secret, two_fa_enabled')
+            .ilike('username', norm)
+            .maybeSingle();
+        }
+
+        if (!res.data) {
+          res = await supabase
+            .from('admins')
+            .select('two_fa_secret, two_fa_enabled, backup_codes')
+            .ilike('email', norm)
+            .maybeSingle();
+
+          if (res.error && res.error.message && res.error.message.includes('backup_codes')) {
+            res = await supabase
+              .from('admins')
+              .select('two_fa_secret, two_fa_enabled')
+              .ilike('email', norm)
+              .maybeSingle();
+          }
+        }
+
+        if (!res.error && res.data && res.data.two_fa_secret) {
+          let backupCodes = [];
+          if (res.data.backup_codes) {
+            try {
+              backupCodes = typeof res.data.backup_codes === 'string' ? JSON.parse(res.data.backup_codes) : res.data.backup_codes;
+            } catch (e) {
+              backupCodes = [];
+            }
+          }
           return {
             username: norm,
-            secret_encrypted: data.two_fa_secret,
-            enabled: Boolean(data.two_fa_enabled === 1 || data.two_fa_enabled === true || data.two_fa_enabled === '1'),
-            backup_codes: Array.isArray(data.backup_codes) ? data.backup_codes : [],
+            secret_encrypted: res.data.two_fa_secret,
+            enabled: Boolean(res.data.two_fa_enabled === 1 || res.data.two_fa_enabled === true || res.data.two_fa_enabled === '1'),
+            backup_codes: Array.isArray(backupCodes) ? backupCodes : [],
           };
         }
       } catch (e) {
@@ -2123,18 +2163,34 @@ export const storageService = {
 
     if (isSupabaseConfigured) {
       try {
-        const { error } = await supabase
-          .from('admins')
-          .update({
-            two_fa_secret: record.secret_encrypted || null,
-            two_fa_enabled: isEnabled ? 1 : 0,
-            backup_codes: Array.isArray(record.backup_codes) ? record.backup_codes : null,
-            updated_at: now,
-          })
-          .or(`username.ilike.${norm},email.ilike.${norm}`);
+        const updatePayload = {
+          two_fa_secret: record.secret_encrypted || null,
+          two_fa_enabled: isEnabled ? 1 : 0,
+          backup_codes: Array.isArray(record.backup_codes) ? JSON.stringify(record.backup_codes) : null,
+          updated_at: now,
+        };
 
-        if (error) {
-          console.warn('Supabase save2FAData error:', error.message);
+        const admin = await this.getAdmin(norm);
+        let res;
+        if (admin && admin.id) {
+          res = await supabase.from('admins').update(updatePayload).eq('id', admin.id).select();
+          if (res.error && res.error.message && res.error.message.includes('backup_codes')) {
+            delete updatePayload.backup_codes;
+            res = await supabase.from('admins').update(updatePayload).eq('id', admin.id).select();
+          }
+        } else {
+          res = await supabase.from('admins').update(updatePayload).ilike('username', norm).select();
+          if (res.error && res.error.message && res.error.message.includes('backup_codes')) {
+            delete updatePayload.backup_codes;
+            res = await supabase.from('admins').update(updatePayload).ilike('username', norm).select();
+          }
+          if (!res.data || res.data.length === 0) {
+            res = await supabase.from('admins').update(updatePayload).ilike('email', norm).select();
+          }
+        }
+
+        if (res && res.error) {
+          console.error('Supabase save2FAData failed:', res.error.message);
         } else {
           console.log(`✅ Admin 2FA status synced to Supabase admins table for [${norm}].`);
         }
@@ -2163,15 +2219,32 @@ export const storageService = {
 
     if (isSupabaseConfigured) {
       try {
-        await supabase
-          .from('admins')
-          .update({
-            two_fa_secret: null,
-            two_fa_enabled: 0,
-            backup_codes: null,
-            updated_at: now,
-          })
-          .or(`username.ilike.${norm},email.ilike.${norm}`);
+        const updatePayload = {
+          two_fa_secret: null,
+          two_fa_enabled: 0,
+          backup_codes: null,
+          updated_at: now,
+        };
+
+        const admin = await this.getAdmin(norm);
+        let res;
+        if (admin && admin.id) {
+          res = await supabase.from('admins').update(updatePayload).eq('id', admin.id);
+          if (res.error && res.error.message && res.error.message.includes('backup_codes')) {
+            delete updatePayload.backup_codes;
+            res = await supabase.from('admins').update(updatePayload).eq('id', admin.id);
+          }
+        } else {
+          res = await supabase.from('admins').update(updatePayload).ilike('username', norm);
+          if (res.error && res.error.message && res.error.message.includes('backup_codes')) {
+            delete updatePayload.backup_codes;
+            res = await supabase.from('admins').update(updatePayload).ilike('username', norm);
+          }
+          if (res.error) {
+            res = await supabase.from('admins').update(updatePayload).ilike('email', norm);
+          }
+        }
+
         console.log(`✅ Admin 2FA disabled in Supabase admins table for [${norm}].`);
       } catch (e) {
         console.warn('Supabase delete2FAData fallback:', e.message);

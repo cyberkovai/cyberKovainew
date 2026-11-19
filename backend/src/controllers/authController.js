@@ -175,6 +175,7 @@ export const authController = {
         two_factor: status2fa,
       });
     } catch (err) {
+      console.error('currentUser error:', err);
       return res.status(500).json({ success: false, message: err.message });
     }
   },
@@ -196,6 +197,7 @@ export const authController = {
       const setup = await twoFactorService.beginSetup(req.user.username);
       return res.json({ success: true, ...setup });
     } catch (err) {
+      console.error('setup2FA error:', err);
       return res.status(500).json({ success: false, message: err.message });
     }
   },
@@ -219,7 +221,8 @@ export const authController = {
         two_factor: status2fa,
       });
     } catch (err) {
-      return res.status(500).json({ success: false, message: err.message });
+      console.error('confirm2FA error:', err);
+      return res.status(400).json({ success: false, message: err.message || 'Verification failed.' });
     }
   },
 
@@ -228,6 +231,7 @@ export const authController = {
       await twoFactorService.cancelPendingSetup(req.user.username);
       return res.json({ success: true, message: 'Pending 2FA setup cancelled.' });
     } catch (err) {
+      console.error('cancelPending2FA error:', err);
       return res.status(500).json({ success: false, message: err.message });
     }
   },
@@ -263,6 +267,7 @@ export const authController = {
         two_factor: { enabled: false, pending_setup: false, backup_codes_remaining: 0 },
       });
     } catch (err) {
+      console.error('disable2FA error:', err);
       return res.status(500).json({ success: false, message: err.message });
     }
   },
@@ -330,7 +335,8 @@ export const authController = {
         },
       });
     } catch (err) {
-      return res.status(500).json({ success: false, message: err.message });
+      console.error('confirm2FA error:', err);
+      return res.status(400).json({ success: false, message: err.message || 'Verification failed.' });
     }
   },
 
