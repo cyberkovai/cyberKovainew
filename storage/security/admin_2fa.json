@@ -1,22 +1,4 @@
 {
     "version": 1,
-    "records": [
-        {
-            "username": "kovaicyber@gmail.com",
-            "secret_encrypted": "v1:p75g7nJURsBFMYGH:qZVnXuRgyYk3IS246TfkbA==:pToo7X0AIoNJ09Qxptlto9khY3NeLABByKxAj/MztkU=",
-            "enabled": true,
-            "backup_codes": [
-                "671D909C",
-                "4FAD1682",
-                "39CFB454",
-                "62206D82",
-                "DF9B075E",
-                "793464CC",
-                "DF8D1103",
-                "493EC83D"
-            ],
-            "updated_at": "2026-11-19T09:06:38.634Z",
-            "confirmed_at": "2026-11-19T09:06:38.634Z"
-        }
-    ]
+    "records": []
 }

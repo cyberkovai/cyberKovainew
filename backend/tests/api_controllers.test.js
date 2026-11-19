@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test';
+import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -41,6 +41,20 @@ function createMockRes() {
 
 describe('Controllers & API Business Logic Integration Test Suite', () => {
   let adminSessionUser = null;
+
+  before(() => {
+    storageService._setMemoryAdmins({
+      'Kovaicyber@gmail.com': {
+        username: 'Kovaicyber@gmail.com',
+        name: 'Cyber Kovai Administrator',
+        email: 'Kovaicyber@gmail.com',
+        password_hash: '$2b$10$GGFkQx9zgihEmLCXOc7csOLooDbLvpbQj96mcGw3AkTGUP7wvFrNC',
+        role: 'superadmin',
+        two_fa_enabled: 0,
+        two_fa_secret: null,
+      }
+    });
+  });
 
   it('publicController.getSettings returns site configuration', async () => {
     const req = {};

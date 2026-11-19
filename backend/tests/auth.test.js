@@ -15,6 +15,20 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const JWT_SECRET = process.env.JWT_SECRET || 'cyber-kovai-super-secret-jwt-key-2026-secure-token';
 
 describe('Authentication & Access Control Test Suite', () => {
+  before(() => {
+    storageService._setMemoryAdmins({
+      'Kovaicyber@gmail.com': {
+        username: 'Kovaicyber@gmail.com',
+        name: 'Cyber Kovai Administrator',
+        email: 'Kovaicyber@gmail.com',
+        password_hash: '$2b$10$GGFkQx9zgihEmLCXOc7csOLooDbLvpbQj96mcGw3AkTGUP7wvFrNC',
+        role: 'superadmin',
+        two_fa_enabled: 0,
+        two_fa_secret: null,
+      }
+    });
+  });
+
   it('should verify genuine password hash and reject invalid credentials', async () => {
     const admin = await storageService.getAdmin('Kovaicyber@gmail.com');
     assert.ok(admin, 'Admin account should exist');
