@@ -98,7 +98,50 @@ describe('Vercel Routing, Serverless Exports & CORS Preflight Test Suite', () =>
     assert.ok(data.endpoints);
   });
 
-  it('OPTIONS /api/auth/login preflight from GitHub Pages origin should return HTTP 200 and required CORS headers', async () => {
+  it('OPTIONS /api/auth/login preflight from https://cyberkovai.com should return HTTP 204 and required CORS headers', async () => {
+    const res = await dispatch(serverApp, {
+      method: 'OPTIONS',
+      url: '/api/auth/login',
+      headers: {
+        Origin: 'https://cyberkovai.com',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'Content-Type, Authorization',
+      },
+    });
+
+    assert.strictEqual(res.statusCode, 204, `Expected 204 but received ${res.statusCode}`);
+    assert.strictEqual(
+      res.headers['access-control-allow-origin'],
+      'https://cyberkovai.com'
+    );
+    assert.ok(res.headers['access-control-allow-methods'].includes('POST'));
+    assert.ok(res.headers['access-control-allow-methods'].includes('OPTIONS'));
+    assert.ok(res.headers['access-control-allow-methods'].includes('GET'));
+    assert.ok(res.headers['access-control-allow-headers'].toLowerCase().includes('content-type'));
+    assert.ok(res.headers['access-control-allow-headers'].toLowerCase().includes('authorization'));
+    assert.strictEqual(res.headers['access-control-allow-credentials'], 'true');
+  });
+
+  it('OPTIONS /api/auth/login preflight from https://www.cyberkovai.com should return HTTP 204 and required CORS headers', async () => {
+    const res = await dispatch(serverApp, {
+      method: 'OPTIONS',
+      url: '/api/auth/login',
+      headers: {
+        Origin: 'https://www.cyberkovai.com',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'Content-Type, Authorization',
+      },
+    });
+
+    assert.strictEqual(res.statusCode, 204, `Expected 204 but received ${res.statusCode}`);
+    assert.strictEqual(
+      res.headers['access-control-allow-origin'],
+      'https://www.cyberkovai.com'
+    );
+    assert.strictEqual(res.headers['access-control-allow-credentials'], 'true');
+  });
+
+  it('OPTIONS /api/auth/login preflight from GitHub Pages origin should return HTTP 204 and required CORS headers', async () => {
     const res = await dispatch(serverApp, {
       method: 'OPTIONS',
       url: '/api/auth/login',
@@ -109,10 +152,7 @@ describe('Vercel Routing, Serverless Exports & CORS Preflight Test Suite', () =>
       },
     });
 
-    assert.ok(
-      res.statusCode === 200 || res.statusCode === 204,
-      `Expected 200/204 but received ${res.statusCode}`
-    );
+    assert.strictEqual(res.statusCode, 204, `Expected 204 but received ${res.statusCode}`);
     assert.strictEqual(
       res.headers['access-control-allow-origin'],
       'https://cyberkovai.github.io'
@@ -122,7 +162,7 @@ describe('Vercel Routing, Serverless Exports & CORS Preflight Test Suite', () =>
     assert.strictEqual(res.headers['access-control-allow-credentials'], 'true');
   });
 
-  it('OPTIONS /api/auth/login preflight from local Vite dev origin should return HTTP 200', async () => {
+  it('OPTIONS /api/auth/login preflight from local Vite dev origin should return HTTP 204', async () => {
     const res = await dispatch(serverApp, {
       method: 'OPTIONS',
       url: '/api/auth/login',
@@ -133,17 +173,78 @@ describe('Vercel Routing, Serverless Exports & CORS Preflight Test Suite', () =>
       },
     });
 
-    assert.ok(
-      res.statusCode === 200 || res.statusCode === 204,
-      `Expected 200/204 but received ${res.statusCode}`
-    );
+    assert.strictEqual(res.statusCode, 204, `Expected 204 but received ${res.statusCode}`);
     assert.strictEqual(
       res.headers['access-control-allow-origin'],
       'http://localhost:5173'
     );
   });
 
-  it('OPTIONS /api/services/cyber preflight from GitHub Pages should succeed with HTTP 200', async () => {
+  it('POST /api/auth/login from https://cyberkovai.com should include CORS headers in the actual response', async () => {
+    const res = await dispatch(serverApp, {
+      method: 'POST',
+      url: '/api/auth/login',
+      headers: {
+        Origin: 'https://cyberkovai.com',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: 'wrong-user',
+        password: 'wrong-password',
+      }),
+    });
+
+    // Request returns 400 or 401, and CORS headers MUST be present!
+    assert.ok(res.statusCode === 400 || res.statusCode === 401, `Unexpected status: ${res.statusCode}`);
+    assert.strictEqual(
+      res.headers['access-control-allow-origin'],
+      'https://cyberkovai.com'
+    );
+    assert.strictEqual(res.headers['access-control-allow-credentials'], 'true');
+    assert.notStrictEqual(res.headers['access-control-allow-origin'], '*');
+  });
+
+  it('CORS should reject unauthorized origins with HTTP 403', async () => {
+    const res = await dispatch(serverApp, {
+      method: 'OPTIONS',
+      url: '/api/auth/login',
+      headers: {
+        Origin: 'https://malicious-attacker-domain.com',
+        'Access-Control-Request-Method': 'POST',
+      },
+    });
+
+    assert.strictEqual(res.statusCode, 403);
+    const data = res.json();
+    assert.ok(data);
+    assert.strictEqual(data.success, false);
+    assert.ok(data.message.includes('CORS origin not allowed'));
+  });
+
+  it('CORS should allow dynamic comma-separated FRONTEND_URL origins', async () => {
+    const originalFrontendUrl = process.env.FRONTEND_URL;
+    process.env.FRONTEND_URL = 'https://preview-1.example.com, https://preview-2.example.com/';
+    try {
+      const res = await dispatch(serverApp, {
+        method: 'OPTIONS',
+        url: '/api/auth/login',
+        headers: {
+          Origin: 'https://preview-1.example.com',
+          'Access-Control-Request-Method': 'POST',
+        },
+      });
+
+      assert.strictEqual(res.statusCode, 204);
+      assert.strictEqual(
+        res.headers['access-control-allow-origin'],
+        'https://preview-1.example.com'
+      );
+    } finally {
+      process.env.FRONTEND_URL = originalFrontendUrl;
+    }
+  });
+
+  it('OPTIONS /api/services/cyber preflight from GitHub Pages should succeed with HTTP 204', async () => {
     const res = await dispatch(serverApp, {
       method: 'OPTIONS',
       url: '/api/services/cyber',
@@ -153,10 +254,7 @@ describe('Vercel Routing, Serverless Exports & CORS Preflight Test Suite', () =>
       },
     });
 
-    assert.ok(
-      res.statusCode === 200 || res.statusCode === 204,
-      `Expected 200/204 but got ${res.statusCode}`
-    );
+    assert.strictEqual(res.statusCode, 204, `Expected 204 but got ${res.statusCode}`);
     assert.strictEqual(
       res.headers['access-control-allow-origin'],
       'https://cyberkovai.github.io'

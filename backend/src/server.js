@@ -11,6 +11,8 @@ const app = express();
 
 // Allowed origins
 const DEFAULT_ALLOWED_ORIGINS = [
+  'https://cyberkovai.com',
+  'https://www.cyberkovai.com',
   'https://cyberkovai.github.io',
   'http://localhost:5173',
   'http://localhost:3000',
@@ -29,10 +31,15 @@ const normalizeOrigin = (val) => {
 };
 
 const getAllowedOrigins = () => {
-  const set = new Set(DEFAULT_ALLOWED_ORIGINS.map(normalizeOrigin));
+  const set = new Set(DEFAULT_ALLOWED_ORIGINS.map(normalizeOrigin).filter(Boolean));
   if (process.env.FRONTEND_URL) {
-    const envOrigin = normalizeOrigin(process.env.FRONTEND_URL);
-    if (envOrigin) set.add(envOrigin);
+    const rawOrigins = process.env.FRONTEND_URL.split(/[\s,]+/);
+    for (const raw of rawOrigins) {
+      const envOrigin = normalizeOrigin(raw);
+      if (envOrigin) {
+        set.add(envOrigin);
+      }
+    }
   }
   return set;
 };
@@ -53,7 +60,7 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: 204,
 };
 
 // 1. CORS middleware for all routes
