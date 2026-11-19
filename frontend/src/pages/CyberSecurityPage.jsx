@@ -1099,6 +1099,10 @@ export default function CyberSecurityPage() {
                           src={normalizeImg(badge.img, '/assets/images/apdi.png')}
                           alt={badge.alt || badge.name}
                           className="badge-img"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = getAssetUrl('assets/images/apdi.png');
+                          }}
                         />
                       </a>
                     ) : (
@@ -1107,6 +1111,10 @@ export default function CyberSecurityPage() {
                           src={normalizeImg(badge.img, '/assets/images/apdi.png')}
                           alt={badge.alt || badge.name}
                           className="badge-img"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = getAssetUrl('assets/images/apdi.png');
+                          }}
                         />
                       </div>
                     )}

@@ -1427,7 +1427,11 @@ export const storageService = {
             accred_id: a.accred_id || String(a.id),
             name: a.name,
             short_name: a.short_name || '',
-            img: a.img || '',
+            img: (a.img || '').includes('accred_1794298501_1bca47')
+              ? 'assets/images/aid.png'
+              : (a.img || '').includes('accred_1794298552_96db9e')
+              ? 'assets/images/tapdi.png'
+              : a.img || '',
             alt: a.alt || a.name || '',
             website: a.website || '',
             track: a.track || 'both',

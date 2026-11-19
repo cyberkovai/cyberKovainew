@@ -156,6 +156,8 @@ describe('Frontend API Client & Helper Logic Test Suite', () => {
     assert.strictEqual(getAssetUrl('assets/images/logo.png'), '/assets/images/logo.png');
     assert.strictEqual(getAssetUrl('/assets/images/logo.png'), '/assets/images/logo.png');
     assert.strictEqual(getAssetUrl('data/uploads/image.jpg'), '/data/uploads/image.jpg');
+    assert.strictEqual(getAssetUrl('data/uploads/accred_1794298501_1bca47.svg'), '/assets/images/aid.png');
+    assert.strictEqual(getAssetUrl('data/uploads/accred_1794298552_96db9e.png'), '/assets/images/tapdi.png');
 
     // 4. Null or empty paths
     assert.strictEqual(getAssetUrl(''), '');

@@ -8,11 +8,17 @@
 export const getAssetUrl = (path) => {
   if (!path) return '';
   const clean = String(path).trim();
+  // Map legacy / orphan upload paths to current verified asset locations
+  if (clean.includes('accred_1794298501_1bca47')) {
+    path = 'assets/images/aid.png';
+  } else if (clean.includes('accred_1794298552_96db9e')) {
+    path = 'assets/images/tapdi.png';
+  }
   // Preserve full external URLs, Supabase Storage URLs, data URIs, and blob URIs
   if (/^(https?:)?\/\//i.test(clean) || clean.startsWith('data:') || clean.startsWith('blob:')) {
     return clean;
   }
-  const cleanPath = clean.replace(/\\/g, '/').replace(/^\/+/, '');
+  const cleanPath = String(path).replace(/\\/g, '/').replace(/^\/+/, '');
   const base = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
   return base.endsWith('/') ? `${base}${cleanPath}` : `${base}/${cleanPath}`;
 };

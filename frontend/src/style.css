@@ -92,8 +92,14 @@ html.lenis body {
     overflow: hidden;
 }
 
-.lenis.lenis-scrolling iframe {
+.lenis.lenis-scrolling iframe:not([src*="recaptcha"]):not([title*="recaptcha" i]):not([title*="reCAPTCHA" i]) {
     pointer-events: none;
+}
+
+iframe[src*="recaptcha"],
+iframe[title*="recaptcha" i],
+iframe[title*="reCAPTCHA" i] {
+    pointer-events: auto !important;
 }
 
 * {
@@ -14609,17 +14615,38 @@ body.page-enter-from-left {
     margin: 1.25rem 0;
     display: flex;
     justify-content: flex-start;
+    align-items: center;
     max-width: 100%;
+    min-height: 78px;
+    position: relative !important;
+    z-index: 50 !important;
+    pointer-events: auto !important;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.recaptcha-wrapper .g-recaptcha {
+.recaptcha-wrapper * {
+    pointer-events: auto !important;
+}
+
+.recaptcha-wrapper .g-recaptcha,
+.recaptcha-wrapper iframe {
     transform-origin: 0 0;
+    position: relative !important;
+    z-index: 50 !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure Google reCAPTCHA challenge popup on document.body is always clickable */
+body > div[style*="2000000000"],
+body > div[style*="2000000000"] iframe {
+    pointer-events: auto !important;
+    z-index: 2147483647 !important;
 }
 
 @media (max-width: 380px) {
-    .recaptcha-wrapper .g-recaptcha {
+    .recaptcha-wrapper .g-recaptcha,
+    .recaptcha-wrapper iframe {
         transform: scale(0.88);
         transform-origin: 0 0;
     }

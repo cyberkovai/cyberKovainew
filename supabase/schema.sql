@@ -663,11 +663,11 @@ CREATE TABLE "accreditations" (
 INSERT INTO "accreditations" ("accred_id", "name", "short_name", "img", "alt", "website", "track", "sort_order", "status", "updated_at")
 VALUES
     ('accred-1', 'Association of Investigators and Detectives', 'AID',
-     'data/uploads/accred_1794298501_1bca47.svg',
+     'assets/images/aid.png',
      'AID - Association of Investigators and Detectives', '', 'both', 1, 'active', '2026-11-10 08:15:01'),
 
     ('accred-2', 'Tamilnadu Association of Professional Detectives and Investigators', 'TAPDI',
-     'data/uploads/accred_1794298552_96db9e.png',
+     'assets/images/tapdi.png',
      'TAPDI - Tamilnadu Association of Professional Detectives and Investigators', '', 'both', 2, 'active', '2026-11-10 08:15:52'),
 
     ('accred-3', 'Association of Professional Detectives & Investigators', 'APDI',

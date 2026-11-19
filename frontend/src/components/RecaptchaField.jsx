@@ -37,6 +37,17 @@ const RecaptchaField = forwardRef(function RecaptchaField(
   const widgetIdRef = useRef(null);
   const isRenderedRef = useRef(false);
 
+  // Store callbacks in refs so parent re-renders don't restart the effect
+  const onChangeRef = useRef(onChange);
+  const onExpiredRef = useRef(onExpired);
+  const onErrorRef = useRef(onError);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    onExpiredRef.current = onExpired;
+    onErrorRef.current = onError;
+  });
+
   const [resolvedSiteKey, setResolvedSiteKey] = useState(
     propSiteKey || getEnvSiteKey() || FALLBACK_SITE_KEY
   );
@@ -56,7 +67,7 @@ const RecaptchaField = forwardRef(function RecaptchaField(
         }
       })
       .catch(() => {
-        // Fallback to env/default remains active
+        // Fallback remains active
       });
 
     return () => {
@@ -69,48 +80,40 @@ const RecaptchaField = forwardRef(function RecaptchaField(
     ref,
     () => ({
       reset: () => {
-        if (
-          widgetIdRef.current !== null &&
-          window.grecaptcha &&
-          typeof window.grecaptcha.reset === 'function'
-        ) {
-          try {
+        try {
+          if (
+            widgetIdRef.current !== null &&
+            window.grecaptcha &&
+            typeof window.grecaptcha.reset === 'function'
+          ) {
             window.grecaptcha.reset(widgetIdRef.current);
-          } catch {
-            // ignore reset error
-          }
-        } else if (
-          window.grecaptcha &&
-          typeof window.grecaptcha.reset === 'function'
-        ) {
-          try {
+          } else if (
+            window.grecaptcha &&
+            typeof window.grecaptcha.reset === 'function'
+          ) {
             window.grecaptcha.reset();
-          } catch {
-            // ignore reset error
           }
+        } catch {
+          // ignore reset errors
         }
       },
       getResponse: () => {
-        if (
-          widgetIdRef.current !== null &&
-          window.grecaptcha &&
-          typeof window.grecaptcha.getResponse === 'function'
-        ) {
-          try {
+        try {
+          if (
+            widgetIdRef.current !== null &&
+            window.grecaptcha &&
+            typeof window.grecaptcha.getResponse === 'function'
+          ) {
             return window.grecaptcha.getResponse(widgetIdRef.current) || '';
-          } catch {
-            return '';
           }
-        }
-        if (
-          window.grecaptcha &&
-          typeof window.grecaptcha.getResponse === 'function'
-        ) {
-          try {
+          if (
+            window.grecaptcha &&
+            typeof window.grecaptcha.getResponse === 'function'
+          ) {
             return window.grecaptcha.getResponse() || '';
-          } catch {
-            return '';
           }
+        } catch {
+          return '';
         }
         return '';
       },
@@ -125,6 +128,7 @@ const RecaptchaField = forwardRef(function RecaptchaField(
 
     let cancelled = false;
     let timer = null;
+    let attempts = 0;
 
     // Dynamically inject script if not present
     if (typeof window !== 'undefined' && !window.grecaptcha) {
@@ -133,73 +137,81 @@ const RecaptchaField = forwardRef(function RecaptchaField(
       );
       if (!existingScript) {
         const script = document.createElement('script');
-        script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
+        script.src = 'https://www.google.com/recaptcha/api.js';
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);
       }
     }
 
-    const tryRender = () => {
-      if (cancelled) return;
+    const doRender = () => {
+      if (cancelled || !containerRef.current) return;
+      if (isRenderedRef.current || widgetIdRef.current !== null) return;
 
-      const container = containerRef.current;
-      if (!container) return;
-
-      // Ensure grecaptcha is ready and render method is available
-      if (
-        window.grecaptcha &&
-        typeof window.grecaptcha.render === 'function' &&
-        typeof window.grecaptcha.ready === 'function'
-      ) {
-        window.grecaptcha.ready(() => {
-          if (cancelled || !containerRef.current) return;
-          if (isRenderedRef.current || widgetIdRef.current !== null) return;
-
-          // Double check container has not already been populated
-          if (containerRef.current.children.length > 0) {
-            isRenderedRef.current = true;
-            return;
-          }
-
-          try {
-            const id = window.grecaptcha.render(containerRef.current, {
-              sitekey: resolvedSiteKey,
-              theme,
-              size,
-              callback: (token) => {
-                if (onChange) onChange(token);
-              },
-              'expired-callback': () => {
-                if (onExpired) onExpired();
-              },
-              'error-callback': () => {
-                if (onError) onError();
-              },
-            });
-            widgetIdRef.current = id;
-            isRenderedRef.current = true;
-          } catch (err) {
-            // Widget might have already rendered
-            if (/already been rendered/i.test(err?.message || '')) {
-              isRenderedRef.current = true;
-            }
-          }
-        });
+      // Don't re-render if Google script or previous render already populated it
+      if (containerRef.current.children.length > 0) {
+        isRenderedRef.current = true;
         return;
       }
 
-      // Check again shortly until grecaptcha script is evaluated
-      timer = setTimeout(tryRender, 200);
+      try {
+        const id = window.grecaptcha.render(containerRef.current, {
+          sitekey: resolvedSiteKey,
+          theme,
+          size,
+          callback: (token) => {
+            if (typeof onChangeRef.current === 'function') {
+              onChangeRef.current(token);
+            }
+          },
+          'expired-callback': () => {
+            if (typeof onExpiredRef.current === 'function') {
+              onExpiredRef.current();
+            }
+          },
+          'error-callback': () => {
+            if (typeof onErrorRef.current === 'function') {
+              onErrorRef.current();
+            }
+          },
+        });
+        widgetIdRef.current = id;
+        isRenderedRef.current = true;
+      } catch (err) {
+        if (/already been rendered/i.test(err?.message || '')) {
+          isRenderedRef.current = true;
+        }
+      }
     };
 
-    tryRender();
+    const checkAndRender = () => {
+      if (cancelled) return;
+
+      if (
+        window.grecaptcha &&
+        typeof window.grecaptcha.render === 'function'
+      ) {
+        if (typeof window.grecaptcha.ready === 'function') {
+          window.grecaptcha.ready(doRender);
+        } else {
+          doRender();
+        }
+        return;
+      }
+
+      attempts += 1;
+      if (attempts < 50) {
+        timer = setTimeout(checkAndRender, 200);
+      }
+    };
+
+    checkAndRender();
 
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [isEnabled, resolvedSiteKey, theme, size, onChange, onExpired, onError]);
+  }, [isEnabled, resolvedSiteKey, theme, size]);
 
   if (!isEnabled) {
     return null;
@@ -213,10 +225,20 @@ const RecaptchaField = forwardRef(function RecaptchaField(
         minHeight: '78px',
         display: 'flex',
         alignItems: 'center',
+        position: 'relative',
+        zIndex: 50,
+        pointerEvents: 'auto',
         ...style,
       }}
     >
-      <div ref={containerRef} className="recaptcha-inner-target" />
+      <div
+        ref={containerRef}
+        className="g-recaptcha"
+        data-sitekey={resolvedSiteKey}
+        data-theme={theme}
+        data-size={size}
+        style={{ pointerEvents: 'auto' }}
+      />
     </div>
   );
 });
