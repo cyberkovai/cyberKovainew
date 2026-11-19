@@ -13,9 +13,9 @@
       // e.g. https://www.foo.tld/one/two?a=b&c=d#qwe, becomes
       // https://www.foo.tld/?/one/two&a=b~and~c=d#qwe
       //
-      // For GitHub Project Pages (e.g. https://<username>.github.io/<repo-name>/):
-      // pathSegmentsToKeep must be 1.
-      var pathSegmentsToKeep = 1;
+      // For GitHub Custom Domains (e.g. https://cyberkovai.com/):
+      // pathSegmentsToKeep must be 0.
+      var pathSegmentsToKeep = 0;
 
       var l = window.location;
       l.replace(
@@ -35,7 +35,7 @@
       Protected and public routes are seamlessly preserved for React Router BrowserRouter.
     -->
     <noscript>
-      <p>Redirecting to <a href="/cyberKovainew/">Cyber Kovai</a>...</p>
+      <p>Redirecting to <a href="/">Cyber Kovai</a>...</p>
     </noscript>
   </body>
 </html>

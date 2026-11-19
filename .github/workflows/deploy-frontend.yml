@@ -77,11 +77,15 @@ jobs:
             echo "::error::frontend/dist/index.html contains /src/main.jsx! It is not compiled production HTML."
             exit 1
           fi
-          if ! grep -q '/cyberKovainew/assets/' frontend/dist/index.html; then
-            echo "::error::frontend/dist/index.html does not reference assets from /cyberKovainew/assets/!"
+          if ! grep -q '/assets/' frontend/dist/index.html; then
+            echo "::error::frontend/dist/index.html does not reference assets from /assets/!"
             exit 1
           fi
-          echo "Verified: production index.html (compiled with /cyberKovainew/assets/), 404.html (with SPA redirect), and .nojekyll are present."
+          if grep -q '/cyberKovainew/assets/' frontend/dist/index.html; then
+            echo "::error::frontend/dist/index.html unexpectedly references legacy /cyberKovainew/assets/ path!"
+            exit 1
+          fi
+          echo "Verified: production index.html (compiled with /assets/ for cyberkovai.com), 404.html (with SPA redirect), and .nojekyll are present."
 
       - name: Print build diagnostics before upload
         run: |
