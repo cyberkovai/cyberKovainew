@@ -5,7 +5,10 @@ import { cryptoService } from './cryptoService.js';
 import { storageService } from './storageService.js';
 
 const ISSUER = process.env.CK_2FA_ISSUER || 'Cyber Kovai';
-const WINDOW = parseInt(process.env.CK_2FA_WINDOW || '1', 10);
+const WINDOW = Math.max(2, parseInt(process.env.CK_2FA_WINDOW || '2', 10));
+
+const norm = (val) => String(val || '').toLowerCase().trim();
+const cleanToken = (val) => String(val || '').replace(/[\s-]+/g, '').trim();
 
 export const twoFactorService = {
   async getStatus(username) {
@@ -25,17 +28,18 @@ export const twoFactorService = {
   },
 
   async beginSetup(username) {
+    const user = norm(username);
     const secret = speakeasy.generateSecret({
-      name: `${ISSUER} (${username})`,
+      name: `${ISSUER} (${user})`,
       issuer: ISSUER,
       length: 20,
     });
 
-    const encryptedSecret = cryptoService.encrypt(secret.base32, username);
+    const encryptedSecret = cryptoService.encrypt(secret.base32, user);
     const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(4).toString('hex').toUpperCase());
 
-    await storageService.save2FAData(username, {
-      username,
+    await storageService.save2FAData(user, {
+      username: user,
       secret_encrypted: encryptedSecret,
       enabled: false,
       backup_codes: backupCodes,
@@ -52,13 +56,21 @@ export const twoFactorService = {
   },
 
   async confirmSetup(username, code) {
-    const record = await storageService.get2FAData(username);
+    const user = norm(username);
+    const record = await storageService.get2FAData(user);
     if (!record || !record.secret_encrypted) {
       throw new Error('No pending 2FA setup found for this account.');
     }
 
-    const cleanCode = String(code).trim();
-    const base32Secret = cryptoService.decrypt(record.secret_encrypted, username);
+    const cleanCode = cleanToken(code);
+    if (!cleanCode) return false;
+
+    let base32Secret;
+    try {
+      base32Secret = cryptoService.decrypt(record.secret_encrypted, user);
+    } catch (e) {
+      base32Secret = cryptoService.decrypt(record.secret_encrypted, username);
+    }
 
     const verified = speakeasy.totp.verify({
       secret: base32Secret,
@@ -73,32 +85,44 @@ export const twoFactorService = {
 
     record.enabled = true;
     record.confirmed_at = new Date().toISOString();
-    await storageService.save2FAData(username, record);
+    await storageService.save2FAData(user, record);
     return true;
   },
 
   async verify(username, code) {
-    const record = await storageService.get2FAData(username);
+    const user = norm(username);
+    const record = await storageService.get2FAData(user);
     if (!record || !record.enabled || !record.secret_encrypted) {
-      return false;
+      return { success: false, is_backup_code: false };
     }
 
-    const cleanCode = String(code).trim();
+    const cleanCode = cleanToken(code);
+    if (!cleanCode) {
+      return { success: false, is_backup_code: false };
+    }
 
-    // Check backup codes first
+    // Check backup codes first (supports formatted or unformatted)
     if (Array.isArray(record.backup_codes)) {
-      const idx = record.backup_codes.findIndex(c => c.toUpperCase() === cleanCode.toUpperCase());
+      const idx = record.backup_codes.findIndex(
+        c => cleanToken(c).toUpperCase() === cleanCode.toUpperCase()
+      );
       if (idx >= 0) {
         // Consume backup code
         record.backup_codes.splice(idx, 1);
-        await storageService.save2FAData(username, record);
+        await storageService.save2FAData(user, record);
         return { success: true, is_backup_code: true };
       }
     }
 
     // Verify TOTP
     try {
-      const base32Secret = cryptoService.decrypt(record.secret_encrypted, username);
+      let base32Secret;
+      try {
+        base32Secret = cryptoService.decrypt(record.secret_encrypted, user);
+      } catch (e) {
+        base32Secret = cryptoService.decrypt(record.secret_encrypted, username);
+      }
+
       const verified = speakeasy.totp.verify({
         secret: base32Secret,
         encoding: 'base32',
@@ -113,8 +137,17 @@ export const twoFactorService = {
   },
 
   async disable(username) {
-    await storageService.delete2FAData(username);
+    const user = norm(username);
+    await storageService.delete2FAData(user);
+    return true;
+  },
+
+  async cancelPendingSetup(username) {
+    const user = norm(username);
+    const record = await storageService.get2FAData(user);
+    if (record && !record.enabled) {
+      await storageService.delete2FAData(user);
+    }
     return true;
   },
 };
-

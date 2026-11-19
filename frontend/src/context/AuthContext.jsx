@@ -14,22 +14,26 @@ export const AuthProvider = ({ children }) => {
       if (!token) {
         setUser(null);
         setTwoFactor({ enabled: false });
-        return;
+        return null;
       }
 
       const data = await getCurrentUser();
       if (data && data.success && data.user) {
         setUser(data.user);
-        setTwoFactor(data.two_factor || { enabled: false });
+        const tfa = data.two_factor || { enabled: false };
+        setTwoFactor(tfa);
+        return { user: data.user, twoFactor: tfa };
       } else {
         localStorage.removeItem('ck_admin_token');
         setUser(null);
         setTwoFactor({ enabled: false });
+        return null;
       }
     } catch (err) {
       localStorage.removeItem('ck_admin_token');
       setUser(null);
       setTwoFactor({ enabled: false });
+      return null;
     } finally {
       setLoading(false);
     }
@@ -42,7 +46,10 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, token, twoFactorData) => {
     if (token) localStorage.setItem('ck_admin_token', token);
     setUser(userData || null);
-    if (twoFactorData) setTwoFactor(twoFactorData);
+    if (twoFactorData) {
+      setTwoFactor(twoFactorData);
+    }
+    checkAuth();
   };
 
   const logout = async () => {
@@ -55,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, twoFactor, loading, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, twoFactor, setTwoFactor, loading, login, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 import { publicController } from '../src/controllers/publicController.js';
 import { authController } from '../src/controllers/authController.js';
 import { adminController } from '../src/controllers/adminController.js';
+import { storageService } from '../src/services/storageService.js';
+import { cryptoService } from '../src/services/cryptoService.js';
+import speakeasy from 'speakeasy';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,10 +128,26 @@ describe('Controllers & API Business Logic Integration Test Suite', () => {
     await authController.login(req, res);
     assert.strictEqual(res.statusCode, 200);
     assert.strictEqual(res.body.success, true);
-    assert.ok(res.body.token, 'Token must be present in response');
-    assert.ok(res.cookies.ck_admin_token, 'Cookie must be set');
-    assert.strictEqual(res.body.user.role, 'superadmin');
-    adminSessionUser = res.body.user;
+
+    if (res.body.requires_2fa) {
+      assert.ok(res.body.challenge_token, 'Challenge token must be present');
+      const tfaData = await storageService.get2FAData('Kovaicyber@gmail.com');
+      const base32Secret = cryptoService.decrypt(tfaData.secret_encrypted, 'kovaicyber@gmail.com');
+      const code = speakeasy.totp({ secret: base32Secret, encoding: 'base32' });
+      const verifyReq = { body: { code, challenge_token: res.body.challenge_token }, ip: '127.0.0.1', headers: {} };
+      const verifyRes = createMockRes();
+      await authController.verify2FA(verifyReq, verifyRes);
+      assert.strictEqual(verifyRes.statusCode, 200);
+      assert.ok(verifyRes.body.token, 'Token must be present in response');
+      assert.ok(verifyRes.cookies.ck_admin_token, 'Cookie must be set');
+      assert.strictEqual(verifyRes.body.user.role, 'superadmin');
+      adminSessionUser = verifyRes.body.user;
+    } else {
+      assert.ok(res.body.token, 'Token must be present in response');
+      assert.ok(res.cookies.ck_admin_token, 'Cookie must be set');
+      assert.strictEqual(res.body.user.role, 'superadmin');
+      adminSessionUser = res.body.user;
+    }
   });
 
   it('adminController.getDashboardStats returns valid aggregate metrics', async () => {

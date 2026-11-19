@@ -5,9 +5,14 @@ import { updateProfile, setup2FA, confirm2FA, disable2FA, cancel2FA } from '../a
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminProfile() {
-  const { user, twoFactor, checkAuth } = useAuth();
+  const { user, twoFactor, setTwoFactor, checkAuth } = useAuth();
   const location = useLocation();
   const [highlight2FA, setHighlight2FA] = useState(false);
+
+  // Always refresh auth and 2FA status on mount to ensure fresh status
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   // Profile Form State
   const [profileData, setFormData] = useState({
@@ -158,13 +163,25 @@ export default function AdminProfile() {
     setVerifying(true);
     setTwoFactorMsg(null);
 
+    const clean = verifyCode.replace(/[\s-]+/g, '').trim();
+    if (!clean) {
+      setTwoFactorMsg({ type: 'error', text: 'Please enter the 6-digit verification code.' });
+      setVerifying(false);
+      return;
+    }
+
     try {
-      const res = await confirm2FA(verifyCode);
+      const res = await confirm2FA(clean);
       if (res && res.success) {
         setSetupStep(false);
         setSetupData(null);
         setVerifyCode('');
         setTwoFactorMsg({ type: 'success', text: 'Two-Factor Authentication has been successfully enabled and enforced!' });
+        if (res.two_factor) {
+          setTwoFactor(res.two_factor);
+        } else {
+          setTwoFactor({ enabled: true });
+        }
         await checkAuth();
       } else {
         setTwoFactorMsg({ type: 'error', text: res?.message || 'Verification failed. Invalid code.' });
@@ -180,7 +197,7 @@ export default function AdminProfile() {
   const handleCancelSetup = async () => {
     try {
       await cancel2FA();
-    } catch (e) {}
+    } catch (e) { }
     setSetupStep(false);
     setSetupData(null);
     setVerifyCode('');
@@ -198,13 +215,16 @@ export default function AdminProfile() {
     setDisabling(true);
     setTwoFactorMsg(null);
 
+    const cleanOtp = disableOtp.replace(/[\s-]+/g, '').trim();
+
     try {
-      const res = await disable2FA({ password: disablePw, code: disableOtp });
+      const res = await disable2FA({ password: disablePw, code: cleanOtp });
       if (res && res.success) {
         setTwoFactorMsg({ type: 'success', text: 'Two-Factor Authentication has been safely disabled for your account.' });
         setDisablePw('');
         setDisableOtp('');
         setConfirmDisable(false);
+        setTwoFactor({ enabled: false, pending_setup: false });
         await checkAuth();
       } else {
         setTwoFactorMsg({ type: 'error', text: res?.message || 'Could not disable Two-Factor Authentication.' });
@@ -298,21 +318,20 @@ export default function AdminProfile() {
                   twoFactorMsg.type === 'success'
                     ? 'rgba(0, 230, 118, 0.12)'
                     : twoFactorMsg.type === 'info'
-                    ? 'rgba(255, 171, 0, 0.12)'
-                    : 'rgba(255, 51, 102, 0.12)',
-                border: `1px solid ${
-                  twoFactorMsg.type === 'success'
+                      ? 'rgba(255, 171, 0, 0.12)'
+                      : 'rgba(255, 51, 102, 0.12)',
+                border: `1px solid ${twoFactorMsg.type === 'success'
                     ? 'rgba(0, 230, 118, 0.35)'
                     : twoFactorMsg.type === 'info'
-                    ? 'rgba(255, 171, 0, 0.35)'
-                    : 'rgba(255, 51, 102, 0.35)'
-                }`,
+                      ? 'rgba(255, 171, 0, 0.35)'
+                      : 'rgba(255, 51, 102, 0.35)'
+                  }`,
                 color:
                   twoFactorMsg.type === 'success'
                     ? '#a7f3d0'
                     : twoFactorMsg.type === 'info'
-                    ? '#ffe082'
-                    : '#ff99b3',
+                      ? '#ffe082'
+                      : '#ff99b3',
                 marginBottom: '1.25rem',
               }}
             >
@@ -390,10 +409,10 @@ export default function AdminProfile() {
                         type="text"
                         className="form-control"
                         required
-                        maxLength={6}
-                        placeholder="000000"
+                        maxLength={12}
+                        placeholder="000 000"
                         value={disableOtp}
-                        onChange={(e) => setDisableOtp(e.target.value.replace(/\D/g, ''))}
+                        onChange={(e) => setDisableOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         style={{ letterSpacing: '0.2em', textAlign: 'center' }}
                       />
                     </div>
@@ -516,10 +535,10 @@ export default function AdminProfile() {
                         type="text"
                         className="form-control"
                         required
-                        maxLength={6}
-                        placeholder="000000"
+                        maxLength={12}
+                        placeholder="000 000"
                         value={verifyCode}
-                        onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                        onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         style={{
                           maxWidth: '220px',
                           textAlign: 'center',

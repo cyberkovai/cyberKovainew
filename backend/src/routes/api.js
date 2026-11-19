@@ -14,17 +14,17 @@ const router = express.Router();
 
 // API root info
 router.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Cyber Kovai API is running',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      settings: '/api/settings',
-      services: '/api/services/cyber',
-      login: '/api/auth/login',
-    },
-  });
+    res.json({
+        success: true,
+        message: 'Cyber Kovai API is running',
+        version: '1.0.0',
+        endpoints: {
+            health: '/health',
+            settings: '/api/settings',
+            services: '/api/services/cyber',
+            login: '/api/auth/login',
+        },
+    });
 });
 
 // Site Settings & Visibility
@@ -88,7 +88,7 @@ router.get('/auth/current-user', requireAuth, authController.currentUser);
 router.post('/auth/setup-2fa', requireAuth, authController.setup2FA);
 router.post('/auth/confirm-2fa', requireAuth, authController.confirm2FA);
 router.post('/auth/disable-2fa', requireAuth, authController.disable2FA);
-router.post('/auth/cancel-2fa', requireAuth, authController.disable2FA);
+router.post('/auth/cancel-2fa', requireAuth, authController.cancelPending2FA);
 router.put('/auth/profile', requireAuth, authController.updateProfile);
 
 // ==========================================

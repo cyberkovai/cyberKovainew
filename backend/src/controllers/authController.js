@@ -78,6 +78,7 @@ export const authController = {
       return res.json({
         success: true,
         token,
+        two_factor: status2fa,
         user: {
           username: admin.username,
           name: admin.name,
@@ -101,6 +102,11 @@ export const authController = {
         return res.status(400).json({ success: false, message: 'Challenge token and code are required.' });
       }
 
+      const cleanCode = String(code).replace(/[\s-]+/g, '').trim();
+      if (!cleanCode) {
+        return res.status(400).json({ success: false, message: 'Verification code cannot be empty.' });
+      }
+
       let decoded;
       try {
         decoded = jwt.verify(challenge_token, JWT_SECRET);
@@ -112,7 +118,7 @@ export const authController = {
         return res.status(400).json({ success: false, message: 'Invalid 2FA challenge token.' });
       }
 
-      const result = await twoFactorService.verify(decoded.username, code);
+      const result = await twoFactorService.verify(decoded.username, cleanCode);
       if (!result || !result.success) {
         await storageService.addAuditLog(decoded.username, '2fa_failed', {}, clientIp, userAgent);
         return res.status(401).json({ success: false, message: 'Invalid authentication code or recovery code.' });
@@ -140,10 +146,13 @@ export const authController = {
         userAgent
       );
 
+      const status2fa = await twoFactorService.getStatus(admin.username);
+
       return res.json({
         success: true,
         token,
         is_backup_code: result.is_backup_code,
+        two_factor: status2fa,
         user: {
           username: admin.username,
           name: admin.name,
@@ -196,13 +205,28 @@ export const authController = {
       const { code } = req.body;
       if (!code) return res.status(400).json({ success: false, message: 'Verification code is required.' });
 
-      const verified = await twoFactorService.confirmSetup(req.user.username, code);
+      const cleanCode = String(code).replace(/[\s-]+/g, '').trim();
+      const verified = await twoFactorService.confirmSetup(req.user.username, cleanCode);
       if (!verified) {
         return res.status(400).json({ success: false, message: 'Invalid 6-digit verification code. Please check your authenticator app.' });
       }
 
       await storageService.addAuditLog(req.user.username, '2fa_enabled', {}, req.ip, req.headers['user-agent']);
-      return res.json({ success: true, message: 'Two-factor authentication successfully enabled!' });
+      const status2fa = await twoFactorService.getStatus(req.user.username);
+      return res.json({
+        success: true,
+        message: 'Two-factor authentication successfully enabled!',
+        two_factor: status2fa,
+      });
+    } catch (err) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  async cancelPending2FA(req, res) {
+    try {
+      await twoFactorService.cancelPendingSetup(req.user.username);
+      return res.json({ success: true, message: 'Pending 2FA setup cancelled.' });
     } catch (err) {
       return res.status(500).json({ success: false, message: err.message });
     }
@@ -224,7 +248,8 @@ export const authController = {
       }
 
       if (code) {
-        const verified = await twoFactorService.verify(req.user.username, code);
+        const cleanCode = String(code).replace(/[\s-]+/g, '').trim();
+        const verified = await twoFactorService.verify(req.user.username, cleanCode);
         if (!verified || !verified.success) {
           return res.status(400).json({ success: false, message: 'Invalid 6-digit authenticator code.' });
         }
@@ -232,7 +257,11 @@ export const authController = {
 
       await twoFactorService.disable(req.user.username);
       await storageService.addAuditLog(req.user.username, '2fa_disabled', {}, req.ip, req.headers['user-agent']);
-      return res.json({ success: true, message: 'Two-factor authentication disabled.' });
+      return res.json({
+        success: true,
+        message: 'Two-factor authentication disabled.',
+        two_factor: { enabled: false, pending_setup: false, backup_codes_remaining: 0 },
+      });
     } catch (err) {
       return res.status(500).json({ success: false, message: err.message });
     }

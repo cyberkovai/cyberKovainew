@@ -89,4 +89,50 @@ describe('Two-Factor Authentication (TOTP) Test Suite', () => {
     assert.strictEqual(status.enabled, false);
     assert.strictEqual(status.pending_setup, false);
   });
+
+  it('should support codes with whitespace or hyphens and case-insensitive username normalization', async () => {
+    const mixedUser = 'Admin_MixedCase@CyberKovai.com';
+    await twoFactorService.beginSetup(mixedUser);
+
+    const record = await storageService.get2FAData(mixedUser.toLowerCase());
+    assert.ok(record, 'Record should be retrieved with lowercased username');
+
+    const base32Secret = cryptoService.decrypt(record.secret_encrypted, mixedUser.toLowerCase());
+    const validToken = speakeasy.totp({
+      secret: base32Secret,
+      encoding: 'base32',
+    });
+
+    // Format with spaces e.g. "123 456"
+    const formattedToken = `${validToken.slice(0, 3)} ${validToken.slice(3)}`;
+    const confirmed = await twoFactorService.confirmSetup(mixedUser, formattedToken);
+    assert.strictEqual(confirmed, true, 'Formatted code with space must succeed');
+
+    // Verify TOTP with hyphens e.g. "123-456" using differing username casing
+    const hyphenToken = `${validToken.slice(0, 3)}-${validToken.slice(3)}`;
+    const verifyRes = await twoFactorService.verify('ADMIN_MIXEDCASE@CYBERKOVAI.COM', hyphenToken);
+    assert.strictEqual(verifyRes.success, true, 'TOTP verification with hyphen and uppercase username must succeed');
+
+    // Test formatted backup code
+    const updatedRecord = await storageService.get2FAData(mixedUser);
+    const backup = updatedRecord.backup_codes[0];
+    const formattedBackup = ` ${backup.slice(0, 4)} - ${backup.slice(4)} `;
+    const backupRes = await twoFactorService.verify(mixedUser, formattedBackup);
+    assert.strictEqual(backupRes.success, true, 'Formatted backup code must succeed');
+
+    // Clean up
+    await twoFactorService.disable(mixedUser);
+  });
+
+  it('should allow cancelling a pending setup without affecting account status', async () => {
+    const pendingUser = 'pending_user@cyberkovai.com';
+    await twoFactorService.beginSetup(pendingUser);
+    let status = await twoFactorService.getStatus(pendingUser);
+    assert.strictEqual(status.pending_setup, true);
+
+    await twoFactorService.cancelPendingSetup(pendingUser);
+    status = await twoFactorService.getStatus(pendingUser);
+    assert.strictEqual(status.enabled, false);
+    assert.strictEqual(status.pending_setup, false);
+  });
 });

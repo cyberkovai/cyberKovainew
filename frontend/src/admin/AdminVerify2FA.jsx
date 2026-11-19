@@ -22,11 +22,18 @@ export default function AdminVerify2FA() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const cleanCode = code.replace(/[\s-]+/g, '').trim();
+    if (!cleanCode) {
+      setError('Please enter your 6-digit verification code or emergency backup code.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await verify2FA({
-        code: code.trim(),
+        code: cleanCode,
         challenge_token: challengeToken,
       });
 
@@ -35,7 +42,7 @@ export default function AdminVerify2FA() {
         sessionStorage.removeItem('ck_2fa_username');
         const targetRedirect = sessionStorage.getItem('ck_2fa_redirect') || '/admin/profile#two-factor-security';
         sessionStorage.removeItem('ck_2fa_redirect');
-        login(res.user, res.token);
+        login(res.user, res.token, res.two_factor || { enabled: true });
         navigate(targetRedirect, { replace: true });
       } else {
         setError(res?.message || 'Verification failed.');

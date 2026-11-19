@@ -429,7 +429,7 @@ export const storageService = {
       if (isSupabaseConfigured) {
         try {
           await supabase.from('cyber_service_category_map').delete().eq('service_slug', originalSlug);
-        } catch (e) {}
+        } catch (e) { }
       }
     }
     const now = new Date().toISOString();
@@ -476,7 +476,7 @@ export const storageService = {
     if (isSupabaseConfigured) {
       try {
         await supabase.from('cyber_service_category_map').delete().eq('service_slug', slug);
-      } catch (e) {}
+      } catch (e) { }
     }
     writeJson('cyber_services.json', all);
     return true;
@@ -588,8 +588,8 @@ export const storageService = {
     const list = await this.getCyberPractices(true);
     const practiceId = String(id || practiceData.id || (list.reduce((max, item) => Math.max(max, parseInt(item.id, 10) || 0), 0) + 1));
 
-    const isActive = practiceData.status !== undefined 
-      ? practiceData.status === 'active' 
+    const isActive = practiceData.status !== undefined
+      ? practiceData.status === 'active'
       : (practiceData.active !== undefined ? Boolean(practiceData.active) : true);
 
     const title = (practiceData.title || '').trim();
@@ -1430,8 +1430,8 @@ export const storageService = {
             img: (a.img || '').includes('accred_1794298501_1bca47')
               ? 'assets/images/aid.png'
               : (a.img || '').includes('accred_1794298552_96db9e')
-              ? 'assets/images/tapdi.png'
-              : a.img || '',
+                ? 'assets/images/tapdi.png'
+                : a.img || '',
             alt: a.alt || a.name || '',
             website: a.website || '',
             track: a.track || 'both',
@@ -1950,8 +1950,12 @@ export const storageService = {
   },
 
   async getAdmin(username) {
+    if (!username) return null;
     const all = await this.getAdmins();
-    return all[username] || null;
+    if (all[username]) return all[username];
+    const norm = String(username).toLowerCase().trim();
+    const key = Object.keys(all).find(k => k.toLowerCase().trim() === norm);
+    return key ? all[key] : null;
   },
 
   async saveAdmin(adminData) {
@@ -1996,7 +2000,7 @@ export const storageService = {
       if (isSupabaseConfigured) {
         try {
           await supabase.from('admins').delete().eq('username', currentUsername);
-        } catch (e) {}
+        } catch (e) { }
       }
     }
 
@@ -2042,37 +2046,56 @@ export const storageService = {
   // Persisted in storage/security/admin_2fa.json and synced to Supabase admins table
   // ==========================================
   async get2FAData(username) {
+    if (!username) return null;
+    const norm = String(username).toLowerCase().trim();
     const store = readSecurityJson('admin_2fa.json', { version: 1, records: [] });
     const records = Array.isArray(store.records) ? store.records : [];
-    let localRecord = records.find(r => r.username === username) || null;
+    let localRecord = records.find(r => r.username && r.username.toLowerCase().trim() === norm) || null;
+
+    if (!localRecord || !localRecord.secret_encrypted) {
+      try {
+        const allAdmins = readJson('admins.json', {});
+        const adminKey = Object.keys(allAdmins).find(k => k.toLowerCase().trim() === norm);
+        if (adminKey && allAdmins[adminKey] && allAdmins[adminKey].two_fa_secret) {
+          localRecord = {
+            username: norm,
+            secret_encrypted: allAdmins[adminKey].two_fa_secret,
+            enabled: Boolean(allAdmins[adminKey].two_fa_enabled === 1 || allAdmins[adminKey].two_fa_enabled === true || allAdmins[adminKey].two_fa_enabled === '1'),
+            backup_codes: localRecord?.backup_codes || [],
+          };
+        }
+      } catch (e) {}
+    }
 
     if (isSupabaseConfigured && (!localRecord || !localRecord.secret_encrypted)) {
       try {
         const { data, error } = await supabase
           .from('admins')
           .select('two_fa_secret, two_fa_enabled')
-          .eq('username', username)
+          .ilike('username', norm)
           .single();
 
         if (!error && data && data.two_fa_secret) {
           localRecord = {
-            username,
+            username: norm,
             secret_encrypted: data.two_fa_secret,
-            enabled: data.two_fa_enabled === 1,
+            enabled: Boolean(data.two_fa_enabled === 1 || data.two_fa_enabled === true || data.two_fa_enabled === '1'),
             backup_codes: localRecord?.backup_codes || [],
           };
         }
-      } catch (e) {}
+      } catch (e) { }
     }
     return localRecord;
   },
 
   async save2FAData(username, record) {
+    const norm = String(username || '').toLowerCase().trim();
     const store = readSecurityJson('admin_2fa.json', { version: 1, records: [] });
     let records = Array.isArray(store.records) ? store.records : [];
-    const idx = records.findIndex(r => r.username === username);
+    const idx = records.findIndex(r => r.username && r.username.toLowerCase().trim() === norm);
     const now = new Date().toISOString();
-    const item = { ...record, username, updated_at: now };
+    const isEnabled = Boolean(record.enabled === true || record.enabled === 1 || record.enabled === '1');
+    const item = { ...record, username: norm, enabled: isEnabled, updated_at: now };
     if (idx >= 0) {
       records[idx] = item;
     } else {
@@ -2081,17 +2104,29 @@ export const storageService = {
     store.records = records;
     writeSecurityJson('admin_2fa.json', store);
 
+    // Sync to admins.json
+    try {
+      const allAdmins = readJson('admins.json', {});
+      const adminKey = Object.keys(allAdmins).find(k => k.toLowerCase().trim() === norm);
+      if (adminKey && allAdmins[adminKey]) {
+        allAdmins[adminKey].two_fa_enabled = isEnabled ? 1 : 0;
+        allAdmins[adminKey].two_fa_secret = record.secret_encrypted || null;
+        allAdmins[adminKey].updated_at = now;
+        writeJson('admins.json', allAdmins);
+      }
+    } catch (e) {}
+
     if (isSupabaseConfigured) {
       try {
         await supabase
           .from('admins')
           .update({
             two_fa_secret: record.secret_encrypted || null,
-            two_fa_enabled: record.enabled ? 1 : 0,
+            two_fa_enabled: isEnabled ? 1 : 0,
             updated_at: now,
           })
-          .eq('username', username);
-        console.log(`✅ Admin 2FA status synced to Supabase admins table for [${username}].`);
+          .ilike('username', norm);
+        console.log(`✅ Admin 2FA status synced to Supabase admins table for [${norm}].`);
       } catch (e) {
         console.warn('Supabase save2FAData fallback:', e.message);
       }
@@ -2100,10 +2135,23 @@ export const storageService = {
   },
 
   async delete2FAData(username) {
+    const norm = String(username || '').toLowerCase().trim();
     const store = readSecurityJson('admin_2fa.json', { version: 1, records: [] });
     let records = Array.isArray(store.records) ? store.records : [];
-    store.records = records.filter(r => r.username !== username);
+    store.records = records.filter(r => r.username && r.username.toLowerCase().trim() !== norm);
     writeSecurityJson('admin_2fa.json', store);
+
+    // Sync to admins.json
+    try {
+      const allAdmins = readJson('admins.json', {});
+      const adminKey = Object.keys(allAdmins).find(k => k.toLowerCase().trim() === norm);
+      if (adminKey && allAdmins[adminKey]) {
+        allAdmins[adminKey].two_fa_enabled = 0;
+        allAdmins[adminKey].two_fa_secret = null;
+        allAdmins[adminKey].updated_at = new Date().toISOString();
+        writeJson('admins.json', allAdmins);
+      }
+    } catch (e) {}
 
     if (isSupabaseConfigured) {
       try {
@@ -2114,8 +2162,8 @@ export const storageService = {
             two_fa_enabled: 0,
             updated_at: new Date().toISOString(),
           })
-          .eq('username', username);
-      } catch (e) {}
+          .ilike('username', norm);
+      } catch (e) { }
     }
     return true;
   },
@@ -2136,7 +2184,7 @@ export const storageService = {
     try {
       const line = `[${logItem.created_at}] [${ip}] [${adminId}] ${action}: ${JSON.stringify(details)}\n`;
       fs.appendFileSync(path.join(SECURITY_DIR, 'security_audit.log'), line);
-    } catch (e) {}
+    } catch (e) { }
     return logItem;
   },
 
@@ -2227,7 +2275,7 @@ export const storageService = {
         } else if (idx >= 0 && list[idx].email) {
           await supabase.from('contact_leads').update({ sheet_synced: synced ? 1 : 0 }).eq('email', list[idx].email);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
   },
 
@@ -2273,7 +2321,7 @@ export const storageService = {
     const frontDest = path.resolve(__dirname, '../../../frontend/public/data/uploads', filename);
     try {
       fs.writeFileSync(frontDest, file.buffer);
-    } catch (e) {}
+    } catch (e) { }
 
     return `data/uploads/${filename}`;
   },

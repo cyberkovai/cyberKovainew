@@ -33,7 +33,7 @@ export default function AdminLogin() {
         sessionStorage.setItem('ck_2fa_redirect', targetRedirect);
         navigate('/admin/verify-2fa');
       } else if (res && res.success) {
-        login(res.user, res.token);
+        login(res.user, res.token, res.two_factor);
         navigate(targetRedirect, { replace: true });
       } else {
         setError(res?.message || 'Invalid username or password.');
