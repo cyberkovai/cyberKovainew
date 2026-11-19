@@ -11,10 +11,16 @@ const SECURITY_DIR = path.resolve(__dirname, '../../../storage/security');
 
 let inMemoryTestAdmins = {};
 
-// Ensure directories exist
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-if (!fs.existsSync(SECURITY_DIR)) fs.mkdirSync(SECURITY_DIR, { recursive: true });
+// Ensure directories exist if filesystem is writable (safely ignored on serverless environments like Vercel)
+try {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+} catch (e) { }
+try {
+  if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+} catch (e) { }
+try {
+  if (!fs.existsSync(SECURITY_DIR)) fs.mkdirSync(SECURITY_DIR, { recursive: true });
+} catch (e) { }
 
 function readJson(filename, fallback = []) {
   try {
@@ -2558,10 +2564,10 @@ export const storageService = {
     }
 
     // Local file fallback
-    const destPath = path.join(UPLOADS_DIR, filename);
-    fs.writeFileSync(destPath, file.buffer);
-    const frontDest = path.resolve(__dirname, '../../../frontend/public/data/uploads', filename);
     try {
+      const destPath = path.join(UPLOADS_DIR, filename);
+      fs.writeFileSync(destPath, file.buffer);
+      const frontDest = path.resolve(__dirname, '../../../frontend/public/data/uploads', filename);
       fs.writeFileSync(frontDest, file.buffer);
     } catch (e) { }
 
