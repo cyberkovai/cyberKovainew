@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { submitContact, getCyberServices, getInvestigationServices } from '../api/client';
 import { useTrack } from '../context/TrackContext';
+import RecaptchaField from './RecaptchaField';
 
 const EMPTY_SERVICES_ARRAY = [];
 
@@ -15,6 +16,8 @@ export default function ContactForm({
 
   const cyberFetchedRef = useRef(false);
   const invFetchedRef = useRef(false);
+  const recaptchaRef = useRef(null);
+  const [recaptchaToken, setRecaptchaToken] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -79,14 +82,17 @@ export default function ContactForm({
     setLoading(true);
 
     try {
-      let recaptchaToken = '';
-      if (window.grecaptcha && typeof window.grecaptcha.getResponse === 'function') {
-        recaptchaToken = window.grecaptcha.getResponse();
+      let finalRecaptchaToken = recaptchaToken;
+      if (!finalRecaptchaToken && recaptchaRef.current) {
+        finalRecaptchaToken = recaptchaRef.current.getResponse();
+      }
+      if (!finalRecaptchaToken && window.grecaptcha && typeof window.grecaptcha.getResponse === 'function') {
+        finalRecaptchaToken = window.grecaptcha.getResponse();
       }
 
       const payload = {
         ...formData,
-        'g-recaptcha-response': recaptchaToken,
+        'g-recaptcha-response': finalRecaptchaToken,
       };
 
       const res = await submitContact(payload);
@@ -105,7 +111,10 @@ export default function ContactForm({
           website: '',
           hp_time: '',
         });
-        if (window.grecaptcha && typeof window.grecaptcha.reset === 'function') {
+        setRecaptchaToken('');
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        } else if (window.grecaptcha && typeof window.grecaptcha.reset === 'function') {
           window.grecaptcha.reset();
         }
       } else {
@@ -294,6 +303,13 @@ export default function ContactForm({
             style={{ width: '100%', padding: '0.9rem 1.1rem', borderRadius: '10px', fontFamily: 'inherit', resize: 'vertical' }}
           ></textarea>
         </div>
+
+        {/* Google reCAPTCHA Verification */}
+        <RecaptchaField
+          ref={recaptchaRef}
+          onChange={(token) => setRecaptchaToken(token)}
+          onExpired={() => setRecaptchaToken('')}
+        />
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <button

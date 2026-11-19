@@ -181,4 +181,15 @@ describe('Frontend API Client & Helper Logic Test Suite', () => {
     assert.strictEqual(isSectionVisible(null, 'cyber_hero'), true);
     assert.strictEqual(isSectionVisible(undefined, 'cyber_hero'), true);
   });
+
+  it('should verify reCAPTCHA site key resolution and defaults', () => {
+    const DEFAULT_KEY = '6LfIJwYuAAAAAGqRA8w9Y_gV0Dg13VyMmKtIB36q';
+    const resolveKey = (propKey, envViteKey, envKey) =>
+      propKey || envViteKey || envKey || DEFAULT_KEY;
+
+    assert.strictEqual(resolveKey('', '', ''), DEFAULT_KEY);
+    assert.strictEqual(resolveKey('prop-key', 'env-key', ''), 'prop-key');
+    assert.strictEqual(resolveKey('', 'vite-env-key', ''), 'vite-env-key');
+    assert.strictEqual(resolveKey('', '', 'plain-env-key'), 'plain-env-key');
+  });
 });

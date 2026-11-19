@@ -3,11 +3,11 @@ import { Link, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LiveChatWidget from '../components/LiveChatWidget';
+import RecaptchaField from '../components/RecaptchaField';
 import {
   getSettings,
   getSections,
   getFullService,
-  getRecaptchaConfig,
   submitContact,
   getCyberServices,
   getInvestigationServices,
@@ -28,10 +28,10 @@ export default function ServiceDetailPage() {
   const [settings, setSettings] = useState({});
   const [sections, setSections] = useState({});
   const [data, setData] = useState(null);
-  const [recaptcha, setRecaptcha] = useState({ enabled: false, siteKey: '' });
   const [loading, setLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState(null);
   const recaptchaRef = useRef(null);
+  const [recaptchaToken, setRecaptchaToken] = useState('');
 
   const [form, setForm] = useState({
     name: '',
@@ -54,7 +54,6 @@ export default function ServiceDetailPage() {
 
     getSettings().then((s) => !cancelled && s && setSettings(s)).catch(() => { });
     getSections().then((s) => !cancelled && s && setSections(s)).catch(() => { });
-    getRecaptchaConfig().then((c) => !cancelled && c && setRecaptcha(c)).catch(() => { });
 
     getFullService(cleanSlug)
       .then((res) => {
@@ -94,29 +93,6 @@ export default function ServiceDetailPage() {
     if (!window.location.hash) window.scrollTo(0, 0);
   }, [cleanSlug]);
 
-  // Mount the PHP-style reCAPTCHA widget once the booking card is in the DOM.
-  useEffect(() => {
-    if (!recaptcha.enabled || !recaptcha.siteKey || !data) return undefined;
-    if (!isSectionVisible(sections, 'svc_booking')) return undefined;
-
-    let timer;
-    let attempts = 0;
-    const render = () => {
-      const el = recaptchaRef.current;
-      if (el && window.grecaptcha && typeof window.grecaptcha.render === 'function') {
-        if (el.dataset.rendered !== 'true') {
-          window.grecaptcha.render(el, { sitekey: recaptcha.siteKey, theme: 'dark' });
-          el.dataset.rendered = 'true';
-        }
-        return;
-      }
-      attempts += 1;
-      if (attempts < 40) timer = setTimeout(render, 400);
-    };
-    render();
-    return () => clearTimeout(timer);
-  }, [recaptcha, data, sections]);
-
   const service = data?.service;
   const category = data?.category || {};
   const related = Array.isArray(data?.related) ? data.related : [];
@@ -155,14 +131,17 @@ export default function ServiceDetailPage() {
     setFormLoading(true);
 
     try {
-      let recaptchaToken = '';
-      if (window.grecaptcha && typeof window.grecaptcha.getResponse === 'function') {
-        recaptchaToken = window.grecaptcha.getResponse();
+      let token = recaptchaToken;
+      if (!token && recaptchaRef.current) {
+        token = recaptchaRef.current.getResponse();
+      }
+      if (!token && window.grecaptcha && typeof window.grecaptcha.getResponse === 'function') {
+        token = window.grecaptcha.getResponse();
       }
 
       const res = await submitContact({
         ...form,
-        'g-recaptcha-response': recaptchaToken,
+        'g-recaptcha-response': token,
       });
 
       if (res && res.success) {
@@ -180,7 +159,10 @@ export default function ServiceDetailPage() {
           website: '',
           hp_time: '',
         }));
-        if (window.grecaptcha && typeof window.grecaptcha.reset === 'function') {
+        setRecaptchaToken('');
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        } else if (window.grecaptcha && typeof window.grecaptcha.reset === 'function') {
           window.grecaptcha.reset();
         }
       } else {
@@ -723,16 +705,13 @@ export default function ServiceDetailPage() {
                       ></textarea>
                     </div>
 
-                    {recaptcha.enabled && recaptcha.siteKey && (
-                      <div className="form-group recaptcha-wrapper" style={{ marginBottom: '1.5rem' }}>
-                        <div
-                          className="g-recaptcha"
-                          data-sitekey={recaptcha.siteKey}
-                          data-theme="dark"
-                          ref={recaptchaRef}
-                        ></div>
-                      </div>
-                    )}
+                    <div className="form-group recaptcha-wrapper-group" style={{ marginBottom: '1.5rem' }}>
+                      <RecaptchaField
+                        ref={recaptchaRef}
+                        onChange={(token) => setRecaptchaToken(token)}
+                        onExpired={() => setRecaptchaToken('')}
+                      />
+                    </div>
 
                     <button type="submit" className="btn primary-btn svc-submit-btn" disabled={formLoading}>
                       {formLoading ? 'Requesting...' : 'Request Confidential Audit Proposal ➔'}
