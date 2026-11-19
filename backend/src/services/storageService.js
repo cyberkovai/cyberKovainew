@@ -83,6 +83,21 @@ function writeSecurityJson(filename, data) {
   }
 }
 
+const SUPABASE_STORAGE_URL = 'https://nlopwybyiwmsypkrsogc.supabase.co/storage/v1/object/public/uploads';
+
+function normalizeStorageUrl(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  if (/^(https?:)?\/\//i.test(s) || s.startsWith('data:') || s.startsWith('blob:')) {
+    return s;
+  }
+  const m = s.match(/^(?:data\/)?uploads\/(.+)$/i);
+  if (m) {
+    return `${SUPABASE_STORAGE_URL}/${m[1]}`;
+  }
+  return s;
+}
+
 export const storageService = {
   // ==========================================
   // SETTINGS
@@ -1110,7 +1125,7 @@ export const storageService = {
             role: t.role || '',
             quote: t.quote || '',
             content: t.quote || '',
-            avatar: t.avatar || 'assets/images/avatar_karthik.jpg',
+            avatar: normalizeStorageUrl(t.avatar || 'assets/images/avatar_karthik.jpg'),
             rating: Number(t.rating) || 5,
             tag: t.tag || 'Digital Forensics',
             order: Number(t.sort_order) || 1,
@@ -1274,8 +1289,8 @@ export const storageService = {
             category: c.category || '',
             desc: c.desc || '',
             description: c.desc || '',
-            img: c.img || '',
-            image: c.img || '',
+            img: normalizeStorageUrl(c.img || ''),
+            image: normalizeStorageUrl(c.img || ''),
             alt: c.alt || c.name || '',
             website: c.website || '',
             track: c.track || 'both',
@@ -1429,11 +1444,7 @@ export const storageService = {
             accred_id: a.accred_id || String(a.id),
             name: a.name,
             short_name: a.short_name || '',
-            img: (a.img || '').includes('accred_1794298501_1bca47')
-              ? 'assets/images/aid.png'
-              : (a.img || '').includes('accred_1794298552_96db9e')
-                ? 'assets/images/tapdi.png'
-                : a.img || '',
+            img: normalizeStorageUrl(a.img),
             alt: a.alt || a.name || '',
             website: a.website || '',
             track: a.track || 'both',
@@ -1613,7 +1624,7 @@ export const storageService = {
               company: m.company || '',
               experience: m.experience || '',
               badge: m.badge || '',
-              photo: m.photo || '',
+              photo: normalizeStorageUrl(m.photo || ''),
               bio: m.bio || '',
               specializations: specs,
               domains: doms,
