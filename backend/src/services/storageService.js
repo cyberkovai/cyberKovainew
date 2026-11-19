@@ -1746,13 +1746,16 @@ export const storageService = {
   // Constraint: UNIQUE (faq_id)
   // ==========================================
   async getFaqs(track = 'all', includeInactive = true) {
+    const wanted = (track === 'forensics' || track === 'digital-forensics' || track === 'ci') ? 'investigation' : track;
     if (isSupabaseConfigured) {
       try {
         let query = supabase.from('faqs').select('*').order('sort_order', { ascending: true });
-        if (track !== 'all') query = query.or(`track.eq.${track},track.eq.general`);
+        if (wanted !== 'all') {
+          query = query.or(`track.eq.${wanted},track.eq.general,track.eq.both,track.eq.all`);
+        }
         if (!includeInactive) query = query.eq('status', 'active');
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (!error && Array.isArray(data)) {
           return data.map(f => ({
             id: f.faq_id || String(f.id),
             faq_id: f.faq_id || String(f.id),
@@ -1768,6 +1771,9 @@ export const storageService = {
             updated_at: f.updated_at,
           }));
         }
+        if (error) {
+          console.error('[Supabase Error] getFaqs:', error.message);
+        }
       } catch (e) {
         console.warn('Supabase faqs fallback:', e.message);
       }
@@ -1776,8 +1782,8 @@ export const storageService = {
     if (!includeInactive) {
       list = list.filter(f => (f.status ? f.status === 'active' : f.active !== false));
     }
-    if (track !== 'all') {
-      list = list.filter(f => f.track === track || f.track === 'all' || f.track === 'both' || f.track === 'general');
+    if (wanted !== 'all') {
+      list = list.filter(f => f.track === wanted || f.track === track || f.track === 'all' || f.track === 'both' || f.track === 'general');
     }
     list.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
     return list;
@@ -1785,12 +1791,14 @@ export const storageService = {
 
   async saveFaq(data, id = null) {
     const list = readJson('faqs.json', []);
-    const faqId = id || data.id || `faq-${Date.now()}`;
+    const faqId = String(data.faq_id || id || data.id || `faq-${Date.now()}`);
     const isInactive = data.status === 'inactive' || data.active === false;
     const status = isInactive ? 'inactive' : 'active';
     const now = new Date().toISOString();
     const rawTrack = data.track || 'general';
-    const track = ['investigation', 'cyber', 'general'].includes(rawTrack) ? rawTrack : 'general';
+    const track = ['investigation', 'cyber', 'general'].includes(rawTrack)
+      ? rawTrack
+      : (rawTrack === 'forensics' ? 'investigation' : 'general');
 
     const item = {
       ...data,
@@ -1804,7 +1812,7 @@ export const storageService = {
       updated_at: now,
     };
 
-    const idx = list.findIndex(f => String(f.id) === String(faqId));
+    const idx = list.findIndex(f => String(f.id) === String(faqId) || String(f.faq_id) === String(faqId));
     if (idx >= 0) {
       list[idx] = { ...list[idx], ...item };
     } else {
@@ -1825,9 +1833,27 @@ export const storageService = {
           status: status,
           updated_at: now,
         };
-        const { error } = await supabase.from('faqs').upsert([dbRow], { onConflict: 'faq_id' });
-        if (error) {
-          console.error('[Supabase Error] saveFaq:', error.message);
+
+        let existing = null;
+        if (id && !isNaN(Number(id))) {
+          const { data: byId } = await supabase.from('faqs').select('id, faq_id').eq('id', Number(id)).maybeSingle();
+          if (byId) existing = byId;
+        }
+        if (!existing) {
+          const { data: byFaqId } = await supabase.from('faqs').select('id, faq_id').eq('faq_id', faqId).maybeSingle();
+          if (byFaqId) existing = byFaqId;
+        }
+
+        let res;
+        if (existing) {
+          dbRow.faq_id = existing.faq_id || dbRow.faq_id;
+          res = await supabase.from('faqs').update(dbRow).eq('id', existing.id);
+        } else {
+          res = await supabase.from('faqs').upsert([dbRow], { onConflict: 'faq_id' });
+        }
+
+        if (res && res.error) {
+          console.error('[Supabase Error] saveFaq:', res.error.message);
         } else {
           console.log(`✅ FAQ [${faqId}] saved to Supabase.`);
         }
@@ -1840,12 +1866,15 @@ export const storageService = {
 
   async deleteFaq(id) {
     let list = readJson('faqs.json', []);
-    list = list.filter(f => String(f.id) !== String(id));
+    list = list.filter(f => String(f.id) !== String(id) && String(f.faq_id) !== String(id));
     writeJson('faqs.json', list);
 
     if (isSupabaseConfigured) {
       try {
         await supabase.from('faqs').delete().eq('faq_id', String(id));
+        if (typeof id === 'number' || !isNaN(Number(id))) {
+          await supabase.from('faqs').delete().eq('id', Number(id));
+        }
       } catch (e) {
         console.warn('Supabase deleteFaq fallback:', e.message);
       }
@@ -1854,25 +1883,37 @@ export const storageService = {
   },
 
   async toggleFaqStatus(id) {
+    if (isSupabaseConfigured) {
+      try {
+        let res = await supabase.from('faqs').select('*').eq('faq_id', String(id)).maybeSingle();
+        if (!res.data && !isNaN(Number(id))) {
+          res = await supabase.from('faqs').select('*').eq('id', Number(id)).maybeSingle();
+        }
+        if (res.data) {
+          const nextStatus = res.data.status === 'active' ? 'inactive' : 'active';
+          await supabase
+            .from('faqs')
+            .update({ status: nextStatus, updated_at: new Date().toISOString() })
+            .eq('id', res.data.id);
+          return {
+            ...res.data,
+            id: res.data.faq_id || String(res.data.id),
+            status: nextStatus,
+            active: nextStatus === 'active',
+          };
+        }
+      } catch (e) {
+        console.warn('Supabase toggleFaqStatus fallback:', e.message);
+      }
+    }
     const list = readJson('faqs.json', []);
-    const item = list.find(f => String(f.id) === String(id));
+    const item = list.find(f => String(f.id) === String(id) || String(f.faq_id) === String(id));
     if (!item) return null;
     const isCurrentlyActive = (item.status === 'active' || item.active === true) && item.status !== 'inactive';
     item.status = isCurrentlyActive ? 'inactive' : 'active';
     item.active = !isCurrentlyActive;
     item.updated_at = new Date().toISOString();
     writeJson('faqs.json', list);
-
-    if (isSupabaseConfigured) {
-      try {
-        await supabase
-          .from('faqs')
-          .update({ status: item.status, updated_at: item.updated_at })
-          .eq('faq_id', String(id));
-      } catch (e) {
-        console.warn('Supabase toggleFaqStatus fallback:', e.message);
-      }
-    }
     return item;
   },
 
