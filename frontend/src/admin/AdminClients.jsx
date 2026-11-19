@@ -208,12 +208,13 @@ export default function AdminClients() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    const label = deleteTarget.name || 'Client';
+    const target = deleteTarget;
+    const label = target.name || 'Client';
+    setDeleteTarget(null);
     try {
-      await adminDeleteClient(deleteTarget.id);
-      setClients((prev) => prev.filter((row) => String(row.id) !== String(deleteTarget.id)));
+      await adminDeleteClient(target.id);
+      setClients((prev) => prev.filter((row) => String(row.id) !== String(target.id)));
       showToast('success', `Client '${label}' was successfully deleted.`);
-      setDeleteTarget(null);
     } catch (err) {
       showToast('error', `Could not delete client '${label}': ${err.message}`);
     }
@@ -842,12 +843,22 @@ export default function AdminClients() {
 
       {/* Delete Confirmation Modal */}
       {deleteTarget && (
-        <div className="admin-modal-backdrop show">
+        <div
+          className="admin-modal-backdrop show"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDeleteTarget(null);
+          }}
+        >
           <div className="admin-modal-dialog">
             <div className="admin-modal-content">
               <div className="admin-modal-header">
                 <h3>Delete Client Organization</h3>
-                <button type="button" className="modal-close-btn" onClick={() => setDeleteTarget(null)}>
+                <button
+                  type="button"
+                  className="modal-close-btn"
+                  onClick={() => setDeleteTarget(null)}
+                  aria-label="Close"
+                >
                   &times;
                 </button>
               </div>

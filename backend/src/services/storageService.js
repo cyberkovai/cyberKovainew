@@ -1556,12 +1556,15 @@ export const storageService = {
 
   async deleteAccreditation(id) {
     let list = readJson('accreditations.json', []);
-    list = list.filter(a => String(a.id) !== String(id));
+    list = list.filter(a => String(a.id) !== String(id) && String(a.accred_id) !== String(id));
     writeJson('accreditations.json', list);
 
     if (isSupabaseConfigured) {
       try {
         await supabase.from('accreditations').delete().eq('accred_id', String(id));
+        if (typeof id === 'number' || !isNaN(Number(id))) {
+          await supabase.from('accreditations').delete().eq('id', Number(id));
+        }
       } catch (e) {
         console.warn('Supabase deleteAccreditation fallback:', e.message);
       }

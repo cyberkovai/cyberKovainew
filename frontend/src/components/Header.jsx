@@ -59,9 +59,23 @@ export default function Header({ settings = {} }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
+  const [dropdownBlocked, setDropdownBlocked] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [forensicsNavServices, setForensicsNavServices] = useState([]);
   const [cyberNavServices, setCyberNavServices] = useState(null);
+
+  const closeDropdowns = () => {
+    setServicesDropdownOpen(false);
+    setAboutDropdownOpen(false);
+    setMobileOpen(false);
+    setDropdownBlocked(true);
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
+    setTimeout(() => {
+      setDropdownBlocked(false);
+    }, 350);
+  };
 
   const siteName = settings.site_name || 'Cyber Kovai';
   const siteEmail = settings.site_email || 'info@cyberkovai.com';
@@ -130,11 +144,9 @@ export default function Header({ settings = {} }) {
     return grouped;
   }, [cyberNavServices]);
 
-  // Close mobile drawer on route change
+  // Close mobile drawer and dropdowns on route change
   useEffect(() => {
-    setMobileOpen(false);
-    setServicesDropdownOpen(false);
-    setAboutDropdownOpen(false);
+    closeDropdowns();
   }, [location]);
 
   // URLs depending on track
@@ -189,7 +201,7 @@ export default function Header({ settings = {} }) {
 
           {/* 2. SERVICES MEGA DROPDOWN */}
           {activeTrack === 'cyber' ? (
-            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open' : ''}`} id="servicesNavItem">
+            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="servicesNavItem">
               <a
                 href={servicesUrl}
                 className="nav-link dropdown-toggle"
@@ -205,7 +217,7 @@ export default function Header({ settings = {} }) {
                 <span className="nav-arrow" aria-hidden="true">➔</span>
               </a>
 
-              <div className="mega-dropdown" id="servicesMegaMenu">
+              <div className={`mega-dropdown ${dropdownBlocked ? 'force-closed' : ''}`} id="servicesMegaMenu" onClick={(e) => { if (e.target.closest('a')) closeDropdowns(); }}>
                 <div className="mega-dropdown-inner">
                   {Object.entries(cyberColumns).map(([catKey, col]) => (
                     <div className="mega-col-group" key={catKey}>
@@ -217,7 +229,7 @@ export default function Header({ settings = {} }) {
                         <ul className="mega-links-list">
                           {col.services.map((svc) => (
                             <li key={svc.slug} className="submodule-item">
-                              <Link to={`/services/${svc.slug}`}>{svc.title}</Link>
+                              <Link to={`/services/${svc.slug}`} onClick={closeDropdowns}>{svc.title}</Link>
                             </li>
                           ))}
                         </ul>
@@ -229,7 +241,7 @@ export default function Header({ settings = {} }) {
             </div>
           ) : (
             /* Digital Investigation & Forensics Dropdown */
-            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open' : ''}`} id="servicesNavItem">
+            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="servicesNavItem">
               <a
                 href={servicesUrl}
                 className="nav-link dropdown-toggle"
@@ -245,25 +257,25 @@ export default function Header({ settings = {} }) {
                 <span className="nav-arrow" aria-hidden="true">➔</span>
               </a>
 
-              <div className="mega-dropdown forensics-mega-dropdown" id="servicesMegaMenu">
+              <div className={`mega-dropdown forensics-mega-dropdown ${dropdownBlocked ? 'force-closed' : ''}`} id="servicesMegaMenu" onClick={(e) => { if (e.target.closest('a')) closeDropdowns(); }}>
                 <ul className="mega-links-list forensics-links-list">
                   {forensicsNavServices.length > 0 ? (
                     forensicsNavServices.map((svc) => (
                       <li key={svc.slug || svc.id} className="submodule-item">
-                        <Link to={`/services/${svc.slug}?section=forensics`}>{svc.title}</Link>
+                        <Link to={`/services/${svc.slug}?section=forensics`} onClick={closeDropdowns}>{svc.title}</Link>
                       </li>
                     ))
                   ) : (
                     <>
-                      <li className="submodule-item"><Link to="/services/corporate-background-verification-bgv?section=forensics">Corporate Background Verification (BGV)</Link></li>
-                      <li className="submodule-item"><Link to="/services/cybercrime-victim-assistance-account-recovery?section=forensics">Cybercrime Victim Assistance &amp; Account Recovery</Link></li>
-                      <li className="submodule-item"><Link to="/services/digital-investigations-osint?section=forensics">Digital Investigations &amp; OSINT Intelligence</Link></li>
-                      <li className="submodule-item"><Link to="/services/social-media-investigations-impersonation-removal?section=forensics">Social Media Impersonation Removal &amp; Investigations</Link></li>
-                      <li className="submodule-item"><Link to="/services/cyber-fraud-investigation-support?section=forensics">Cyber Fraud &amp; Financial Scam Investigation</Link></li>
-                      <li className="submodule-item"><Link to="/services/digital-evidence-preservation-forensics?section=forensics">Digital Evidence Preservation &amp; Forensics</Link></li>
-                      <li className="submodule-item"><Link to="/services/executive-family-digital-protection?section=forensics">Executive &amp; Family Digital Protection</Link></li>
-                      <li className="submodule-item"><Link to="/services/cybersecurity-awareness-lea-training?section=forensics">Cybersecurity Awareness &amp; LEA Advisory</Link></li>
-                      <li className="submodule-item"><Link to="/services/child-digital-safety-protection?section=forensics">Child Digital Safety &amp; Parental Cyber Support</Link></li>
+                      <li className="submodule-item"><Link to="/services/corporate-background-verification-bgv?section=forensics" onClick={closeDropdowns}>Corporate Background Verification (BGV)</Link></li>
+                      <li className="submodule-item"><Link to="/services/cybercrime-victim-assistance-account-recovery?section=forensics" onClick={closeDropdowns}>Cybercrime Victim Assistance &amp; Account Recovery</Link></li>
+                      <li className="submodule-item"><Link to="/services/digital-investigations-osint?section=forensics" onClick={closeDropdowns}>Digital Investigations &amp; OSINT Intelligence</Link></li>
+                      <li className="submodule-item"><Link to="/services/social-media-investigations-impersonation-removal?section=forensics" onClick={closeDropdowns}>Social Media Impersonation Removal &amp; Investigations</Link></li>
+                      <li className="submodule-item"><Link to="/services/cyber-fraud-investigation-support?section=forensics" onClick={closeDropdowns}>Cyber Fraud &amp; Financial Scam Investigation</Link></li>
+                      <li className="submodule-item"><Link to="/services/digital-evidence-preservation-forensics?section=forensics" onClick={closeDropdowns}>Digital Evidence Preservation &amp; Forensics</Link></li>
+                      <li className="submodule-item"><Link to="/services/executive-family-digital-protection?section=forensics" onClick={closeDropdowns}>Executive &amp; Family Digital Protection</Link></li>
+                      <li className="submodule-item"><Link to="/services/cybersecurity-awareness-lea-training?section=forensics" onClick={closeDropdowns}>Cybersecurity Awareness &amp; LEA Advisory</Link></li>
+                      <li className="submodule-item"><Link to="/services/child-digital-safety-protection?section=forensics" onClick={closeDropdowns}>Child Digital Safety &amp; Parental Cyber Support</Link></li>
                     </>
                   )}
                 </ul>
@@ -273,7 +285,7 @@ export default function Header({ settings = {} }) {
 
           {/* 3. ABOUT */}
           {showTeam ? (
-            <div className={`nav-item has-dropdown about-nav-item ${(isAboutActive || isTeamActive) ? 'active' : ''} ${aboutDropdownOpen ? 'open' : ''}`} id="aboutNavItem">
+            <div className={`nav-item has-dropdown about-nav-item ${(isAboutActive || isTeamActive) ? 'active' : ''} ${aboutDropdownOpen ? 'open' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="aboutNavItem">
               <Link
                 to={aboutUrl}
                 className="nav-link dropdown-toggle"
@@ -289,15 +301,15 @@ export default function Header({ settings = {} }) {
                 <svg className="dropdown-arrow-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2"><polyline points="6,9 12,15 18,9" /></svg>
                 <span className="nav-arrow" aria-hidden="true">➔</span>
               </Link>
-              <div className="about-dropdown" id="aboutMegaMenu">
+              <div className={`about-dropdown ${dropdownBlocked ? 'force-closed' : ''}`} id="aboutMegaMenu" onClick={(e) => { if (e.target.closest('a')) closeDropdowns(); }}>
                 <ul className="mega-links-list about-links-list">
                   <li className="submodule-item">
-                    <Link to={aboutUrl} className={isAboutActive ? 'active' : ''}>
+                    <Link to={aboutUrl} className={isAboutActive ? 'active' : ''} onClick={closeDropdowns}>
                       {activeTrack === 'forensics' ? 'About Us' : 'About CyberKovai'}
                     </Link>
                   </li>
                   <li className="submodule-item">
-                    <Link to={teamUrl} className={isTeamActive ? 'active' : ''}>
+                    <Link to={teamUrl} className={isTeamActive ? 'active' : ''} onClick={closeDropdowns}>
                       Our Team
                     </Link>
                   </li>

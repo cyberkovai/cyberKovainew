@@ -470,6 +470,20 @@ button {
     transform: translateY(0);
 }
 
+/* Force close dropdown immediately when user selects a menu item */
+.mega-dropdown.force-closed,
+.forensics-mega-dropdown.force-closed,
+.about-dropdown.force-closed,
+.services-nav-item.dropdown-blocked .mega-dropdown,
+.services-nav-item.dropdown-blocked .forensics-mega-dropdown,
+.about-nav-item.dropdown-blocked .about-dropdown {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(-12px) !important;
+    display: none !important;
+}
+
 [data-theme="light"] .mega-dropdown {
     background: rgba(255, 255, 255, 0.98);
     border-color: rgba(139, 32, 255, 0.2);

@@ -220,12 +220,13 @@ export default function AdminAccreditations() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    const label = deleteTarget.short_name || deleteTarget.name || deleteTarget.title || 'Accreditation';
+    const target = deleteTarget;
+    const label = target.short_name || target.name || target.title || 'Accreditation';
+    setDeleteTarget(null);
     try {
-      await adminDeleteAccreditation(deleteTarget.id);
-      setAccreds((prev) => prev.filter((row) => String(row.id) !== String(deleteTarget.id)));
+      await adminDeleteAccreditation(target.id);
+      setAccreds((prev) => prev.filter((row) => String(row.id) !== String(target.id)));
       showToast('success', `Accreditation '${label}' was successfully deleted.`);
-      setDeleteTarget(null);
     } catch (err) {
       showToast('error', `Could not delete accreditation '${label}': ${err.message}`);
     }
@@ -625,12 +626,24 @@ export default function AdminAccreditations() {
       )}
 
       {deleteTarget && (
-        <div className="admin-modal-backdrop show">
+        <div
+          className="admin-modal-backdrop show"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDeleteTarget(null);
+          }}
+        >
           <div className="admin-modal-dialog">
             <div className="admin-modal-content">
               <div className="admin-modal-header">
                 <h3>Delete Accreditation</h3>
-                <button type="button" className="modal-close-btn" onClick={() => setDeleteTarget(null)}>&times;</button>
+                <button
+                  type="button"
+                  className="modal-close-btn"
+                  onClick={() => setDeleteTarget(null)}
+                  aria-label="Close"
+                >
+                  &times;
+                </button>
               </div>
               <div className="admin-modal-body">
                 <p style={{ margin: 0, lineHeight: 1.6 }}>
