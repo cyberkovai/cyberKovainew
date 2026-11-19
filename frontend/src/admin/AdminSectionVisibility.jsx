@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import { getSections, updateSections } from '../api/client';
+import { isSectionVisible } from '../utils/sections';
 
 const SECTION_REGISTRY = [
   {
@@ -335,7 +336,7 @@ export default function AdminSectionVisibility() {
     let count = 0;
     SECTION_REGISTRY.forEach((g) => {
       g.sections.forEach((s) => {
-        if (sections[s.key] !== false) count++;
+        if (isSectionVisible(sections, s.key)) count++;
       });
     });
     return count;
@@ -345,7 +346,7 @@ export default function AdminSectionVisibility() {
 
   // Single section toggle with instant API update
   const handleToggle = async (key) => {
-    const isCurrentlyVisible = sections[key] !== false;
+    const isCurrentlyVisible = isSectionVisible(sections, key);
     const newVisible = !isCurrentlyVisible;
 
     // Optimistic UI update
@@ -523,7 +524,7 @@ export default function AdminSectionVisibility() {
 
           // Count group visible
           const groupTotal = group.sections.length;
-          const groupVisible = group.sections.filter((s) => sections[s.key] !== false).length;
+          const groupVisible = group.sections.filter((s) => isSectionVisible(sections, s.key)).length;
 
           return (
             <div key={group.key} className="admin-card sv-group-card">
@@ -564,7 +565,7 @@ export default function AdminSectionVisibility() {
               <div className="admin-card-body">
                 <div className="sv-grid">
                   {filteredSections.map((meta) => {
-                    const isVis = sections[meta.key] !== false;
+                    const isVis = isSectionVisible(sections, meta.key);
                     return (
                       <div
                         key={meta.key}

@@ -7,6 +7,7 @@ import ContactForm from '../components/ContactForm';
 import RouteGlobe from '../components/RouteGlobe';
 import AttackSurfaceHero from '../components/cyber/AttackSurfaceHero';
 import { getAssetUrl } from '../utils/assets';
+import { isSectionVisible } from '../utils/sections';
 import {
   getSettings,
   getSections,
@@ -372,7 +373,7 @@ export default function CyberSecurityPage() {
 
       <main className="df-page cyber-track-view">
         {/* ================= 1. HERO SECTION ================= */}
-        {sections.cyber_hero !== false && (
+        {isSectionVisible(sections, 'cyber_hero') && (
           <section className="hero" id="home">
             <div className="hero-bg"></div>
 
@@ -428,7 +429,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 2. ABOUT CYBER DEFENSE ================= */}
-        {sections.cyber_about !== false && (
+        {isSectionVisible(sections, 'cyber_about') && (
           <section className="section about-section cyber-about-section" id="about">
             <div className="about-ambient-glow about-glow-left" aria-hidden="true"></div>
             <div className="about-ambient-glow about-glow-right" aria-hidden="true"></div>
@@ -615,7 +616,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 3. CORE CYBER CAPABILITIES (3 PILLARS) ================= */}
-        {sections.cyber_capabilities !== false && (
+        {isSectionVisible(sections, 'cyber_capabilities') && (
           <section className="section cyber-capabilities-section" id="capabilities">
             <div className="container">
               <div className="section-heading text-center">
@@ -703,7 +704,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 4. HUD STATS COUNTER BAR ================= */}
-        {sections.cyber_stats !== false && (
+        {isSectionVisible(sections, 'cyber_stats') && (
           <section className="stats-section cyber-stats-section">
             <div className="container">
               <div className="stats-counter-grid cyber-hud-stats">
@@ -727,7 +728,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 5. CORE CYBER PRACTICES (BENTO GRID) ================= */}
-        {sections.cyber_practices !== false && (
+        {isSectionVisible(sections, 'cyber_practices') && (
           <section className="section services-section cyber-practices-section" id="services">
             <span id="practices" style={{ display: 'block', position: 'relative', top: '-100px', visibility: 'hidden' }}></span>
             <div className="container">
@@ -804,7 +805,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 6. STRUCTURED DEFENSE LIFECYCLE (5-STAGE PIPELINE) ================= */}
-        {sections.cyber_process !== false && (
+        {isSectionVisible(sections, 'cyber_process') && (
           <section className="section process-section cyber-process-section" id="process">
             <div className="container">
               <div className="section-heading text-center">
@@ -852,7 +853,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 7. CYBER INTELLIGENCE FOR EVERY INDUSTRY ================= */}
-        {sections.cyber_industries !== false && (
+        {isSectionVisible(sections, 'cyber_industries') && (
           <section className="section industries-section cyber-industries-section" id="industries">
             <div className="container industries-container">
               <div className="section-heading text-center">
@@ -942,7 +943,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 8. FROM STARTUPS TO MULTINATIONALS (TIERS & PARTNERS) ================= */}
-        {sections.cyber_clients !== false && (
+        {isSectionVisible(sections, 'cyber_clients') && (
           <section className="section clients-section cyber-clients-section">
             <div className="container">
               <div className="section-heading text-center">
@@ -1021,7 +1022,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 9. GLOBAL REACH & WORLD GLOBE ================= */}
-        {sections.cyber_coverage !== false && (
+        {isSectionVisible(sections, 'cyber_coverage') && (
           <section className="section coverage-section" id="coverage">
             <div className="container">
               <div className="coverage-grid">
@@ -1070,7 +1071,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 10. ACCREDITATIONS & CREDENTIALS ================= */}
-        {sections.cyber_credentials !== false && accreditations.length > 0 && (
+        {isSectionVisible(sections, 'cyber_credentials') && accreditations.length > 0 && (
           <section className="section credentials-section" id="credentials">
             <div className="container">
               <div className="section-heading text-center">
@@ -1117,7 +1118,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 11. CYBER ATTACK SURFACE SIMULATOR PROBES ================= */}
-        {sections.cyber_simulator !== false && (
+        {isSectionVisible(sections, 'cyber_simulator') && (
           <section className="section tools-section cyber-tools-section" id="company">
             <div className="container">
               <div className="section-heading text-center">
@@ -1159,7 +1160,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 12. FAQ (HELP CENTER) ================= */}
-        {sections.cyber_faq !== false && (
+        {isSectionVisible(sections, 'cyber_faq') && (
           <section className="section ci-faq-section cyber-faq-section" id="faq">
             <div className="container">
               <div className="ci-faq-grid">
@@ -1220,7 +1221,7 @@ export default function CyberSecurityPage() {
         )}
 
         {/* ================= 13. CTA BANNER & CONTACT FORM ================= */}
-        {sections.cyber_contact !== false && (
+        {isSectionVisible(sections, 'cyber_contact') && (
           <section className="contact-section" id="contact">
             <div className="container">
               <div className="cta-banner-box">
@@ -1254,8 +1255,8 @@ export default function CyberSecurityPage() {
         )}
       </main>
 
-      <Footer settings={settings} />
-      <LiveChatWidget settings={settings} />
+      <Footer settings={settings} sections={sections} />
+      <LiveChatWidget settings={settings} sections={sections} />
     </>
   );
 }

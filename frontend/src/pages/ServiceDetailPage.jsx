@@ -14,6 +14,7 @@ import {
 } from '../api/client';
 import { useTrack } from '../context/TrackContext';
 import { getAssetUrl } from '../utils/assets';
+import { isSectionVisible } from '../utils/sections';
 
 function resolveImage(src) {
   return getAssetUrl(src);
@@ -96,7 +97,7 @@ export default function ServiceDetailPage() {
   // Mount the PHP-style reCAPTCHA widget once the booking card is in the DOM.
   useEffect(() => {
     if (!recaptcha.enabled || !recaptcha.siteKey || !data) return undefined;
-    if (sections.svc_booking === false) return undefined;
+    if (!isSectionVisible(sections, 'svc_booking')) return undefined;
 
     let timer;
     let attempts = 0;
@@ -114,14 +115,14 @@ export default function ServiceDetailPage() {
     };
     render();
     return () => clearTimeout(timer);
-  }, [recaptcha, data, sections.svc_booking]);
+  }, [recaptcha, data, sections]);
 
   const service = data?.service;
   const category = data?.category || {};
   const related = Array.isArray(data?.related) ? data.related : [];
   const categorySlug = data?.categorySlug || service?.category || 'application-security';
 
-  const isVisible = (key) => sections[key] !== false;
+  const isVisible = (key) => isSectionVisible(sections, key);
 
   const activeSection = useMemo(() => {
     if (categorySlug === 'digital-investigations') return 'forensics';
@@ -744,8 +745,8 @@ export default function ServiceDetailPage() {
         )}
       </main>
 
-      <Footer settings={settings} />
-      <LiveChatWidget settings={settings} />
+      <Footer settings={settings} sections={sections} />
+      <LiveChatWidget settings={settings} sections={sections} />
     </>
   );
 }

@@ -67,7 +67,7 @@ export default function Header({ settings = {} }) {
   const siteEmail = settings.site_email || 'info@cyberkovai.com';
   const sitePhone = settings.site_phone || '+91 63820 19821';
   const sitePhoneTel = settings.site_phone_tel || '+916382019821';
-  const showTeam = settings.show_team !== false;
+  const showTeam = settings.show_team !== false && settings.show_team !== 0 && settings.show_team !== '0';
 
   useEffect(() => {
     const handleScroll = () => {

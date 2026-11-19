@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import * as api from '../src/api/client.js';
 import { getAssetUrl } from '../src/utils/assets.js';
+import { isSectionVisible } from '../src/utils/sections.js';
 
 describe('Frontend API Client & Helper Logic Test Suite', () => {
   it('should export all required public and admin API methods', () => {
@@ -159,5 +160,25 @@ describe('Frontend API Client & Helper Logic Test Suite', () => {
     // 4. Null or empty paths
     assert.strictEqual(getAssetUrl(''), '');
     assert.strictEqual(getAssetUrl(null), '');
+  });
+
+  it('should correctly evaluate section visibility for boolean, numeric, and string representations', () => {
+    // Hidden states: false, 0, '0', 'false'
+    assert.strictEqual(isSectionVisible({ cyber_hero: false }, 'cyber_hero'), false);
+    assert.strictEqual(isSectionVisible({ cyber_hero: 0 }, 'cyber_hero'), false);
+    assert.strictEqual(isSectionVisible({ cyber_hero: '0' }, 'cyber_hero'), false);
+    assert.strictEqual(isSectionVisible({ cyber_hero: 'false' }, 'cyber_hero'), false);
+
+    // Visible states: true, 1, '1', 'true'
+    assert.strictEqual(isSectionVisible({ cyber_hero: true }, 'cyber_hero'), true);
+    assert.strictEqual(isSectionVisible({ cyber_hero: 1 }, 'cyber_hero'), true);
+    assert.strictEqual(isSectionVisible({ cyber_hero: '1' }, 'cyber_hero'), true);
+    assert.strictEqual(isSectionVisible({ cyber_hero: 'true' }, 'cyber_hero'), true);
+
+    // Default states when missing or undefined
+    assert.strictEqual(isSectionVisible({}, 'cyber_hero'), true);
+    assert.strictEqual(isSectionVisible({ cyber_hero: undefined }, 'cyber_hero'), true);
+    assert.strictEqual(isSectionVisible(null, 'cyber_hero'), true);
+    assert.strictEqual(isSectionVisible(undefined, 'cyber_hero'), true);
   });
 });

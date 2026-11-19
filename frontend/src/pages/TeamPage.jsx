@@ -135,7 +135,7 @@ export default function TeamPage() {
     .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
   // Mirror the PHP page: if the "Our Team" section is disabled, redirect to About.
-  if (settings && settings.show_team === false) {
+  if (settings && (settings.show_team === false || settings.show_team === 0 || settings.show_team === '0')) {
     return <Navigate to={aboutUrl} replace />;
   }
 

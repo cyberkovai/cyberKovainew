@@ -108,5 +108,18 @@
         "status": "active",
         "created_at": "2026-11-05 15:30:00",
         "updated_at": "2026-11-05 15:30:00"
+    },
+    {
+        "id": "faq-1795067532605",
+        "track": "investigation",
+        "question": "test",
+        "answer": "erwerweqrwere",
+        "category": "General",
+        "order": 11,
+        "status": "active",
+        "active": true,
+        "faq_id": "faq-1795067532605",
+        "updated_at": "2026-11-19T05:52:12.605Z",
+        "created_at": "2026-11-19T05:52:12.605Z"
     }
 ]

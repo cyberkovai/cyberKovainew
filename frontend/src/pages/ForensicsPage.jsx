@@ -12,6 +12,7 @@ import CiThreatGlobe from '../components/forensics/CiThreatGlobe';
 import CiWorldMap from '../components/forensics/CiWorldMap';
 import CiCtaCanvas from '../components/forensics/CiCtaCanvas';
 import { getAssetUrl } from '../utils/assets';
+import { isSectionVisible } from '../utils/sections';
 import {
   getSettings,
   getSections,
@@ -379,7 +380,7 @@ export default function ForensicsPage() {
 
       <main className="cyber-intelligence-page forensics-track-view">
         {/* ================= 1. HERO SECTION ================= */}
-        {sections.inv_hero !== false && (
+        {isSectionVisible(sections, 'inv_hero') && (
           <section className="ci-hero" id="ci-home">
             {/* Particle canvas background */}
             <CiHeroCanvas />
@@ -441,10 +442,10 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 2. 9-PILLAR INTERACTIVE SHOWCASE MATRIX ================= */}
-        {sections.inv_showcase !== false && <CiShowcaseMatrix />}
+        {isSectionVisible(sections, 'inv_showcase') && <CiShowcaseMatrix />}
 
         {/* ================= 3. COMPREHENSIVE DIGITAL INVESTIGATION SOLUTIONS ================= */}
-        {sections.inv_services !== false && (
+        {isSectionVisible(sections, 'inv_services') && (
           <section className="section ci-services-section" id="ci-services">
             <div className="container">
               <div className="section-heading text-center ci-reveal">
@@ -494,10 +495,10 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 4. EVIDENTIARY PROCESS (5 FORENSIC TIMELINE NODES) ================= */}
-        {sections.inv_process !== false && <CiProcessTimeline />}
+        {isSectionVisible(sections, 'inv_process') && <CiProcessTimeline />}
 
         {/* ================= 5. INCIDENTS & THREATS WE INVESTIGATE (3D FIBONACCI KEYWORD GLOBE) ================= */}
-        {sections.inv_risks !== false && (
+        {isSectionVisible(sections, 'inv_risks') && (
           <section className="section ci-risks-section" id="ci-risks">
             <div className="container">
               <div className="section-heading text-center ci-reveal">
@@ -518,7 +519,7 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 6. MEMBERSHIPS, ASSOCIATIONS & ACCREDITATIONS ================= */}
-        {sections.inv_credentials !== false && accreditations.length > 0 && (
+        {isSectionVisible(sections, 'inv_credentials') && accreditations.length > 0 && (
           <section
             className="section credentials-section"
             id="credentials"
@@ -572,10 +573,10 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 7. GLOBAL FOOTPRINT (WORLD MAP + STATS) ================= */}
-        {sections.inv_coverage !== false && <CiWorldMap />}
+        {isSectionVisible(sections, 'inv_coverage') && <CiWorldMap />}
 
         {/* ================= 8. ORGANIZATIONS THAT TRUST CYBERKOVAI ================= */}
-        {sections.inv_clients !== false && clients.length > 0 && (
+        {isSectionVisible(sections, 'inv_clients') && clients.length > 0 && (
           <section className="section ci-clients-section" id="ci-clients">
             <div className="container">
               <div className="section-heading text-center ci-reveal">
@@ -618,7 +619,7 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 9. CASE TESTIMONIALS ================= */}
-        {sections.show_testimonials !== false && testimonials.length > 0 && (
+        {isSectionVisible(sections, 'show_testimonials') && (settings.show_testimonials !== false && settings.show_testimonials !== 0 && settings.show_testimonials !== '0') && testimonials.length > 0 && (
           <section className="section ci-testimonials" id="ci-testimonials">
             <div className="container">
               <div className="section-heading text-center ci-reveal">
@@ -656,7 +657,7 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 10. FAQ (HELP CENTER) ================= */}
-        {sections.inv_faq !== false && (
+        {isSectionVisible(sections, 'inv_faq') && (
           <section className="section ci-faq-section" id="ci-faq">
             <div className="container">
               <div className="ci-faq-grid">
@@ -716,7 +717,7 @@ export default function ForensicsPage() {
         )}
 
         {/* ================= 11. FINAL CTA & CONFIDENTIAL INQUIRY FORM ================= */}
-        {sections.inv_contact !== false && (
+        {isSectionVisible(sections, 'inv_contact') && (
           <section className="ci-final-cta" id="contact" style={{ padding: '4.5rem 0' }}>
             <CiCtaCanvas />
 
@@ -768,8 +769,8 @@ export default function ForensicsPage() {
         )}
       </main>
 
-      <Footer settings={settings} />
-      <LiveChatWidget settings={settings} />
+      <Footer settings={settings} sections={sections} />
+      <LiveChatWidget settings={settings} sections={sections} />
     </>
   );
 }

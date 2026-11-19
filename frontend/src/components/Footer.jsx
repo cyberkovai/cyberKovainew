@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTrack } from '../context/TrackContext';
-import { getInvestigationServices, getCyberServices } from '../api/client';
+import { getInvestigationServices, getCyberServices, getSections } from '../api/client';
 import { getAssetUrl } from '../utils/assets';
+import { isSectionVisible } from '../utils/sections';
 
-export default function Footer({ settings = {} }) {
+export default function Footer({ settings = {}, sections: propSections }) {
   const { activeTrack } = useTrack();
   const [forensicsServices, setForensicsServices] = useState([]);
   const [cyberServices, setCyberServices] = useState([]);
+  const [sections, setSections] = useState(propSections || {});
+
+  useEffect(() => {
+    if (propSections && Object.keys(propSections).length > 0) {
+      setSections(propSections);
+    } else {
+      getSections().then((s) => s && setSections(s)).catch(() => {});
+    }
+  }, [propSections]);
 
   useEffect(() => {
     getInvestigationServices()
@@ -39,8 +49,8 @@ export default function Footer({ settings = {} }) {
   const sitePhone = settings.site_phone || '+91 63820 19821';
   const sitePhoneTel = settings.site_phone_tel || '+916382019821';
   const siteEmail = settings.site_email || 'info@cyberkovai.com';
-  const showTeam = settings.show_team !== false;
-  const showTestimonials = settings.show_testimonials !== false;
+  const showTeam = (settings.show_team !== false && settings.show_team !== 0 && settings.show_team !== '0') && isSectionVisible(sections, 'show_team');
+  const showTestimonials = (settings.show_testimonials !== false && settings.show_testimonials !== 0 && settings.show_testimonials !== '0') && isSectionVisible(sections, 'show_testimonials');
 
   const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
   const aboutUrl = `/about?section=${activeTrack}`;
@@ -205,11 +215,13 @@ export default function Footer({ settings = {} }) {
       </div>
 
       {/* Global Service Areas Bar */}
-      <div className="container service-areas-bar">
-        <h4>SERVICE COVERAGE</h4>
-        <p><strong>India Hub:</strong> Coimbatore, Chennai, Bengaluru, Hyderabad, Mumbai, Delhi, Pune, and all major tech corridors.</p>
-        <p><strong>Global Delivery:</strong> UAE (Abu Dhabi, Dubai), Saudi Arabia, Singapore, Australia, Germany, Canada, and US.</p>
-      </div>
+      {isSectionVisible(sections, 'global_service_areas') && (
+        <div className="container service-areas-bar">
+          <h4>SERVICE COVERAGE</h4>
+          <p><strong>India Hub:</strong> Coimbatore, Chennai, Bengaluru, Hyderabad, Mumbai, Delhi, Pune, and all major tech corridors.</p>
+          <p><strong>Global Delivery:</strong> UAE (Abu Dhabi, Dubai), Saudi Arabia, Singapore, Australia, Germany, Canada, and US.</p>
+        </div>
+      )}
 
       {/* Footer Bottom Bar */}
       <div className="footer-bottom">

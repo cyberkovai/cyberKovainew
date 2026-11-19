@@ -6,6 +6,7 @@ import LiveChatWidget from '../components/LiveChatWidget';
 import ContactForm from '../components/ContactForm';
 import { getSettings, getSections, getCyberServices, getInvestigationServices } from '../api/client';
 import { useTrack } from '../context/TrackContext';
+import { isSectionVisible } from '../utils/sections';
 
 export default function ContactPage() {
   const [settings, setSettings] = useState({});
@@ -29,7 +30,7 @@ export default function ContactPage() {
 
       <main className="contact-page">
         {/* ================= HERO / BREADCRUMB ================= */}
-        {sections.contact_hero !== false && (
+        {isSectionVisible(sections, 'contact_hero') && (
           <section className="about-hero-header">
             <div className="container">
               <div className="breadcrumb">
@@ -46,7 +47,7 @@ export default function ContactPage() {
         )}
 
         {/* ================= CONTACT SECTION & FORM ================= */}
-        {sections.contact_form_section !== false && (
+        {isSectionVisible(sections, 'contact_form_section') && (
           <section className="contact-section" style={{ paddingTop: '40px' }}>
             <div className="container">
               <div className="cta-banner-box">
@@ -80,8 +81,8 @@ export default function ContactPage() {
         )}
       </main>
 
-      <Footer settings={settings} />
-      <LiveChatWidget settings={settings} />
+      <Footer settings={settings} sections={sections} />
+      <LiveChatWidget settings={settings} sections={sections} />
     </>
   );
 }

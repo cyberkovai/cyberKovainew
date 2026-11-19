@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTrack } from '../context/TrackContext';
+import { getSections } from '../api/client';
+import { isSectionVisible } from '../utils/sections';
 
-export default function LiveChatWidget({ settings = {} }) {
+export default function LiveChatWidget({ settings = {}, sections: propSections }) {
   const [open, setOpen] = useState(true);
+  const [sections, setSections] = useState(propSections || {});
   const { activeTrack } = useTrack();
+
+  useEffect(() => {
+    if (propSections && Object.keys(propSections).length > 0) {
+      setSections(propSections);
+    } else {
+      getSections().then((s) => s && setSections(s)).catch(() => {});
+    }
+  }, [propSections]);
+
+  if (!isSectionVisible(sections, 'global_chat_widget')) {
+    return null;
+  }
+
   const siteName = settings.site_name || 'Cyber Kovai';
   const contactUrl = `/contact?section=${activeTrack}`;
 

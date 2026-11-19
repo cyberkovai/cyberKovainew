@@ -156,10 +156,26 @@ export const storageService = {
         } else {
           console.log('✅ Settings saved to Supabase settings table.');
         }
+
+        // Two-way sync: keep section_visibility table in sync if show_team or show_testimonials were modified
+        if (merged.show_team !== undefined || merged.show_testimonials !== undefined) {
+          const secPayload = {};
+          if (merged.show_team !== undefined) secPayload.show_team = dbPayload.show_team;
+          if (merged.show_testimonials !== undefined) secPayload.show_testimonials = dbPayload.show_testimonials;
+          await supabase.from('section_visibility').update(secPayload).eq('id', 1);
+        }
       } catch (e) {
         console.warn('Supabase updateSettings fallback:', e.message);
       }
     }
+
+    if (merged.show_team !== undefined || merged.show_testimonials !== undefined) {
+      const curSections = readJson('sections.json', {});
+      if (merged.show_team !== undefined) curSections.show_team = merged.show_team === true || merged.show_team === 1 || merged.show_team === '1';
+      if (merged.show_testimonials !== undefined) curSections.show_testimonials = merged.show_testimonials === true || merged.show_testimonials === 1 || merged.show_testimonials === '1';
+      writeJson('sections.json', curSections);
+    }
+
     writeJson('settings.json', merged);
     return merged;
   },
@@ -169,14 +185,59 @@ export const storageService = {
   // Table: section_visibility (id, 41 boolean integer columns, updated_at)
   // ==========================================
   async getSectionVisibility() {
+    const defaultSections = {
+      cyber_hero: true,
+      cyber_about: true,
+      cyber_capabilities: true,
+      cyber_stats: true,
+      cyber_practices: true,
+      cyber_process: true,
+      cyber_industries: true,
+      cyber_clients: true,
+      cyber_coverage: true,
+      cyber_credentials: true,
+      cyber_simulator: true,
+      cyber_faq: true,
+      cyber_contact: true,
+      inv_hero: true,
+      inv_showcase: true,
+      inv_services: true,
+      inv_process: true,
+      inv_risks: true,
+      inv_credentials: true,
+      inv_coverage: true,
+      inv_clients: true,
+      show_testimonials: true,
+      inv_faq: true,
+      inv_contact: true,
+      about_hero: true,
+      about_who_we_are: true,
+      about_principles: true,
+      about_cta: true,
+      show_team: true,
+      svc_hero: true,
+      svc_overview: true,
+      svc_capabilities: true,
+      svc_methodology: true,
+      svc_deliverables: true,
+      svc_faqs: true,
+      svc_related: true,
+      svc_booking: true,
+      contact_hero: true,
+      contact_form_section: true,
+      global_service_areas: true,
+      global_chat_widget: true,
+    };
+
+    let config = { ...defaultSections };
+
     if (isSupabaseConfigured) {
       try {
         const { data, error } = await supabase.from('section_visibility').select('*').limit(1).single();
         if (!error && data) {
-          const config = {};
           for (const [key, val] of Object.entries(data)) {
             if (key !== 'id' && key !== 'updated_at') {
-              config[key] = val === 1 || val === true || val === '1' ? 1 : 0;
+              config[key] = (val === 1 || val === true || val === '1');
             }
           }
           return config;
@@ -187,31 +248,44 @@ export const storageService = {
         console.warn('Supabase section_visibility fallback:', e.message);
       }
     }
-    return readJson('sections.json', {});
+
+    const raw = readJson('sections.json', {});
+    for (const [key, val] of Object.entries(raw)) {
+      if (key !== 'id' && key !== 'updated_at') {
+        config[key] = (val === 1 || val === true || val === '1');
+      }
+    }
+    return config;
   },
 
   async updateSectionVisibility(newConfig) {
     const current = await this.getSectionVisibility();
-    const merged = { ...current, ...newConfig, updated_at: new Date().toISOString() };
+    const merged = { ...current };
+
+    const validCols = [
+      'cyber_hero', 'cyber_about', 'cyber_capabilities', 'cyber_stats', 'cyber_practices',
+      'cyber_process', 'cyber_industries', 'cyber_clients', 'cyber_coverage', 'cyber_credentials',
+      'cyber_simulator', 'cyber_faq', 'cyber_contact', 'inv_hero', 'inv_showcase',
+      'inv_services', 'inv_process', 'inv_risks', 'inv_credentials', 'inv_coverage',
+      'inv_clients', 'show_testimonials', 'inv_faq', 'inv_contact', 'about_hero',
+      'about_who_we_are', 'about_principles', 'about_cta', 'show_team', 'svc_hero',
+      'svc_overview', 'svc_capabilities', 'svc_methodology', 'svc_deliverables', 'svc_faqs',
+      'svc_related', 'svc_booking', 'contact_hero', 'contact_form_section', 'global_service_areas',
+      'global_chat_widget'
+    ];
+
+    for (const col of validCols) {
+      if (newConfig[col] !== undefined) {
+        merged[col] = (newConfig[col] === 1 || newConfig[col] === true || newConfig[col] === '1');
+      }
+    }
+    merged.updated_at = new Date().toISOString();
 
     if (isSupabaseConfigured) {
       try {
-        const validCols = [
-          'cyber_hero', 'cyber_about', 'cyber_capabilities', 'cyber_stats', 'cyber_practices',
-          'cyber_process', 'cyber_industries', 'cyber_clients', 'cyber_coverage', 'cyber_credentials',
-          'cyber_simulator', 'cyber_faq', 'cyber_contact', 'inv_hero', 'inv_showcase',
-          'inv_services', 'inv_process', 'inv_risks', 'inv_credentials', 'inv_coverage',
-          'inv_clients', 'show_testimonials', 'inv_faq', 'inv_contact', 'about_hero',
-          'about_who_we_are', 'about_principles', 'about_cta', 'show_team', 'svc_hero',
-          'svc_overview', 'svc_capabilities', 'svc_methodology', 'svc_deliverables', 'svc_faqs',
-          'svc_related', 'svc_booking', 'contact_hero', 'contact_form_section', 'global_service_areas',
-          'global_chat_widget'
-        ];
         const dbPayload = { updated_at: merged.updated_at };
         for (const col of validCols) {
-          if (merged[col] !== undefined) {
-            dbPayload[col] = (merged[col] === 1 || merged[col] === true || merged[col] === '1') ? 1 : 0;
-          }
+          dbPayload[col] = merged[col] ? 1 : 0;
         }
 
         const { error } = await supabase.from('section_visibility').update(dbPayload).eq('id', 1);
@@ -220,10 +294,31 @@ export const storageService = {
         } else {
           console.log('✅ Section visibility saved to Supabase section_visibility table.');
         }
+
+        // Two-way sync: keep settings table in sync if show_team or show_testimonials were modified
+        if (newConfig.show_team !== undefined || newConfig.show_testimonials !== undefined) {
+          const settingsPayload = {};
+          if (newConfig.show_team !== undefined) {
+            settingsPayload.show_team = merged.show_team ? 1 : 0;
+          }
+          if (newConfig.show_testimonials !== undefined) {
+            settingsPayload.show_testimonials = merged.show_testimonials ? 1 : 0;
+          }
+          await supabase.from('settings').update(settingsPayload).eq('id', 1);
+        }
       } catch (e) {
         console.warn('Supabase updateSectionVisibility fallback:', e.message);
       }
     }
+
+    // Keep settings.json in sync as well
+    if (newConfig.show_team !== undefined || newConfig.show_testimonials !== undefined) {
+      const curSettings = readJson('settings.json', {});
+      if (newConfig.show_team !== undefined) curSettings.show_team = merged.show_team;
+      if (newConfig.show_testimonials !== undefined) curSettings.show_testimonials = merged.show_testimonials;
+      writeJson('settings.json', curSettings);
+    }
+
     writeJson('sections.json', merged);
     return merged;
   },

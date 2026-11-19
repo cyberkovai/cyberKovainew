@@ -6,6 +6,7 @@ import LiveChatWidget from '../components/LiveChatWidget';
 import { getSettings, getSections } from '../api/client';
 import { useTrack } from '../context/TrackContext';
 import { getAssetUrl } from '../utils/assets';
+import { isSectionVisible } from '../utils/sections';
 
 export default function AboutPage() {
   const [settings, setSettings] = useState({});
@@ -26,7 +27,7 @@ export default function AboutPage() {
 
       <main className="about-page">
         {/* ================= HERO / BREADCRUMB ================= */}
-        {sections.about_hero !== false && (
+        {isSectionVisible(sections, 'about_hero') && (
           <section className="about-hero-header">
             <div className="container">
               <div className="breadcrumb">
@@ -40,7 +41,7 @@ export default function AboutPage() {
         )}
 
         {/* ================= SECTION 1: WHO WE ARE ================= */}
-        {sections.about_who_we_are !== false && (
+        {isSectionVisible(sections, 'about_who_we_are') && (
           <section className="section who-we-are-section">
             <div className="container">
               <div className="who-we-are-grid">
@@ -139,7 +140,7 @@ export default function AboutPage() {
         )}
 
         {/* ================= SECTION 2: PRINCIPLES THAT DEFINE OUR INVESTIGATIONS ================= */}
-        {sections.about_principles !== false && (
+        {isSectionVisible(sections, 'about_principles') && (
           <section className="section principles-section" id="principles">
             <div className="principles-ambient-glow" aria-hidden="true"></div>
             <div className="container">
@@ -264,7 +265,7 @@ export default function AboutPage() {
         )}
 
         {/* ================= SECTION 3: CALL TO ACTION ================= */}
-        {sections.about_cta !== false && (
+        {isSectionVisible(sections, 'about_cta') && (
           <section className="section about-cta-section">
             <div className="container">
               <div className="about-cta-banner">
@@ -285,8 +286,8 @@ export default function AboutPage() {
         )}
       </main>
 
-      <Footer settings={settings} />
-      <LiveChatWidget settings={settings} />
+      <Footer settings={settings} sections={sections} />
+      <LiveChatWidget settings={settings} sections={sections} />
     </>
   );
 }
