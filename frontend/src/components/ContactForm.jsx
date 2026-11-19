@@ -9,6 +9,7 @@ export default function ContactForm({
   cyberServices = EMPTY_SERVICES_ARRAY,
   investigationServices = EMPTY_SERVICES_ARRAY,
   initialService = '',
+  submitText = 'Submit Confidential Request ➔',
 }) {
   const { activeTrack } = useTrack();
   const [fetchedCyberServices, setFetchedCyberServices] = useState([]);
@@ -290,14 +291,14 @@ export default function ContactForm({
 
         <div style={{ marginBottom: '1.5rem' }}>
           <label htmlFor="message" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>
-            Confidential Details / Scope Overview *
+            Confidential Details / Message *
           </label>
           <textarea
             id="message"
             name="message"
             rows="4"
             required
-            placeholder="Please detail your target systems, suspected incidents, or investigation objectives..."
+            placeholder="Describe your requirement in brief. All submissions are encrypted and kept strictly confidential under NDA."
             value={formData.message}
             onChange={handleChange}
             style={{ width: '100%', padding: '0.9rem 1.1rem', borderRadius: '10px', fontFamily: 'inherit', resize: 'vertical' }}
@@ -311,18 +312,30 @@ export default function ContactForm({
           onExpired={() => setRecaptchaToken('')}
         />
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ marginTop: '1.25rem' }}>
           <button
             type="submit"
-            className="btn primary-btn"
+            className="contact-submit-full-btn btn primary-btn"
             disabled={loading}
-            style={{ padding: '12px 28px', fontSize: '14px', letterSpacing: '0.05em', cursor: loading ? 'not-allowed' : 'pointer' }}
+            style={{
+              width: '100%',
+              padding: '14px 20px',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c026d3 100%)',
+              color: '#ffffff',
+              fontSize: '15px',
+              fontWeight: 700,
+              borderRadius: '12px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              border: 'none',
+              boxShadow: '0 4px 20px rgba(168, 85, 247, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+            }}
           >
-            <span>{loading ? 'TRANSMITTING ENQUIRY...' : 'REQUEST CONFIDENTIAL CONSULTATION ➔'}</span>
+            <span>{loading ? 'TRANSMITTING ENQUIRY...' : (submitText || 'Submit Confidential Request ➔')}</span>
           </button>
-          <span style={{ fontSize: '0.8rem', opacity: 0.65 }}>
-            🔒 Strictly Protected Under NDA &amp; Attorney-Client Privilege Protocols
-          </span>
         </div>
       </form>
     </div>

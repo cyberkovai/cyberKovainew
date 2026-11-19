@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LiveChatWidget from '../components/LiveChatWidget';
@@ -22,50 +21,45 @@ export default function ContactPage() {
     getInvestigationServices().then(setInvServices).catch(() => {});
   }, []);
 
-  const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
-
   return (
     <>
       <Header settings={settings} />
 
       <main className="contact-page">
-        {/* ================= HERO / BREADCRUMB ================= */}
+        {/* ================= HERO HEADER ================= */}
         {isSectionVisible(sections, 'contact_hero') && (
-          <section className="about-hero-header">
+          <section className="contact-page-hero">
             <div className="container">
-              <div className="breadcrumb">
-                <Link to={homeUrl}>Home</Link> <span className="sep">/</span> <span className="current">Contact</span>
-              </div>
-              <h1 className="page-title">
-                Get in Touch for a <span className="gradient-text">Confidential Consultation</span>
+              <h1 className="contact-hero-title">
+                Get in Touch for a <span className="contact-title-gradient">Confidential Consultation</span>
               </h1>
-              <p style={{ color: 'var(--text-secondary)', maxWidth: '640px', margin: '12px 0 0', fontSize: '1.05rem' }}>
+              <p className="contact-hero-subtitle">
                 Speak directly with our senior cybersecurity specialists and certified digital forensic investigators. 100% strict client confidentiality guaranteed under non-disclosure protocols.
               </p>
             </div>
           </section>
         )}
 
-        {/* ================= CONTACT SECTION & FORM ================= */}
+        {/* ================= CONTACT CARD & FORM ================= */}
         {isSectionVisible(sections, 'contact_form_section') && (
-          <section className="contact-section" style={{ paddingTop: '40px' }}>
+          <section className="contact-page-body">
             <div className="container">
-              <div className="cta-banner-box">
-                <span className="section-tag">SECURE INQUIRY</span>
+              <div className="contact-card-box">
+                <span className="contact-card-tag">SECURE INQUIRY</span>
 
-                <h2>
-                  Ready to Protect Your <span>Digital Assets?</span>
+                <h2 className="contact-card-title">
+                  Ready to Protect Your Digital Assets?
                 </h2>
 
-                <p>
+                <p className="contact-card-desc">
                   Whether you need proactive cyber threat defense or discreet digital forensic investigation, our specialists are ready to assist with fast, reliable, and actionable insights.
                 </p>
 
-                <div className="contact-buttons">
-                  <a href={`tel:${settings.site_phone_tel || '+916382019821'}`} className="btn primary-btn">
+                <div className="contact-card-buttons">
+                  <a href={`tel:${settings.site_phone_tel || '+916382019821'}`} className="contact-card-call-btn">
                     Call Now: {settings.site_phone || '+91 63820 19821'} ➔
                   </a>
-                  <a href={`mailto:${settings.site_email || 'info@cyberkovai.com'}`} className="btn outline-btn">
+                  <a href={`mailto:${settings.site_email || 'info@cyberkovai.com'}`} className="contact-card-email-btn">
                     Email: {settings.site_email || 'info@cyberkovai.com'}
                   </a>
                 </div>
@@ -74,6 +68,7 @@ export default function ContactPage() {
                   cyberServices={cyberServices}
                   investigationServices={invServices}
                   initialService={activeTrack === 'cyber' ? 'General Cyber Security Consultation' : 'General Digital Investigation Consultation'}
+                  submitText="Submit Confidential Request ➔"
                 />
               </div>
             </div>

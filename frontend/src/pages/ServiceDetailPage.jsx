@@ -508,21 +508,35 @@ export default function ServiceDetailPage() {
                 {faqs.map((faq, idx) => {
                   const isOpen = openFaq === idx;
                   return (
-                    <div className={['ci-faq-item', isOpen ? 'ci-faq-open' : ''].filter(Boolean).join(' ')} key={`${faq.q}-${idx}`}>
+                    <div className={['ci-faq-item', isOpen ? 'ci-faq-open active' : ''].filter(Boolean).join(' ')} key={`${faq.q}-${idx}`}>
                       <button
                         type="button"
                         className="ci-faq-q"
                         aria-expanded={isOpen ? 'true' : 'false'}
                         onClick={() => setOpenFaq(isOpen ? null : idx)}
                       >
-                        {faq.q}
-                        <span className="ci-faq-arrow">
+                        <span>{faq.q}</span>
+                        <span
+                          className="ci-faq-arrow"
+                          style={{
+                            transform: isOpen ? 'rotate(180deg)' : 'none',
+                            transition: 'transform 0.25s ease',
+                          }}
+                        >
                           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="6,9 12,15 18,9" />
                           </svg>
                         </span>
                       </button>
-                      <div className="ci-faq-a">
+                      <div
+                        className="ci-faq-a"
+                        style={{
+                          maxHeight: isOpen ? '800px' : '0',
+                          opacity: isOpen ? 1 : 0,
+                          overflow: 'hidden',
+                          transition: 'max-height 0.35s ease, opacity 0.25s ease, padding 0.3s ease',
+                        }}
+                      >
                         <p>{faq.a}</p>
                       </div>
                     </div>

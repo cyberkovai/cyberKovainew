@@ -296,8 +296,8 @@ export default function CyberSecurityPage() {
   const [glitchIdx, setGlitchIdx] = useState(0);
 
   useEffect(() => {
-    getSettings().then((s) => s && setSettings(s)).catch(() => {});
-    getSections().then((s) => s && setSections(s)).catch(() => {});
+    getSettings().then((s) => s && setSettings(s)).catch(() => { });
+    getSections().then((s) => s && setSections(s)).catch(() => { });
     getCyberServices()
       .then((data) => {
         if (data && typeof data === 'object') {
@@ -305,7 +305,7 @@ export default function CyberSecurityPage() {
           setCyberServices(list);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     getPractices()
       .then((data) => {
         if (data) {
@@ -321,22 +321,22 @@ export default function CyberSecurityPage() {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     getClients('cyber')
       .then((c) => {
         if (Array.isArray(c) && c.length > 0) setClients(c);
       })
-      .catch(() => {});
+      .catch(() => { });
     getAccreditations('cyber')
       .then((a) => {
         if (Array.isArray(a) && a.length > 0) setAccreditations(a);
       })
-      .catch(() => {});
+      .catch(() => { });
     getFaqs('cyber')
       .then((f) => {
         if (Array.isArray(f) && f.length > 0) setFaqs(f);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Scroll to hash target if provided e.g. #services or #practices
@@ -1214,11 +1214,17 @@ export default function CyberSecurityPage() {
                             </svg>
                           </span>
                         </button>
-                        {isOpen && (
-                          <div className="ci-faq-a" style={{ display: 'block' }}>
-                            <p>{faq.answer || faq.a}</p>
-                          </div>
-                        )}
+                        <div
+                          className="ci-faq-a"
+                          style={{
+                            maxHeight: isOpen ? '800px' : '0',
+                            opacity: isOpen ? 1 : 0,
+                            overflow: 'hidden',
+                            transition: 'max-height 0.35s ease, opacity 0.25s ease, padding 0.3s ease',
+                          }}
+                        >
+                          <p>{faq.answer || faq.a}</p>
+                        </div>
                       </div>
                     );
                   })}

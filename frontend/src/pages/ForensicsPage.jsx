@@ -690,7 +690,7 @@ export default function ForensicsPage() {
                   {faqs.map((faq, idx) => {
                     const isOpen = openFaq === idx;
                     return (
-                      <div key={faq.id || idx} className={`ci-faq-item ci-reveal ${isOpen ? 'active' : ''}`}>
+                      <div key={faq.id || idx} className={`ci-faq-item ${isOpen ? 'active ci-faq-open' : ''}`}>
                         <button
                           className="ci-faq-q"
                           type="button"
@@ -710,11 +710,17 @@ export default function ForensicsPage() {
                             </svg>
                           </span>
                         </button>
-                        {isOpen && (
-                          <div className="ci-faq-a" style={{ display: 'block' }}>
-                            <p>{faq.answer || faq.a}</p>
-                          </div>
-                        )}
+                        <div
+                          className="ci-faq-a"
+                          style={{
+                            maxHeight: isOpen ? '800px' : '0',
+                            opacity: isOpen ? 1 : 0,
+                            overflow: 'hidden',
+                            transition: 'max-height 0.35s ease, opacity 0.25s ease, padding 0.3s ease',
+                          }}
+                        >
+                          <p>{faq.answer || faq.a}</p>
+                        </div>
                       </div>
                     );
                   })}
