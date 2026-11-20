@@ -34,7 +34,7 @@ pnpm-debug.log*
 # =================================
 # LOCAL DATA & CACHE
 # =================================
-data/
+/data/
 storage/security/admin_2fa.json
 
 .cache/

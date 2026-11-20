@@ -20,6 +20,44 @@ function resolveImage(src) {
   return getAssetUrl(src);
 }
 
+function normalizeServiceData(res, targetSlug) {
+  if (!res || !res.service) return null;
+
+  const currentSlug = res.slug || targetSlug;
+  const rawSvc = res.service;
+
+  const mergedService = {
+    ...rawSvc,
+    key_features: Array.isArray(rawSvc.key_features) ? rawSvc.key_features : [],
+    methodology: Array.isArray(rawSvc.methodology) ? rawSvc.methodology : [],
+    deliverables: Array.isArray(rawSvc.deliverables) ? rawSvc.deliverables : [],
+    compliance: Array.isArray(rawSvc.compliance) ? rawSvc.compliance : [],
+    faqs: Array.isArray(rawSvc.faqs) ? rawSvc.faqs : [],
+  };
+
+  const categorySlug = res.categorySlug || mergedService.category || (
+    currentSlug.includes('investigation') || currentSlug.includes('bgv') || currentSlug.includes('recovery') || currentSlug.includes('forensics') || currentSlug.includes('fraud') || currentSlug.includes('protection') || currentSlug.includes('training') || currentSlug.includes('safety')
+      ? 'digital-investigations'
+      : 'application-security'
+  );
+
+  const category = res.category && Object.keys(res.category).length > 0 ? res.category : {
+    name: categorySlug === 'digital-investigations' ? 'Digital Investigation & Forensics' : 'Cyber Security',
+    badge: categorySlug === 'digital-investigations' ? 'CRIMINAL & DIGITAL FORENSICS' : 'SPECIALIZED SECURITY',
+    icon: categorySlug === 'digital-investigations' ? '🕵️‍♂️' : '🛡️',
+  };
+
+  const related = Array.isArray(res.related) ? res.related : [];
+
+  return {
+    slug: currentSlug,
+    service: mergedService,
+    category,
+    categorySlug,
+    related,
+  };
+}
+
 export default function ServiceDetailPage() {
   const { slug } = useParams();
   const cleanSlug = (slug || '').replace(/\.php$/, '');
@@ -57,30 +95,37 @@ export default function ServiceDetailPage() {
 
     getFullService(cleanSlug)
       .then((res) => {
-        if (cancelled || !res) return;
-        setData(res);
-        setForm((prev) => ({ ...prev, service: res.service.title }));
+        if (cancelled) return;
+        const normalized = normalizeServiceData(res, cleanSlug);
+        if (normalized) {
+          setData(normalized);
+          setForm((prev) => ({ ...prev, service: normalized.service.title }));
 
-        const isForensicsCat = res.categorySlug === 'digital-investigations' || activeTrack === 'forensics';
-        if (isForensicsCat) {
-          getInvestigationServices()
-            .then((list) => {
-              if (!cancelled && Array.isArray(list)) {
-                setTrackServices(list.filter(s => s.active !== false && s.status !== 'inactive').map(s => s.title));
-              }
-            })
-            .catch(() => { });
+          const isForensicsCat = normalized.categorySlug === 'digital-investigations' || activeTrack === 'forensics';
+          if (isForensicsCat) {
+            getInvestigationServices()
+              .then((list) => {
+                if (!cancelled && Array.isArray(list)) {
+                  setTrackServices(list.filter(s => s.active !== false && s.status !== 'inactive').map(s => s.title));
+                }
+              })
+              .catch(() => { });
+          } else {
+            getCyberServices()
+              .then((obj) => {
+                if (!cancelled && obj && typeof obj === 'object') {
+                  setTrackServices(Object.values(obj).filter(s => s.active !== false && s.status !== 'inactive').map(s => s.title));
+                }
+              })
+              .catch(() => { });
+          }
         } else {
-          getCyberServices()
-            .then((obj) => {
-              if (!cancelled && obj && typeof obj === 'object') {
-                setTrackServices(Object.values(obj).filter(s => s.active !== false && s.status !== 'inactive').map(s => s.title));
-              }
-            })
-            .catch(() => { });
+          setData(null);
         }
       })
-      .catch(() => !cancelled && setData(null))
+      .catch(() => {
+        if (!cancelled) setData(null);
+      })
       .finally(() => !cancelled && setLoading(false));
 
     return () => {

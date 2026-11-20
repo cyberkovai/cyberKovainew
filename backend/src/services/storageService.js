@@ -24,8 +24,12 @@ try {
 
 function readJson(filename, fallback = []) {
   try {
-    const fullPath = path.join(DATA_DIR, filename);
-    if (!fs.existsSync(fullPath)) return fallback;
+    let fullPath = path.join(DATA_DIR, filename);
+    if (!fs.existsSync(fullPath)) {
+      const altPath = path.join(__dirname, '../data', filename);
+      if (fs.existsSync(altPath)) fullPath = altPath;
+      else return fallback;
+    }
     const content = fs.readFileSync(fullPath, 'utf8');
     return JSON.parse(content);
   } catch (err) {
@@ -45,26 +49,54 @@ function writeJson(filename, data) {
   }
 }
 
-// Static rich-content snapshot generated from the PHP registry (services-data.php).
-// Cached by mtime so the file is only re-parsed when it actually changes.
-let staticCatalogCache = { mtime: 0, data: null };
+// Dynamic in-memory cache for Supabase service catalog (60s TTL)
+let serviceCatalogCache = { time: 0, data: null };
 
-function readStaticCatalog() {
-  try {
-    const fullPath = path.join(DATA_DIR, 'services_static.json');
-    if (!fs.existsSync(fullPath)) return { services: {}, categories: {} };
-    const stat = fs.statSync(fullPath);
-    if (staticCatalogCache.data && staticCatalogCache.mtime === stat.mtimeMs) {
-      return staticCatalogCache.data;
-    }
-    const parsed = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
-    staticCatalogCache = { mtime: stat.mtimeMs, data: parsed };
-    return parsed;
-  } catch (err) {
-    console.error('Error reading services_static.json:', err.message);
-    return { services: {}, categories: {} };
-  }
-}
+const DEFAULT_CYBER_CATEGORIES = {
+  'application-security': {
+    id: 'application-security',
+    name: 'Application Security',
+    column: 1,
+    order: 1,
+    badge: 'APPSEC & CODE ASSURANCE',
+    icon: '🛡️',
+    short_desc: 'Comprehensive vulnerability assessments, penetration tests, and secure architecture for modern web, mobile, and API platforms.',
+    services: [],
+  },
+  'network-security': {
+    id: 'network-security',
+    name: 'Network Security',
+    column: 2,
+    order: 2,
+    badge: 'INFRASTRUCTURE & PERIMETER',
+    icon: '🌐',
+    short_desc: 'Securing corporate network perimeters, wireless topologies, firewall configs, and routing appliances.',
+    services: [],
+  },
+  'cloud-security': {
+    id: 'cloud-security',
+    name: 'Cloud Security',
+    column: 3,
+    order: 3,
+    badge: 'CLOUD & CONTAINER SECURITY',
+    icon: '☁️',
+    short_desc: 'Multi-cloud architecture auditing, CASA compliance, Kubernetes container security, and server hardening across AWS, GCP, and Azure.',
+    services: [],
+  },
+  'enterprise-security': {
+    id: 'enterprise-security',
+    name: 'Enterprise Security',
+    column: 4,
+    order: 4,
+    badge: 'ORGANIZATIONAL RESILIENCE',
+    icon: '🏢',
+    short_desc: 'Virtual CISO advisory, black box simulations, Microsoft 365 hardening, ERP audits, and zero-trust security architecture.',
+    services: [],
+  },
+};
+
+let inMemoryCyberServices = {};
+let inMemoryInvestigationServices = [];
 
 function readSecurityJson(filename, fallback = {}) {
   try {
@@ -386,7 +418,7 @@ export const storageService = {
         console.warn('Supabase categories fallback:', e.message);
       }
     }
-    return readJson('cyber_categories.json', {});
+    return JSON.parse(JSON.stringify(DEFAULT_CYBER_CATEGORIES));
   },
 
   async updateCyberCategories(categories) {
@@ -421,7 +453,6 @@ export const storageService = {
         console.warn('Supabase updateCyberCategories fallback:', e.message);
       }
     }
-    writeJson('cyber_categories.json', categories);
     return categories;
   },
 
@@ -473,8 +504,7 @@ export const storageService = {
       }
     }
 
-    const raw = readJson('cyber_services.json', {});
-    if (Object.keys(raw).length === 0 && process.env.NODE_ENV === 'test') {
+    if (Object.keys(inMemoryCyberServices).length === 0 && process.env.NODE_ENV === 'test') {
       return {
         'vulnerability-assessment-penetration-testing': {
           slug: 'vulnerability-assessment-penetration-testing',
@@ -484,9 +514,9 @@ export const storageService = {
         },
       };
     }
-    if (includeInactive) return raw;
+    if (includeInactive) return inMemoryCyberServices;
     const filtered = {};
-    for (const [slug, item] of Object.entries(raw)) {
+    for (const [slug, item] of Object.entries(inMemoryCyberServices)) {
       if (item.active !== false && item.status !== 'inactive') filtered[slug] = item;
     }
     return filtered;
@@ -498,6 +528,7 @@ export const storageService = {
   },
 
   async saveCyberService(serviceData, originalSlug = null) {
+    serviceCatalogCache = { time: 0, data: null };
     const all = await this.getCyberServices(true);
     const slug = serviceData.slug || originalSlug;
     if (originalSlug && originalSlug !== slug) {
@@ -566,21 +597,22 @@ export const storageService = {
         console.warn('Supabase saveCyberService category map fallback:', e.message);
       }
     }
-    writeJson('cyber_services.json', all);
+    inMemoryCyberServices[slug] = service;
     return service;
   },
 
   async deleteCyberService(slug) {
+    serviceCatalogCache = { time: 0, data: null };
     const all = await this.getCyberServices(true);
-    if (!all[slug]) return false;
+    if (!all[slug] && !inMemoryCyberServices[slug]) return false;
     delete all[slug];
+    delete inMemoryCyberServices[slug];
     if (isSupabaseConfigured) {
       try {
         await supabase.from('cyber_service_category_map').delete().eq('service_slug', slug);
         await supabase.from('cyber_services').delete().eq('slug', slug);
       } catch (e) { }
     }
-    writeJson('cyber_services.json', all);
     return true;
   },
 
@@ -825,7 +857,7 @@ export const storageService = {
         let query = supabase.from('investigation_services').select('*').order('sort_order', { ascending: true });
         if (!includeInactive) query = query.eq('status', 'active');
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (!error && Array.isArray(data) && data.length > 0) {
           return data.map(s => ({
             id: s.service_id || String(s.id),
             service_id: s.service_id || String(s.id),
@@ -833,14 +865,23 @@ export const storageService = {
             title: s.title,
             short: s.short || s.title,
             footer_name: s.footer_name || s.short || s.title,
+            badge: s.badge || 'SPECIALIZED INVESTIGATION',
+            tagline: s.tagline || s.short || s.title,
             icon: s.icon || '🛡️',
             image: s.image || '',
-            description: s.description || '',
-            overview: s.overview || '',
+            description: s.description || s.short_desc || '',
+            short_desc: s.short_desc || s.description || '',
+            overview: s.overview || s.description || '',
+            why_needed: s.why_needed || '',
+            key_features: Array.isArray(s.key_features) ? s.key_features : (typeof s.key_features === 'string' ? JSON.parse(s.key_features) : []),
+            methodology: Array.isArray(s.methodology) ? s.methodology : (typeof s.methodology === 'string' ? JSON.parse(s.methodology) : []),
+            deliverables: Array.isArray(s.deliverables) ? s.deliverables : (typeof s.deliverables === 'string' ? JSON.parse(s.deliverables) : []),
+            compliance: Array.isArray(s.compliance) ? s.compliance : (typeof s.compliance === 'string' ? JSON.parse(s.compliance) : []),
+            faqs: Array.isArray(s.faqs) ? s.faqs : (typeof s.faqs === 'string' ? JSON.parse(s.faqs) : []),
             order: Number(s.sort_order) || 1,
             sort_order: Number(s.sort_order) || 1,
             status: s.status || 'active',
-            active: s.status === 'active',
+            active: s.status === 'active' || s.active === true,
             created_at: s.created_at,
             updated_at: s.updated_at,
           }));
@@ -849,7 +890,7 @@ export const storageService = {
         console.warn('Supabase investigation_services fallback:', e.message);
       }
     }
-    const list = readJson('investigation_services.json', []);
+    const list = inMemoryInvestigationServices;
     const sorted = [...list].sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
     return includeInactive ? sorted : sorted.filter(s => (s.status ? s.status === 'active' : s.active !== false));
   },
@@ -859,64 +900,81 @@ export const storageService = {
     return all.find(s => s.slug === slug || s.id === slug) || null;
   },
 
-  // FULL SERVICE CATALOG (PHP services-data.php parity)
-  async getServiceCatalog() {
-    const staticData = readStaticCatalog();
-    const services = { ...(staticData.services || {}) };
-    const categories = JSON.parse(JSON.stringify(staticData.categories || {}));
+  // FULL SERVICE CATALOG - Dynamically queried from Supabase
+  async getServiceCatalog(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && serviceCatalogCache.data && (now - serviceCatalogCache.time < 60000)) {
+      return serviceCatalogCache.data;
+    }
 
+    const services = {};
+    const categories = {
+      'digital-investigations': {
+        id: 'digital-investigations',
+        slug: 'digital-investigations',
+        name: 'Digital Investigation & Forensics',
+        column: 5,
+        order: 5,
+        badge: 'CRIMINAL & DIGITAL FORENSICS',
+        icon: '🕵️‍♂️',
+        short_desc: 'Court-admissible forensic preservation, OSINT intelligence, financial fraud tracing, and executive protection.',
+        services: [],
+      },
+    };
+
+    // 1. Categories from Supabase
+    const storedCats = await this.getCyberCategories();
+    for (const [key, catData] of Object.entries(storedCats || {})) {
+      if (!categories[key]) categories[key] = { ...catData, services: [] };
+    }
+
+    // 2. Cyber services from Supabase
     const storedCyber = await this.getCyberServices(true);
     for (const [slug, data] of Object.entries(storedCyber || {})) {
       if (data && data.status && data.status !== 'active') continue;
-      services[slug] = { ...(services[slug] || {}), ...data };
-    }
-
-    const storedCats = await this.getCyberCategories();
-    for (const [key, catData] of Object.entries(storedCats || {})) {
-      if (!categories[key]) categories[key] = { ...catData };
-      const list = [];
-      for (const [slug, svc] of Object.entries(services)) {
-        if ((svc.category || '') === key && (!svc.status || svc.status === 'active')) {
-          list.push(slug);
+      const catKey = data.category || 'application-security';
+      services[slug] = { ...data };
+      if (categories[catKey]) {
+        if (!categories[catKey].services) categories[catKey].services = [];
+        if (!categories[catKey].services.includes(slug)) {
+          categories[catKey].services.push(slug);
         }
       }
-      categories[key].services = list;
     }
 
-    let storedInv = await this.getInvestigationServices(false);
-    if (storedInv.length > 0) {
-      const invSlugs = [];
-      for (const inv of storedInv) {
-        const slug = inv.slug;
-        if (!slug) continue;
-        invSlugs.push(slug);
-        if (!services[slug]) {
-          services[slug] = {
-            title: inv.title,
-            nav_label: inv.short || inv.title,
-            category: 'digital-investigations',
-            badge: 'SPECIALIZED INVESTIGATION',
-            tagline: inv.short || inv.title,
-            short_desc: inv.description || '',
-            overview: inv.overview || inv.description || '',
-            why_needed: 'Professional investigative support is critical when confronting cyber threats or digital legal proceedings.',
-            image: inv.image || 'assets/images/investigation_01_victim_recovery.jpg',
-            key_features: [],
-            deliverables: [],
-            status: inv.status || 'active',
-          };
-        } else {
-          services[slug].title = inv.title;
-          services[slug].short_desc = inv.description || services[slug].short_desc || '';
-          if (inv.image) services[slug].image = inv.image;
-        }
-      }
-      if (categories['digital-investigations']) {
-        categories['digital-investigations'].services = invSlugs;
-      }
+    // 3. Investigation services from Supabase
+    const storedInv = await this.getInvestigationServices(true);
+    const invSlugs = [];
+    for (const inv of storedInv) {
+      if (inv.status === 'inactive' || inv.active === false) continue;
+      const slug = inv.slug;
+      if (!slug) continue;
+      invSlugs.push(slug);
+      services[slug] = {
+        title: inv.title,
+        nav_label: inv.short || inv.title,
+        footer_name: inv.footer_name || inv.short || inv.title,
+        category: 'digital-investigations',
+        badge: inv.badge || 'SPECIALIZED INVESTIGATION',
+        tagline: inv.tagline || inv.short || inv.title,
+        short_desc: inv.short_desc || inv.description || '',
+        overview: inv.overview || inv.description || '',
+        why_needed: inv.why_needed || 'Professional investigative support is critical when confronting cyber threats or digital legal proceedings.',
+        image: inv.image || 'assets/images/investigation_01_victim_recovery.jpg',
+        key_features: Array.isArray(inv.key_features) ? inv.key_features : [],
+        methodology: Array.isArray(inv.methodology) ? inv.methodology : [],
+        deliverables: Array.isArray(inv.deliverables) ? inv.deliverables : [],
+        compliance: Array.isArray(inv.compliance) ? inv.compliance : [],
+        faqs: Array.isArray(inv.faqs) ? inv.faqs : [],
+        status: inv.status || 'active',
+        active: inv.active !== false,
+      };
     }
+    categories['digital-investigations'].services = invSlugs;
 
-    return { services, categories };
+    const result = { services, categories };
+    serviceCatalogCache = { time: now, data: result };
+    return result;
   },
 
   async getFullService(slug) {
@@ -931,11 +989,17 @@ export const storageService = {
     if (!service) return null;
 
     const categorySlug = service.category || 'application-security';
-    const category = catalog.categories[categorySlug] || {
-      name: 'Cyber Security',
-      badge: 'SPECIALIZED SECURITY',
-      icon: '🛡️',
-    };
+    const category = catalog.categories[categorySlug] || (
+      categorySlug === 'digital-investigations' ? {
+        name: 'Digital Investigation & Forensics',
+        badge: 'CRIMINAL & DIGITAL FORENSICS',
+        icon: '🕵️‍♂️',
+      } : {
+        name: 'Cyber Security',
+        badge: 'SPECIALIZED SECURITY',
+        icon: '🛡️',
+      }
+    );
 
     const categoryServices = (catalog.categories[categorySlug] && catalog.categories[categorySlug].services) || [];
     const related = [];
@@ -956,12 +1020,12 @@ export const storageService = {
   },
 
   async saveInvestigationService(data, originalSlug = null) {
-    const list = readJson('investigation_services.json', []);
+    serviceCatalogCache = { time: 0, data: null };
     const slug = data.slug || originalSlug || data.id;
     const status = data.status || (data.active !== false ? 'active' : 'inactive');
     const active = status === 'active';
-    const order = data.order !== undefined && data.order !== '' ? Number(data.order) : (list.length + 1);
-    const serviceId = String(data.service_id || data.id || (list.length + 1));
+    const order = data.order !== undefined && data.order !== '' ? Number(data.order) : (inMemoryInvestigationServices.length + 1);
+    const serviceId = String(data.service_id || data.id || (inMemoryInvestigationServices.length + 1));
     const now = new Date().toISOString();
 
     const item = {
@@ -972,16 +1036,16 @@ export const storageService = {
       status,
       active,
       order,
+      sort_order: order,
       updated_at: now,
     };
 
-    const idx = list.findIndex(s => s.slug === (originalSlug || slug));
+    const idx = inMemoryInvestigationServices.findIndex(s => s.slug === (originalSlug || slug));
     if (idx >= 0) {
-      list[idx] = item;
+      inMemoryInvestigationServices[idx] = item;
     } else {
-      list.push(item);
+      inMemoryInvestigationServices.push(item);
     }
-    writeJson('investigation_services.json', list);
 
     if (isSupabaseConfigured) {
       try {
@@ -991,12 +1055,22 @@ export const storageService = {
           title: item.title || '',
           short: item.short || item.footer_name || item.title || '',
           footer_name: item.footer_name || item.short || item.title || '',
+          badge: item.badge || 'SPECIALIZED INVESTIGATION',
+          tagline: item.tagline || item.short || item.title || '',
           icon: item.icon || '🛡️',
           image: item.image || '',
           description: item.description || '',
+          short_desc: item.short_desc || item.description || '',
           overview: item.overview || '',
+          why_needed: item.why_needed || '',
+          key_features: item.key_features || [],
+          methodology: item.methodology || [],
+          deliverables: item.deliverables || [],
+          compliance: item.compliance || [],
+          faqs: item.faqs || [],
           sort_order: order,
           status: status,
+          active: active,
           updated_at: now,
         };
         const { error } = await supabase.from('investigation_services').upsert([dbRow], { onConflict: 'slug' });
@@ -1013,9 +1087,8 @@ export const storageService = {
   },
 
   async deleteInvestigationService(slug) {
-    let list = readJson('investigation_services.json', []);
-    list = list.filter(s => s.slug !== slug && s.id !== slug);
-    writeJson('investigation_services.json', list);
+    serviceCatalogCache = { time: 0, data: null };
+    inMemoryInvestigationServices = inMemoryInvestigationServices.filter(s => s.slug !== slug && s.id !== slug);
 
     if (isSupabaseConfigured) {
       try {
@@ -1028,22 +1101,39 @@ export const storageService = {
   },
 
   async toggleInvestigationServiceStatus(slug) {
-    const list = readJson('investigation_services.json', []);
-    const item = list.find(s => s.slug === slug || s.id === slug);
-    if (!item) return null;
-    const isCurrentlyActive = item.status ? item.status === 'active' : item.active !== false;
-    const nextActive = !isCurrentlyActive;
-    item.active = nextActive;
-    item.status = nextActive ? 'active' : 'inactive';
-    item.updated_at = new Date().toISOString();
-    writeJson('investigation_services.json', list);
+    serviceCatalogCache = { time: 0, data: null };
+    const item = inMemoryInvestigationServices.find(s => s.slug === slug || s.id === slug);
+    let nextActive = true;
+    if (item) {
+      const isCurrentlyActive = item.status ? item.status === 'active' : item.active !== false;
+      nextActive = !isCurrentlyActive;
+      item.active = nextActive;
+      item.status = nextActive ? 'active' : 'inactive';
+      item.updated_at = new Date().toISOString();
+    }
 
     if (isSupabaseConfigured) {
       try {
-        await supabase
+        const { data: currentDb } = await supabase
           .from('investigation_services')
-          .update({ status: item.status, updated_at: item.updated_at })
-          .or(`slug.eq.${slug},service_id.eq.${slug}`);
+          .select('status, active')
+          .or(`slug.eq.${slug},service_id.eq.${slug}`)
+          .maybeSingle();
+
+        if (currentDb) {
+          const isAct = currentDb.status === 'active' || currentDb.active === true;
+          nextActive = !isAct;
+        }
+
+        const now = new Date().toISOString();
+        const { data, error } = await supabase
+          .from('investigation_services')
+          .update({ status: nextActive ? 'active' : 'inactive', active: nextActive, updated_at: now })
+          .or(`slug.eq.${slug},service_id.eq.${slug}`)
+          .select()
+          .maybeSingle();
+
+        if (!error && data) return data;
       } catch (e) {
         console.warn('Supabase toggleInvestigationServiceStatus fallback:', e.message);
       }
