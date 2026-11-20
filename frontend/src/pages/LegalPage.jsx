@@ -126,10 +126,11 @@ export default function LegalPage({ defaultKey = 'privacy' }) {
         {/* ================= POLICY CONTENT SECTION ================= */}
         <section className="section" style={{ padding: '3.5rem 0 5rem' }}>
           <div className="container">
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr', gap: '2.5rem', alignItems: 'start' }}>
+            <div className="legal-layout-grid">
               {/* Sticky Sidebar Policy Switcher */}
-              <aside style={{ position: 'sticky', top: '100px' }}>
+              <aside className="legal-sidebar-nav" style={{ position: 'sticky', top: '100px' }}>
                 <div
+                  className="legal-sidebar-card"
                   style={{
                     background: 'rgba(14, 12, 32, 0.85)',
                     border: '1px solid rgba(139, 32, 255, 0.22)',
@@ -205,11 +206,12 @@ export default function LegalPage({ defaultKey = 'privacy' }) {
 
               {/* Main Document Content Area */}
               <div
+                className="legal-doc-card"
                 style={{
                   background: 'rgba(14, 12, 34, 0.75)',
                   border: '1px solid rgba(139, 32, 255, 0.18)',
                   borderRadius: '20px',
-                  padding: '3rem',
+                  padding: 'clamp(1.25rem, 4vw, 3rem)',
                   backdropFilter: 'blur(12px)',
                   boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
                 }}
