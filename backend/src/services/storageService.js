@@ -857,20 +857,20 @@ export const storageService = {
         let query = supabase.from('investigation_services').select('*').order('sort_order', { ascending: true });
         if (!includeInactive) query = query.eq('status', 'active');
         const { data, error } = await query;
-        if (!error && Array.isArray(data) && data.length > 0) {
+        if (!error && Array.isArray(data)) {
           return data.map(s => ({
             id: s.service_id || String(s.id),
             service_id: s.service_id || String(s.id),
             slug: s.slug,
             title: s.title,
-            short: s.short || s.title,
+            short: s.short || s.footer_name || s.title,
             footer_name: s.footer_name || s.short || s.title,
             badge: s.badge || 'SPECIALIZED INVESTIGATION',
             tagline: s.tagline || s.short || s.title,
             icon: s.icon || '🛡️',
             image: s.image || '',
             description: s.description || s.short_desc || '',
-            short_desc: s.short_desc || s.description || '',
+            short_desc: s.short_desc || s.short || s.description || '',
             overview: s.overview || s.description || '',
             why_needed: s.why_needed || '',
             key_features: Array.isArray(s.key_features) ? s.key_features : (typeof s.key_features === 'string' ? JSON.parse(s.key_features) : []),
@@ -1021,11 +1021,16 @@ export const storageService = {
 
   async saveInvestigationService(data, originalSlug = null) {
     serviceCatalogCache = { time: 0, data: null };
-    const slug = data.slug || originalSlug || data.id;
+    const rawSlug = data.slug || originalSlug || data.title || data.id || '';
+    const slug = String(rawSlug)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || `inv-service-${Date.now()}`;
     const status = data.status || (data.active !== false ? 'active' : 'inactive');
     const active = status === 'active';
     const order = data.order !== undefined && data.order !== '' ? Number(data.order) : (inMemoryInvestigationServices.length + 1);
-    const serviceId = String(data.service_id || data.id || (inMemoryInvestigationServices.length + 1));
+    const serviceId = String(data.service_id || data.id || order);
     const now = new Date().toISOString();
 
     const item = {
@@ -1040,7 +1045,8 @@ export const storageService = {
       updated_at: now,
     };
 
-    const idx = inMemoryInvestigationServices.findIndex(s => s.slug === (originalSlug || slug));
+    const targetSlug = originalSlug || slug;
+    const idx = inMemoryInvestigationServices.findIndex(s => s.slug === targetSlug || s.service_id === serviceId);
     if (idx >= 0) {
       inMemoryInvestigationServices[idx] = item;
     } else {
@@ -1049,38 +1055,96 @@ export const storageService = {
 
     if (isSupabaseConfigured) {
       try {
+        let existingId = null;
+        try {
+          const { data: bySlug } = await supabase
+            .from('investigation_services')
+            .select('id')
+            .eq('slug', targetSlug)
+            .maybeSingle();
+          if (bySlug && bySlug.id) {
+            existingId = bySlug.id;
+          } else {
+            const { data: byServiceId } = await supabase
+              .from('investigation_services')
+              .select('id')
+              .eq('service_id', serviceId)
+              .maybeSingle();
+            if (byServiceId && byServiceId.id) {
+              existingId = byServiceId.id;
+            }
+          }
+        } catch (findErr) {
+          console.warn('[Supabase] find existing investigation service warning:', findErr.message);
+        }
+
+        // Base database fields corresponding strictly to the PostgreSQL schema
         const dbRow = {
           service_id: serviceId,
           slug: slug,
           title: item.title || '',
           short: item.short || item.footer_name || item.title || '',
           footer_name: item.footer_name || item.short || item.title || '',
-          badge: item.badge || 'SPECIALIZED INVESTIGATION',
-          tagline: item.tagline || item.short || item.title || '',
           icon: item.icon || '🛡️',
           image: item.image || '',
-          description: item.description || '',
-          short_desc: item.short_desc || item.description || '',
+          description: item.description || item.short_desc || '',
           overview: item.overview || '',
-          why_needed: item.why_needed || '',
-          key_features: item.key_features || [],
-          methodology: item.methodology || [],
-          deliverables: item.deliverables || [],
-          compliance: item.compliance || [],
-          faqs: item.faqs || [],
           sort_order: order,
           status: status,
-          active: active,
           updated_at: now,
         };
-        const { error } = await supabase.from('investigation_services').upsert([dbRow], { onConflict: 'slug' });
-        if (error) {
-          console.error('[Supabase Error] saveInvestigationService:', error.message);
+
+        // Rich columns (if added to database)
+        if (item.badge) dbRow.badge = item.badge;
+        if (item.tagline) dbRow.tagline = item.tagline;
+        if (item.why_needed) dbRow.why_needed = item.why_needed;
+        if (item.key_features) dbRow.key_features = item.key_features;
+        if (item.methodology) dbRow.methodology = item.methodology;
+        if (item.deliverables) dbRow.deliverables = item.deliverables;
+        if (item.compliance) dbRow.compliance = item.compliance;
+        if (item.faqs) dbRow.faqs = item.faqs;
+        if (item.active !== undefined) dbRow.active = Boolean(active);
+
+        let res;
+        if (existingId) {
+          res = await supabase.from('investigation_services').update(dbRow).eq('id', existingId).select().maybeSingle();
+        } else {
+          res = await supabase.from('investigation_services').insert([dbRow]).select().maybeSingle();
+        }
+
+        // If insert/update failed (e.g. unknown rich column in schema cache), retry with core standard columns
+        if (res && res.error) {
+          console.warn('[Supabase Warning] Rich row save failed, retrying with core columns:', res.error.message);
+          const coreDbRow = {
+            service_id: serviceId,
+            slug: slug,
+            title: item.title || '',
+            short: item.short || item.footer_name || item.title || '',
+            footer_name: item.footer_name || item.short || item.title || '',
+            icon: item.icon || '🛡️',
+            image: item.image || '',
+            description: item.description || item.short_desc || '',
+            overview: item.overview || '',
+            sort_order: order,
+            status: status,
+            updated_at: now,
+          };
+          if (existingId) {
+            res = await supabase.from('investigation_services').update(coreDbRow).eq('id', existingId).select().maybeSingle();
+          } else {
+            res = await supabase.from('investigation_services').insert([coreDbRow]).select().maybeSingle();
+          }
+        }
+
+        if (res && res.error) {
+          console.error('[Supabase Error] saveInvestigationService:', res.error.message);
+          throw new Error(`Failed to save investigation service to Supabase: ${res.error.message}`);
         } else {
           console.log(`✅ Investigation Service [${slug}] saved to Supabase.`);
         }
       } catch (e) {
-        console.warn('Supabase saveInvestigationService fallback:', e.message);
+        console.error('Supabase saveInvestigationService error:', e.message);
+        throw e;
       }
     }
     return item;
@@ -1088,11 +1152,17 @@ export const storageService = {
 
   async deleteInvestigationService(slug) {
     serviceCatalogCache = { time: 0, data: null };
-    inMemoryInvestigationServices = inMemoryInvestigationServices.filter(s => s.slug !== slug && s.id !== slug);
+    inMemoryInvestigationServices = inMemoryInvestigationServices.filter(s => s.slug !== slug && s.id !== slug && s.service_id !== slug);
 
     if (isSupabaseConfigured) {
       try {
-        await supabase.from('investigation_services').delete().or(`slug.eq.${slug},service_id.eq.${slug}`);
+        const { error } = await supabase
+          .from('investigation_services')
+          .delete()
+          .eq('slug', slug);
+        if (error) {
+          await supabase.from('investigation_services').delete().eq('service_id', slug);
+        }
       } catch (e) {
         console.warn('Supabase deleteInvestigationService fallback:', e.message);
       }
@@ -1116,8 +1186,8 @@ export const storageService = {
       try {
         const { data: currentDb } = await supabase
           .from('investigation_services')
-          .select('status, active')
-          .or(`slug.eq.${slug},service_id.eq.${slug}`)
+          .select('id, status, active')
+          .eq('slug', slug)
           .maybeSingle();
 
         if (currentDb) {
@@ -1126,14 +1196,24 @@ export const storageService = {
         }
 
         const now = new Date().toISOString();
-        const { data, error } = await supabase
+        let updateRes = await supabase
           .from('investigation_services')
           .update({ status: nextActive ? 'active' : 'inactive', active: nextActive, updated_at: now })
-          .or(`slug.eq.${slug},service_id.eq.${slug}`)
+          .eq('slug', slug)
           .select()
           .maybeSingle();
 
-        if (!error && data) return data;
+        if (updateRes.error) {
+          // Retry without active column in case active column doesn't exist
+          updateRes = await supabase
+            .from('investigation_services')
+            .update({ status: nextActive ? 'active' : 'inactive', updated_at: now })
+            .eq('slug', slug)
+            .select()
+            .maybeSingle();
+        }
+
+        if (!updateRes.error && updateRes.data) return updateRes.data;
       } catch (e) {
         console.warn('Supabase toggleInvestigationServiceStatus fallback:', e.message);
       }
