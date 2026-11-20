@@ -16636,3 +16636,370 @@ h1, h2, h3, h4, h5, h6, p, span, a, li {
         font-size: 1.6rem !important;
     }
 }
+
+/* ==========================================================================
+   TARGETED RESPONSIVE MOBILE OPTIMIZATION & OVERFLOW PREVENTION
+   ========================================================================== */
+
+/* 1. Global Shape Circle (#globe-wrap / .globe-box) & No-Overlap Layout */
+.globe-box,
+#globe-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 520px !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    min-height: 280px !important;
+    margin: 0 auto 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 24px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--border) !important;
+    background: radial-gradient(ellipse at center, rgba(22, 10, 46, 0.7) 0%, rgba(7, 4, 15, 0.95) 70%) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="light"] .globe-box,
+[data-theme="light"] #globe-wrap {
+    background: radial-gradient(ellipse at center, rgba(240, 235, 255, 0.9) 0%, rgba(225, 215, 250, 0.95) 70%) !important;
+    box-shadow: 0 20px 50px rgba(117, 20, 232, 0.12) !important;
+}
+
+.globe-box canvas,
+#globe-wrap canvas {
+    display: block !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.coverage-section {
+    position: relative !important;
+    padding: clamp(48px, 6vw, 84px) 0 !important;
+    clear: both !important;
+    overflow-x: clip !important;
+}
+
+.coverage-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+    align-items: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 992px) {
+    .coverage-grid {
+        grid-template-columns: 1.05fr 0.95fr !important;
+        gap: 3.5rem !important;
+        align-items: center !important;
+    }
+}
+
+.coverage-globe-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
+
+.coverage-content-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.credentials-section {
+    position: relative !important;
+    padding: clamp(48px, 6vw, 80px) 0 !important;
+    clear: both !important;
+}
+
+/* 2. Digital Forensics Map Alignment, Single-Column Mobile Stats, & Zero-Overflow */
+.ci-coverage-section {
+    background: var(--bg-secondary) !important;
+    position: relative !important;
+    padding: clamp(48px, 6vw, 84px) 0 clamp(64px, 8vw, 96px) !important;
+    clear: both !important;
+    overflow-x: clip !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+}
+
+.ci-coverage-section .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.ci-coverage-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+    align-items: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 1024px) {
+    .ci-coverage-grid {
+        grid-template-columns: 1.15fr 1fr !important;
+        gap: 3rem !important;
+        align-items: center !important;
+    }
+}
+
+.ci-coverage-map-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.ci-map-card {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: clamp(10px, 2.5vw, 16px) !important;
+    border-radius: 20px !important;
+    background: linear-gradient(180deg, rgba(20, 10, 50, .85), rgba(8, 6, 28, .95)) !important;
+    border: 1px solid rgba(139, 92, 246, .45) !important;
+    box-shadow: 0 0 40px rgba(139, 92, 246, .18), inset 0 0 30px rgba(34, 211, 238, .04) !important;
+    overflow: hidden !important;
+}
+
+.ci-world-map-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 1014/665 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    background: #070620 !important;
+}
+
+.ci-world-map-wrap canvas,
+.ci-map-svg {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.ci-tip {
+    position: absolute !important;
+    box-sizing: border-box !important;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    pointer-events: none !important;
+    background: rgba(12, 8, 36, .94) !important;
+    border: 1px solid rgba(139, 92, 246, .6) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 5 !important;
+    max-width: calc(100% - 20px) !important;
+}
+
+@media (max-width: 639px) {
+    .ci-tip {
+        position: absolute !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 10px !important;
+        top: auto !important;
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        min-width: 0 !important;
+        padding: 10px 12px !important;
+        font-size: 0.8rem !important;
+    }
+    .ci-tip h4 {
+        font-size: 0.92rem !important;
+        margin-bottom: 2px !important;
+    }
+    .ci-tip-count {
+        font-size: 0.75rem !important;
+    }
+    .ci-tip ul {
+        margin-top: 4px !important;
+        font-size: 0.72rem !important;
+    }
+}
+
+.ci-region-tabs {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 12px 12px 6px 4px !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    flex-wrap: nowrap !important;
+}
+
+.ci-region-tabs::-webkit-scrollbar {
+    display: none !important;
+}
+
+.ci-region-tabs button {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 8px 14px !important;
+    font-size: 0.78rem !important;
+    border-radius: 10px !important;
+    color: #cfc8ee !important;
+    background: rgba(255, 255, 255, .05) !important;
+    border: 1px solid rgba(139, 92, 246, .3) !important;
+}
+
+.ci-region-tabs button.is-active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+    border-color: transparent !important;
+}
+
+.ci-coverage-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    clear: both !important;
+    overflow: hidden !important;
+}
+
+.ci-coverage-content h2 {
+    font-size: clamp(1.4rem, 5.2vw, 2.3rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+.ci-coverage-content > p {
+    font-size: clamp(0.88rem, 2.5vw, 0.98rem) !important;
+    color: rgba(255, 255, 255, 0.78) !important;
+    line-height: 1.62 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Stat Cards: 1 column on mobile (< 640px) to prevent right overflow; 2 columns on tablet+ (>= 640px) */
+.ci-stats-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-top: 0.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 640px) {
+    .ci-stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+}
+
+.ci-stat-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: clamp(14px, 3.5vw, 20px) 16px !important;
+    background: rgba(18, 14, 32, 0.85) !important;
+    border: 1px solid rgba(139, 32, 255, 0.28) !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    transition: all 0.3s ease !important;
+}
+
+.ci-stat-item strong {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: clamp(1.6rem, 5vw, 2.2rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    margin: 0 0 0.35rem 0 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #c84bff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.ci-stat-item span {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: clamp(0.78rem, 2.3vw, 0.88rem) !important;
+    color: rgba(255, 255, 255, 0.76) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.ci-clients-section {
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, rgba(10, 8, 22, 0.95) 100%) !important;
+    position: relative !important;
+    padding: clamp(48px, 6vw, 76px) 0 !important;
+    border-top: 1px solid rgba(139, 32, 255, 0.12) !important;
+    border-bottom: 1px solid rgba(139, 32, 255, 0.12) !important;
+    clear: both !important;
+}
+
+/* 3. Button Font Color Enforcements (White) & Proper Dimensions */
+.primary-btn,
+.primary-btn span,
+.btn.primary-btn,
+.btn.primary-btn span,
+.contact-submit-full-btn,
+.contact-submit-full-btn span {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.contact-submit-full-btn {
+    width: 100% !important;
+    min-height: 52px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    padding: 14px 24px !important;
+    box-sizing: border-box !important;
+}
+

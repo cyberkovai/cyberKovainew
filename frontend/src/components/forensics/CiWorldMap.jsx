@@ -171,16 +171,29 @@ export default function CiWorldMap() {
       const px = (n.x / W) * 100;
       const py = (n.y / H) * 100;
 
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      const tooltipStyle = isMobile
+        ? {
+            left: '10px',
+            right: '10px',
+            bottom: '10px',
+            top: 'auto',
+            minWidth: 'auto',
+            maxWidth: 'calc(100% - 20px)',
+          }
+        : {
+            left: px > 55 ? 'auto' : `calc(${px}% + 14px)`,
+            right: px > 55 ? `calc(${100 - px}% + 14px)` : 'auto',
+            top: `min(${py}%, calc(100% - 145px))`,
+            maxWidth: '240px',
+          };
+
       setActiveTooltip({
         show: true,
         name: n.name,
         cases: n.cases,
         tags: n.tags,
-        style: {
-          left: px > 55 ? 'auto' : `calc(${px}% + 16px)`,
-          right: px > 55 ? `calc(${100 - px}% + 16px)` : 'auto',
-          top: `min(${py}%, calc(100% - 150px))`,
-        },
+        style: tooltipStyle,
       });
 
       if (user) {
@@ -309,10 +322,10 @@ export default function CiWorldMap() {
               <span className="pulse-dot"></span>GLOBAL FOOTPRINT
             </span>
             <h2 className="ci-reveal">
-              From Coimbatore <span className="ci-grad-text">to the World</span>
+              From Coimbatore <span className="ci-grad-text">to Digital Intelligence</span>
             </h2>
             <p className="ci-reveal">
-              We provide discreet digital investigation and forensics services to individuals, legal practices, corporations, and law enforcement agencies across India and internationally.
+              From Coimbatore to digital forensics and international cyber intelligence, we deliver discreet investigation services to corporations, legal counsel, and individuals worldwide.
             </p>
             <div className="ci-stats-row ci-reveal">
               <div className="ci-stat-item">

@@ -1036,10 +1036,10 @@ export default function CyberSecurityPage() {
                 <div className="coverage-content-col">
                   <span className="section-tag">GLOBAL REACH</span>
                   <h2>
-                    From Coimbatore <span>to the World</span>
+                    From Coimbatore <span>to Digital Security &amp; Defense</span>
                   </h2>
                   <p className="coverage-subtitle">
-                    Delivering offensive security testing, cloud defense, and cyber resilience across India and globally.
+                    From Coimbatore to digital security assurance, offensive penetration testing, cloud defense, and cyber resilience across India and globally.
                   </p>
 
                   <div className="coverage-features">
