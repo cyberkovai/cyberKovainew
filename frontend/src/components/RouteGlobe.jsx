@@ -67,16 +67,18 @@ export default function RouteGlobe({ height = 480 }) {
       if (isDestroyed || !cv) return;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const p = cv.parentElement || cv;
-      const pw = p.clientWidth || 520;
-      const ph = p.clientHeight || (height || 520);
-      W = Math.min(pw, ph);
-      if (W < 240) W = 520;
+      const pw = p.clientWidth || 360;
+      const ph = p.clientHeight || (height || 420);
+      const measured = Math.min(pw, ph > 0 ? ph : pw);
+      W = Math.max(260, Math.min(measured, 520));
 
-      cv.style.width = W + 'px';
-      cv.style.height = W + 'px';
+      cv.style.width = '100%';
+      cv.style.height = '100%';
+      cv.style.maxWidth = W + 'px';
+      cv.style.maxHeight = W + 'px';
       cv.width = W * dpr;
       cv.height = W * dpr;
-      R = W * 0.40;
+      R = W * 0.35;
       proj.scale(R).translate([W / 2, W / 2]);
     }
     window.addEventListener('resize', resize);
@@ -204,6 +206,10 @@ export default function RouteGlobe({ height = 480 }) {
       ctx.font = '600 11px system-ui, -apple-system, sans-serif';
       const w = ctx.measureText(t).width + 12;
       const h = 18;
+
+      // Keep badges comfortably inside canvas so labels never get cut off
+      x = Math.max(8, Math.min(W - w - 8, x));
+      y = Math.max(h / 2 + 8, Math.min(W - h / 2 - 28, y));
 
       ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.94)' : 'rgba(18, 8, 38, 0.85)';
       ctx.strokeStyle = hub ? '#ff4d8d' : (isLight ? 'rgba(117, 20, 232, 0.6)' : 'rgba(168, 110, 255, 0.7)');

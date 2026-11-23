@@ -143,6 +143,11 @@ export default function AdminLayout({ children, pageTitle = 'Dashboard', current
     return () => window.removeEventListener('resize', handleNavScroll);
   }, []);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     await logout();
     navigate('/admin/login');
@@ -160,6 +165,13 @@ export default function AdminLayout({ children, pageTitle = 'Dashboard', current
 
   return (
     <div className="admin-body">
+      {/* Mobile Backdrop Overlay */}
+      <div
+        className={`admin-sidebar-backdrop ${sidebarOpen ? 'active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
       {/* ================= SIDEBAR ================= */}
       <aside
         className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}
@@ -167,11 +179,19 @@ export default function AdminLayout({ children, pageTitle = 'Dashboard', current
         data-lenis-prevent="true"
       >
         <div className="sidebar-header">
-          <Link to="/admin" className="sidebar-logo">
+          <Link to="/admin" className="sidebar-logo" onClick={() => setSidebarOpen(false)}>
             <img src={getAssetUrl('assets/images/logo.png')} alt="Cyber Kovai" />
             <span className="logo-text">Cyber <strong>Kovai</strong></span>
           </Link>
           <span className="sidebar-badge">SOC</span>
+          <button
+            type="button"
+            className="sidebar-mobile-close"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Sidebar Scroll Wrapper with top/bottom fade indicators and progress bar */}

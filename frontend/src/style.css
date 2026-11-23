@@ -16111,3 +16111,1218 @@ body>div[style*="2000000000"] iframe {
     color: var(--purple-light);
     transform: translateX(3px);
 }
+
+/* ==========================================================================
+   MASTER FULL-PROJECT RESPONSIVE OPTIMIZATION SYSTEM
+   Covers: 320px, 375px, 430px, 600px, 768px, 1024px, 1440px, 1920px+
+   Preserves 100% existing content, features, and desktop design identity.
+   ========================================================================== */
+
+/* --- 1. GLOBAL RESILIENCE & RESPONSIVE FOUNDATION --- */
+html,
+body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden !important;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Fluid Responsive Container */
+.container {
+    width: min(100%, 1280px);
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 32px);
+    box-sizing: border-box;
+}
+
+/* Fluid Media & Asset Scaling */
+img,
+video,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Universal Text Wrapping to Prevent Viewport Breakthroughs */
+h1, h2, h3, h4, h5, h6, p, span, a, li {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Prevent Mobile iOS Automatic Text Zoom on Form Inputs */
+@media (max-width: 991px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* --- 2. ENHANCED RESPONSIVE NAVBAR & MOBILE NAVIGATION DRAWER --- */
+@media (max-width: 991px) {
+    .navbar {
+        height: 64px !important;
+        padding: 0 !important;
+    }
+
+    .nav-container {
+        padding: 0 clamp(16px, 4vw, 24px) !important;
+        height: 100% !important;
+    }
+
+    .logo img {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .logo span {
+        font-size: 1.05rem !important;
+    }
+
+    .menu-toggle {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Support both .open and .mobile-expanded in mobile drawer */
+    .services-nav-item.open > .mega-dropdown,
+    .services-nav-item.mobile-expanded > .mega-dropdown,
+    .services-nav-item.open > .forensics-mega-dropdown,
+    .services-nav-item.mobile-expanded > .forensics-mega-dropdown {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+        pointer-events: auto !important;
+    }
+
+    .about-nav-item.open > .about-dropdown,
+    .about-nav-item.mobile-expanded > .about-dropdown {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        overflow: visible !important;
+        pointer-events: auto !important;
+    }
+
+    /* Category Accordion Expand in Mobile Services Mega Dropdown */
+    .mega-category-block.is-open .mega-links-list {
+        display: flex !important;
+        flex-direction: column !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+    }
+
+    .mega-category-block.is-open .mega-cat-arrow {
+        transform: rotate(90deg) !important;
+    }
+
+    .mega-cat-header {
+        min-height: 44px !important;
+        touch-action: manipulation;
+    }
+
+    .mega-category-block .submodule-item a {
+        min-height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        touch-action: manipulation;
+    }
+
+    .forensics-links-list li a {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        touch-action: manipulation;
+    }
+
+    /* Mobile Quick Contact Fit */
+    .mobile-drawer-quick-contact {
+        padding: 24px 20px 40px !important;
+    }
+
+    .qc-bottom-row {
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+    }
+
+    .qc-social-card,
+    .qc-cta-button {
+        flex: 1 1 140px !important;
+        min-height: 44px !important;
+    }
+}
+
+/* --- 3. SELECTION PORTAL RESPONSIVE TUNING --- */
+@media (max-width: 991px) {
+    .portal-page .split-hero-stage,
+    body.portal-page .split-hero-stage {
+        padding: 84px 0 36px !important;
+    }
+
+    .portal-page .split-hero-container,
+    body.portal-page .split-hero-container {
+        gap: 20px !important;
+    }
+
+    .split-card {
+        border-radius: 20px !important;
+    }
+
+    .split-card-content {
+        padding: clamp(22px, 5vw, 32px) clamp(16px, 4vw, 24px) !important;
+    }
+
+    .split-card-title {
+        font-size: clamp(1.5rem, 5vw, 2.1rem) !important;
+        line-height: 1.22 !important;
+        margin-bottom: 12px !important;
+    }
+
+    .split-card-desc {
+        font-size: clamp(0.88rem, 3vw, 0.96rem) !important;
+        line-height: 1.55 !important;
+        margin-bottom: 20px !important;
+    }
+
+    .split-card-action {
+        gap: 10px !important;
+    }
+
+    .split-cta-circle {
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+    }
+
+    .split-cta-label {
+        font-size: clamp(0.82rem, 2.5vw, 0.92rem) !important;
+        padding: 12px 18px !important;
+        min-height: 48px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+}
+
+@media (max-width: 430px) {
+    .split-card-content {
+        padding: 20px 16px 18px !important;
+    }
+
+    .split-card-title {
+        font-size: 1.45rem !important;
+    }
+
+    .split-card-desc {
+        font-size: 0.86rem !important;
+        margin-bottom: 16px !important;
+    }
+
+    .split-card-action {
+        width: 100% !important;
+    }
+
+    .split-cta-label {
+        flex: 1 !important;
+        justify-content: center !important;
+    }
+}
+
+/* --- 4. DIGITAL FORENSICS & CYBER SECURITY RESPONSIVE TUNING --- */
+@media (max-width: 1024px) {
+    .cyber-about-section .about-grid {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+    }
+
+    .cyber-capabilities-grid,
+    .capabilities-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+
+    .cyber-practices-section .practices-bento,
+    .practices-bento {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding-top: 100px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .hero-content {
+        gap: 24px !important;
+    }
+
+    .hero h1,
+    .hero-title {
+        font-size: clamp(2rem, 6.5vw, 3.2rem) !important;
+        line-height: 1.18 !important;
+    }
+
+    .hero-tagline,
+    .hero p {
+        font-size: clamp(0.95rem, 3.2vw, 1.1rem) !important;
+        line-height: 1.6 !important;
+    }
+
+    .hero-cta,
+    .hero-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 12px !important;
+    }
+
+    .hero-cta .btn,
+    .hero-actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        min-height: 48px !important;
+    }
+
+    /* Attack Surface Hero Canvas Containment */
+    .attack-surface-wrap,
+    .hero-visual-canvas-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 240px !important;
+        max-height: 360px !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+
+    .attack-surface-wrap canvas,
+    .hero-visual-canvas-wrap canvas {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 360px !important;
+        display: block !important;
+    }
+
+    /* Stats Grid */
+    .cyber-stats-section .stats-grid,
+    .stats-section .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    .stat-card {
+        padding: 20px 16px !important;
+    }
+
+    .stat-number {
+        font-size: clamp(1.8rem, 5vw, 2.4rem) !important;
+    }
+
+    /* Bento & Capabilities single column on mobile */
+    .cyber-capabilities-grid,
+    .capabilities-grid,
+    .cyber-practices-section .practices-bento,
+    .practices-bento {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    /* Process steps */
+    .cyber-process-section .process-grid,
+    .process-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    /* Industries */
+    .cyber-industries-section .industries-grid,
+    .industries-grid {
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+    }
+
+    /* Credentials & Accreditations */
+    .credentials-grid,
+    .accreditations-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    /* Route Globe Wrap */
+    .globe-box,
+    #globe-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: clamp(280px, 45vw, 420px) !important;
+        overflow: hidden !important;
+    }
+
+    .globe-box canvas,
+    #globe-wrap canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Contact Section */
+    .contact-section .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .credentials-grid,
+    .accreditations-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stat-card {
+        padding: 16px 12px !important;
+    }
+}
+
+/* --- 5. INVESTIGATION & CYBER INTELLIGENCE RESPONSIVE TUNING --- */
+@media (max-width: 1024px) {
+    .ci-services-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+
+    .ci-risks-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .ci-hero {
+        padding-top: 100px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .ci-hero-heading {
+        font-size: clamp(1.85rem, 6.5vw, 2.75rem) !important;
+        line-height: 1.2 !important;
+    }
+
+    .ci-hero-lead {
+        font-size: clamp(0.92rem, 3.2vw, 1.05rem) !important;
+        line-height: 1.6 !important;
+    }
+
+    .ci-hero-actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 12px !important;
+    }
+
+    .ci-hero-actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        min-height: 48px !important;
+    }
+
+    /* Hero HUD Stats 2 columns */
+    .ci-hero-hud {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        margin-top: 28px !important;
+    }
+
+    .ci-hud-item {
+        padding: 14px 12px !important;
+    }
+
+    .ci-hud-value {
+        font-size: clamp(1.5rem, 4.5vw, 2rem) !important;
+    }
+
+    /* Live Trace Stage */
+    .ci-trace__stage {
+        height: clamp(210px, 35vw, 300px) !important;
+    }
+
+    /* Investigation Services 1 column */
+    .ci-services-grid {
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+    }
+
+    .ci-service-card {
+        padding: clamp(20px, 4vw, 28px) !important;
+    }
+
+    /* Threat Matrix */
+    .ci-risks-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    /* Process Timeline */
+    .ci-process-track {
+        flex-direction: column !important;
+        gap: 18px !important;
+        align-items: stretch !important;
+    }
+
+    .ci-process-step {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .ci-process-arrow {
+        transform: rotate(90deg) !important;
+        align-self: center !important;
+        padding: 4px 0 !important;
+    }
+
+    /* Threat Globe & World Map Containment */
+    .ci-threat-globe-wrap,
+    #ciThreatGlobeWrap,
+    .ci-world-map-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 240px !important;
+        max-height: 400px !important;
+        overflow: hidden !important;
+    }
+
+    .ci-threat-globe-wrap canvas,
+    #ciThreatGlobeWrap canvas,
+    .ci-world-map-wrap canvas,
+    .ci-world-map-wrap svg {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        display: block !important;
+    }
+
+    /* Accreditations on Forensics */
+    .ci-accred-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    /* Testimonials on Forensics */
+    .ci-testimonials-grid,
+    .ci-testi-grid {
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .ci-trace__services {
+        grid-template-columns: 1fr !important;
+    }
+
+    .ci-svc {
+        padding: 12px 14px !important;
+    }
+
+    .ci-svc span {
+        white-space: normal !important;
+        line-height: 1.25 !important;
+    }
+
+    .ci-hero-hud {
+        grid-template-columns: 1fr !important;
+    }
+
+    .ci-accred-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* --- 6. SERVICE DETAIL PAGE RESPONSIVE TUNING --- */
+@media (max-width: 1024px) {
+    .svc-hero-grid {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+    }
+
+    .svc-booking-card {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .svc-features-grid,
+    .svc-deliv-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 18px !important;
+    }
+
+    .svc-related-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 18px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .svc-hero {
+        padding-top: 100px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .svc-hero-title {
+        font-size: clamp(1.85rem, 5.5vw, 2.75rem) !important;
+        line-height: 1.2 !important;
+    }
+
+    .svc-hero-tagline {
+        font-size: clamp(0.95rem, 3vw, 1.1rem) !important;
+    }
+
+    .svc-breadcrumb {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .svc-hero-trust-bar {
+        flex-wrap: wrap !important;
+        gap: 8px 16px !important;
+    }
+
+    .svc-features-grid,
+    .svc-deliv-grid,
+    .svc-related-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .svc-booking-card {
+        padding: clamp(18px, 4vw, 28px) !important;
+    }
+
+    .svc-contact-form .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+}
+
+/* --- 7. ABOUT & TEAM PAGES RESPONSIVE TUNING --- */
+@media (max-width: 1024px) {
+    .who-we-are-grid {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+    }
+
+    .principles-grid,
+    .apart-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero-header {
+        padding-top: 100px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .who-we-are-content h2,
+    .about-hero-header h1 {
+        font-size: clamp(1.85rem, 5.5vw, 2.6rem) !important;
+        line-height: 1.22 !important;
+    }
+
+    .stats-cards-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    .team-leader-card {
+        padding: 24px 18px !important;
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+
+    .leader-img-frame {
+        width: 100% !important;
+        max-width: 240px !important;
+        height: auto !important;
+        aspect-ratio: 4/5 !important;
+        margin: 0 auto 16px !important;
+    }
+
+    .leader-social-row {
+        justify-content: center !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .principles-grid,
+    .apart-grid,
+    .team-grid,
+    .stats-cards-bar {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+}
+
+/* --- 8. CONTACT PAGE RESPONSIVE TUNING --- */
+@media (max-width: 900px) {
+    .contact-page-body .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-page-hero {
+        padding-top: 100px !important;
+        padding-bottom: 36px !important;
+    }
+
+    .contact-card-box {
+        padding: clamp(20px, 4vw, 32px) clamp(16px, 3.5vw, 24px) !important;
+    }
+
+    .contact-page #contactForm .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+
+    .contact-submit-full-btn {
+        width: 100% !important;
+        min-height: 48px !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* --- 9. LEGAL PAGES RESPONSIVE TUNING --- */
+.legal-layout-grid {
+    display: grid;
+    grid-template-columns: minmax(240px, 280px) 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .legal-layout-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .legal-sidebar-nav {
+        position: static !important;
+        top: auto !important;
+    }
+
+    .legal-sidebar-card {
+        padding: 1.15rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .legal-tabs-bar {
+        display: flex !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        white-space: nowrap !important;
+        gap: 8px !important;
+        padding-bottom: 8px !important;
+        scrollbar-width: none !important;
+    }
+
+    .legal-tabs-bar::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .legal-tab-btn {
+        flex: 0 0 auto !important;
+        padding: 10px 16px !important;
+        font-size: 0.88rem !important;
+        min-height: 42px !important;
+    }
+
+    .legal-content-card {
+        padding: clamp(20px, 4vw, 32px) clamp(16px, 3.5vw, 24px) !important;
+    }
+}
+
+/* --- 10. MULTI-COLUMN FOOTER RESPONSIVE TUNING --- */
+@media (max-width: 991px) {
+    .footer {
+        padding: 56px 0 32px !important;
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 36px 24px !important;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+
+    .footer-bottom {
+        flex-direction: column !important;
+        gap: 14px !important;
+        text-align: center !important;
+    }
+
+    .footer-legal-links {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+}
+
+/* --- 11. FLOATING WIDGETS RESPONSIVE TUNING --- */
+@media (max-width: 768px) {
+    .chat-widget-badge {
+        bottom: 16px !important;
+        right: 16px !important;
+        z-index: 990 !important;
+    }
+
+    .chat-bubble-card {
+        width: min(calc(100vw - 32px), 310px) !important;
+        max-width: calc(100vw - 32px) !important;
+        right: 0 !important;
+        bottom: 56px !important;
+    }
+
+    .scroll-to-top-fab {
+        bottom: 80px !important;
+        right: 16px !important;
+        width: 44px !important;
+        height: 44px !important;
+        z-index: 989 !important;
+    }
+
+    /* When mobile drawer is open, hide floating widgets */
+    body.mobile-drawer-open .chat-widget-badge,
+    body.mobile-drawer-open .scroll-to-top-fab {
+        display: none !important;
+    }
+}
+
+/* --- 12. SMALL MOBILE SCREEN OPTIMIZATIONS (320px - 374px) --- */
+@media (max-width: 374px) {
+    .container {
+        padding-inline: 12px !important;
+    }
+
+    .navbar .logo span {
+        font-size: 0.95rem !important;
+    }
+
+    .split-card-title {
+        font-size: 1.35rem !important;
+    }
+
+    .hero h1,
+    .ci-hero-heading,
+    .svc-hero-title {
+        font-size: 1.75rem !important;
+    }
+
+    .btn {
+        padding: 10px 14px !important;
+        font-size: 0.88rem !important;
+    }
+
+    .stat-number {
+        font-size: 1.6rem !important;
+    }
+}
+
+/* ==========================================================================
+   TARGETED RESPONSIVE MOBILE OPTIMIZATION & OVERFLOW PREVENTION
+   ========================================================================== */
+
+/* 1. Global Shape Circle (#globe-wrap / .globe-box) & No-Overlap Layout */
+.globe-box,
+#globe-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 520px !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    min-height: 280px !important;
+    margin: 0 auto 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 24px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--border) !important;
+    background: radial-gradient(ellipse at center, rgba(22, 10, 46, 0.7) 0%, rgba(7, 4, 15, 0.95) 70%) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="light"] .globe-box,
+[data-theme="light"] #globe-wrap {
+    background: radial-gradient(ellipse at center, rgba(240, 235, 255, 0.9) 0%, rgba(225, 215, 250, 0.95) 70%) !important;
+    box-shadow: 0 20px 50px rgba(117, 20, 232, 0.12) !important;
+}
+
+.globe-box canvas,
+#globe-wrap canvas {
+    display: block !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.coverage-section {
+    position: relative !important;
+    padding: clamp(48px, 6vw, 84px) 0 !important;
+    clear: both !important;
+    overflow-x: clip !important;
+}
+
+.coverage-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+    align-items: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 992px) {
+    .coverage-grid {
+        grid-template-columns: 1.05fr 0.95fr !important;
+        gap: 3.5rem !important;
+        align-items: center !important;
+    }
+}
+
+.coverage-globe-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
+
+.coverage-content-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.credentials-section {
+    position: relative !important;
+    padding: clamp(48px, 6vw, 80px) 0 !important;
+    clear: both !important;
+}
+
+/* 2. Digital Forensics Map Alignment, Single-Column Mobile Stats, & Zero-Overflow */
+.ci-coverage-section {
+    background: var(--bg-secondary) !important;
+    position: relative !important;
+    padding: clamp(48px, 6vw, 84px) 0 clamp(64px, 8vw, 96px) !important;
+    clear: both !important;
+    overflow-x: clip !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+}
+
+.ci-coverage-section .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.ci-coverage-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+    align-items: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 1024px) {
+    .ci-coverage-grid {
+        grid-template-columns: 1.15fr 1fr !important;
+        gap: 3rem !important;
+        align-items: center !important;
+    }
+}
+
+.ci-coverage-map-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.ci-map-card {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: clamp(10px, 2.5vw, 16px) !important;
+    border-radius: 20px !important;
+    background: linear-gradient(180deg, rgba(20, 10, 50, .85), rgba(8, 6, 28, .95)) !important;
+    border: 1px solid rgba(139, 92, 246, .45) !important;
+    box-shadow: 0 0 40px rgba(139, 92, 246, .18), inset 0 0 30px rgba(34, 211, 238, .04) !important;
+    overflow: hidden !important;
+}
+
+.ci-world-map-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 1014/665 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    background: #070620 !important;
+}
+
+.ci-world-map-wrap canvas,
+.ci-map-svg {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.ci-tip {
+    position: absolute !important;
+    box-sizing: border-box !important;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    pointer-events: none !important;
+    background: rgba(12, 8, 36, .94) !important;
+    border: 1px solid rgba(139, 92, 246, .6) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 5 !important;
+    max-width: calc(100% - 20px) !important;
+}
+
+@media (max-width: 639px) {
+    .ci-tip {
+        position: absolute !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 10px !important;
+        top: auto !important;
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        min-width: 0 !important;
+        padding: 10px 12px !important;
+        font-size: 0.8rem !important;
+    }
+    .ci-tip h4 {
+        font-size: 0.92rem !important;
+        margin-bottom: 2px !important;
+    }
+    .ci-tip-count {
+        font-size: 0.75rem !important;
+    }
+    .ci-tip ul {
+        margin-top: 4px !important;
+        font-size: 0.72rem !important;
+    }
+}
+
+.ci-region-tabs {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 12px 12px 6px 4px !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    flex-wrap: nowrap !important;
+}
+
+.ci-region-tabs::-webkit-scrollbar {
+    display: none !important;
+}
+
+.ci-region-tabs button {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 8px 14px !important;
+    font-size: 0.78rem !important;
+    border-radius: 10px !important;
+    color: #cfc8ee !important;
+    background: rgba(255, 255, 255, .05) !important;
+    border: 1px solid rgba(139, 92, 246, .3) !important;
+}
+
+.ci-region-tabs button.is-active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+    border-color: transparent !important;
+}
+
+.ci-coverage-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    clear: both !important;
+    overflow: hidden !important;
+}
+
+.ci-coverage-content h2 {
+    font-size: clamp(1.4rem, 5.2vw, 2.3rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+.ci-coverage-content > p {
+    font-size: clamp(0.88rem, 2.5vw, 0.98rem) !important;
+    color: rgba(255, 255, 255, 0.78) !important;
+    line-height: 1.62 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Stat Cards: 1 column on mobile (< 640px) to prevent right overflow; 2 columns on tablet+ (>= 640px) */
+.ci-stats-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-top: 0.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 640px) {
+    .ci-stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+}
+
+.ci-stat-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: clamp(14px, 3.5vw, 20px) 16px !important;
+    background: rgba(18, 14, 32, 0.85) !important;
+    border: 1px solid rgba(139, 32, 255, 0.28) !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    transition: all 0.3s ease !important;
+}
+
+.ci-stat-item strong {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: clamp(1.6rem, 5vw, 2.2rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    margin: 0 0 0.35rem 0 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #c84bff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.ci-stat-item span {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: clamp(0.78rem, 2.3vw, 0.88rem) !important;
+    color: rgba(255, 255, 255, 0.76) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.ci-clients-section {
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, rgba(10, 8, 22, 0.95) 100%) !important;
+    position: relative !important;
+    padding: clamp(48px, 6vw, 76px) 0 !important;
+    border-top: 1px solid rgba(139, 32, 255, 0.12) !important;
+    border-bottom: 1px solid rgba(139, 32, 255, 0.12) !important;
+    clear: both !important;
+}
+
+/* 3. Button Font Color Enforcements (White) & Proper Dimensions */
+.primary-btn,
+.primary-btn span,
+.btn.primary-btn,
+.btn.primary-btn span,
+.contact-submit-full-btn,
+.contact-submit-full-btn span {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.contact-submit-full-btn {
+    width: 100% !important;
+    min-height: 52px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    padding: 14px 24px !important;
+    box-sizing: border-box !important;
+}

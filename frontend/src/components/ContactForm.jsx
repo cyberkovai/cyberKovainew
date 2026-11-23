@@ -312,14 +312,15 @@ export default function ContactForm({
           onExpired={() => setRecaptchaToken('')}
         />
 
-        <div style={{ marginTop: '1.25rem' }}>
+        <div style={{ marginTop: '1.5rem', width: '100%', display: 'flex', justifyContent: 'center' }}>
           <button
             type="submit"
             className="contact-submit-full-btn btn primary-btn"
             disabled={loading}
             style={{
               width: '100%',
-              padding: '14px 20px',
+              minHeight: '52px',
+              padding: '14px 24px',
               background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c026d3 100%)',
               color: '#ffffff',
               fontSize: '15px',
@@ -328,13 +329,15 @@ export default function ContactForm({
               cursor: loading ? 'not-allowed' : 'pointer',
               border: 'none',
               boxShadow: '0 4px 20px rgba(168, 85, 247, 0.35)',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
             }}
           >
-            <span>{loading ? 'TRANSMITTING ENQUIRY...' : (submitText || 'Submit Confidential Request ➔')}</span>
+            <span style={{ color: '#ffffff', fontWeight: 700 }}>
+              {loading ? 'TRANSMITTING ENQUIRY...' : (submitText || 'Submit Confidential Request ➔')}
+            </span>
           </button>
         </div>
       </form>

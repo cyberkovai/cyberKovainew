@@ -63,6 +63,30 @@ export default function Header({ settings = {} }) {
   const [scrolled, setScrolled] = useState(false);
   const [forensicsNavServices, setForensicsNavServices] = useState([]);
   const [cyberNavServices, setCyberNavServices] = useState(null);
+  const [openCategories, setOpenCategories] = useState({
+    'application-security': true,
+    'network-security': false,
+    'cloud-security': false,
+    'enterprise-security': false,
+  });
+
+  const toggleCategory = (catKey) => {
+    setOpenCategories((prev) => ({
+      ...prev,
+      [catKey]: !prev[catKey],
+    }));
+  };
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.classList.add('mobile-drawer-open');
+    } else {
+      document.body.classList.remove('mobile-drawer-open');
+    }
+    return () => {
+      document.body.classList.remove('mobile-drawer-open');
+    };
+  }, [mobileOpen]);
 
   const closeDropdowns = () => {
     setServicesDropdownOpen(false);
@@ -201,7 +225,7 @@ export default function Header({ settings = {} }) {
 
           {/* 2. SERVICES MEGA DROPDOWN */}
           {activeTrack === 'cyber' ? (
-            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="servicesNavItem">
+            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open mobile-expanded' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="servicesNavItem">
               <a
                 href={servicesUrl}
                 className="nav-link dropdown-toggle"
@@ -221,8 +245,20 @@ export default function Header({ settings = {} }) {
                 <div className="mega-dropdown-inner">
                   {Object.entries(cyberColumns).map(([catKey, col]) => (
                     <div className="mega-col-group" key={catKey}>
-                      <div className="mega-category-block" data-category={catKey}>
-                        <div className="mega-cat-header">
+                      <div className={`mega-category-block ${openCategories[catKey] ? 'is-open' : ''}`} data-category={catKey}>
+                        <div
+                          className="mega-cat-header"
+                          onClick={(e) => {
+                            if (window.innerWidth <= 991) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleCategory(catKey);
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-expanded={!!openCategories[catKey]}
+                        >
                           <h4 className="mega-col-title">{col.title}</h4>
                           <span className="mega-cat-arrow" aria-hidden="true">➔</span>
                         </div>
@@ -241,7 +277,7 @@ export default function Header({ settings = {} }) {
             </div>
           ) : (
             /* Digital Investigation & Forensics Dropdown */
-            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="servicesNavItem">
+            <div className={`nav-item has-dropdown services-nav-item ${isServicesActive ? 'active' : ''} ${servicesDropdownOpen ? 'open mobile-expanded' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="servicesNavItem">
               <a
                 href={servicesUrl}
                 className="nav-link dropdown-toggle"
@@ -285,7 +321,7 @@ export default function Header({ settings = {} }) {
 
           {/* 3. ABOUT */}
           {showTeam ? (
-            <div className={`nav-item has-dropdown about-nav-item ${(isAboutActive || isTeamActive) ? 'active' : ''} ${aboutDropdownOpen ? 'open' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="aboutNavItem">
+            <div className={`nav-item has-dropdown about-nav-item ${(isAboutActive || isTeamActive) ? 'active' : ''} ${aboutDropdownOpen ? 'open mobile-expanded' : ''} ${dropdownBlocked ? 'dropdown-blocked' : ''}`} id="aboutNavItem">
               <Link
                 to={aboutUrl}
                 className="nav-link dropdown-toggle"

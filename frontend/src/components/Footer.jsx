@@ -131,8 +131,8 @@ export default function Footer({ settings = {}, sections: propSections }) {
               <p className="reach-item">📞 <a href={`tel:${sitePhoneTel}`} style={{ color: 'inherit', textDecoration: 'none' }}>{sitePhone}</a></p>
               <p className="reach-item">✉️ <a href={`mailto:${siteEmail}`} style={{ color: 'inherit', textDecoration: 'none' }}>{siteEmail}</a></p>
               <div style={{ marginTop: '0.75rem' }}>
-                <Link to={contactUrl} className="btn primary-btn" style={{ padding: '9px 18px', fontSize: '11px', letterSpacing: '0.05em' }}>
-                  <span>ENQUIRE NOW ➔</span>
+                <Link to={contactUrl} className="btn primary-btn" style={{ padding: '9px 18px', fontSize: '11px', letterSpacing: '0.05em', color: '#ffffff', minWidth: '140px', minHeight: '40px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ color: '#ffffff', fontWeight: 700 }}>ENQUIRE NOW ➔</span>
                 </Link>
               </div>
             </div>
@@ -205,8 +205,8 @@ export default function Footer({ settings = {}, sections: propSections }) {
               <p className="reach-item">📞 <a href={`tel:${sitePhoneTel}`} style={{ color: 'inherit', textDecoration: 'none' }}>{sitePhone}</a></p>
               <p className="reach-item">✉️ <a href={`mailto:${siteEmail}`} style={{ color: 'inherit', textDecoration: 'none' }}>{siteEmail}</a></p>
               <div style={{ marginTop: '0.85rem' }}>
-                <Link to={contactUrl} className="btn primary-btn" style={{ padding: '10px 20px', fontSize: '12.5px', fontWeight: 700, letterSpacing: '0.05em', borderRadius: '50px', display: 'inline-flex' }}>
-                  <span>SCHEDULE AUDIT ➔</span>
+                <Link to={contactUrl} className="btn primary-btn" style={{ padding: '10px 20px', fontSize: '12.5px', fontWeight: 700, letterSpacing: '0.05em', borderRadius: '50px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', minWidth: '160px', minHeight: '44px' }}>
+                  <span style={{ color: '#ffffff', fontWeight: 700 }}>SCHEDULE AUDIT ➔</span>
                 </Link>
               </div>
             </div>
