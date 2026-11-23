@@ -318,7 +318,12 @@ export default function ForensicsPage() {
     return () => clearTimeout(timer);
   }, [location.search, location.hash]);
 
-  // Smooth Typewriter Rotator
+  // High-Speed Typewriter Rotator
+  const TYPE_SPEED = 35;
+  const DELETE_SPEED = 18;
+  const READ_PAUSE = 1100;
+  const SWITCH_PAUSE = 150;
+
   useEffect(() => {
     let timer;
     const currentPhrase = TYPEWRITER_PHRASES[phraseIdx];
@@ -327,20 +332,22 @@ export default function ForensicsPage() {
       if (typewriterText.length < currentPhrase.length) {
         timer = setTimeout(() => {
           setTypewriterText(currentPhrase.slice(0, typewriterText.length + 1));
-        }, 85);
+        }, TYPE_SPEED);
       } else {
         timer = setTimeout(() => {
           setIsDeleting(true);
-        }, 2200);
+        }, READ_PAUSE);
       }
     } else {
       if (typewriterText.length > 0) {
         timer = setTimeout(() => {
           setTypewriterText(currentPhrase.slice(0, typewriterText.length - 1));
-        }, 45);
+        }, DELETE_SPEED);
       } else {
-        setIsDeleting(false);
-        setPhraseIdx((prev) => (prev + 1) % TYPEWRITER_PHRASES.length);
+        timer = setTimeout(() => {
+          setIsDeleting(false);
+          setPhraseIdx((prev) => (prev + 1) % TYPEWRITER_PHRASES.length);
+        }, SWITCH_PAUSE);
       }
     }
 
@@ -407,7 +414,7 @@ export default function ForensicsPage() {
 
                 <h1 className="ci-hero-heading ci-reveal">
                   Uncover Digital Truth<br />
-                  <span className="ci-hero-rotator ci-typewriter-rotator" id="ciHeroRotator">
+                  <span className={`ci-hero-rotator ci-typewriter-rotator ${isDeleting ? 'is-deleting' : 'is-typing'}`} id="ciHeroRotator">
                     <span className="ci-grad-text ci-typewriter-text" id="ciTypewriterText">
                       {typewriterText}
                     </span>
@@ -461,36 +468,36 @@ export default function ForensicsPage() {
                 </p>
               </div>
 
-                <div className="ci-services-grid">
-                  {invServices.map((svc, idx) => (
-                    <article
-                      key={svc.slug || svc.id || idx}
-                      className="ci-svc-card ci-reveal reveal-scale"
-                      id={`svc-${svc.slug}`}
-                      data-slug={svc.slug}
-                      data-index={idx}
-                    >
-                      <div className="ci-svc-img-wrap">
-                        <img
-                          src={normalizeImg(svc.image, '/assets/images/investigation_01_victim_recovery.jpg')}
-                          alt={svc.title}
-                          className="ci-svc-img"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <div className="ci-svc-img-gradient"></div>
-                      </div>
-                      <div className="ci-svc-body">
-                        <h3>{svc.title}</h3>
-                        <p>{svc.description}</p>
-                        <Link to={`/services/${svc.slug}?section=forensics`} className="ci-svc-link">
-                          Explore Investigation <span>➔</span>
-                        </Link>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+              <div className="ci-services-grid">
+                {invServices.map((svc, idx) => (
+                  <article
+                    key={svc.slug || svc.id || idx}
+                    className="ci-svc-card ci-reveal reveal-scale"
+                    id={`svc-${svc.slug}`}
+                    data-slug={svc.slug}
+                    data-index={idx}
+                  >
+                    <div className="ci-svc-img-wrap">
+                      <img
+                        src={normalizeImg(svc.image, '/assets/images/investigation_01_victim_recovery.jpg')}
+                        alt={svc.title}
+                        className="ci-svc-img"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="ci-svc-img-gradient"></div>
+                    </div>
+                    <div className="ci-svc-body">
+                      <h3>{svc.title}</h3>
+                      <p>{svc.description}</p>
+                      <Link to={`/services/${svc.slug}?section=forensics`} className="ci-svc-link">
+                        Explore Investigation <span>➔</span>
+                      </Link>
+                    </div>
+                  </article>
+                ))}
               </div>
+            </div>
           </section>
         )}
 

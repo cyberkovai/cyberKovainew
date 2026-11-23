@@ -292,8 +292,10 @@ export default function CyberSecurityPage() {
   const [faqs, setFaqs] = useState(DEFAULT_CYBER_FAQS);
   const [openFaq, setOpenFaq] = useState(0);
 
-  // Glitch rotator state
-  const [glitchIdx, setGlitchIdx] = useState(0);
+  // Dynamic Services Typewriter state
+  const [typewriterText, setTypewriterText] = useState(GLITCH_PHRASES[0]);
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     getSettings().then((s) => s && setSettings(s)).catch(() => { });
@@ -352,20 +354,56 @@ export default function CyberSecurityPage() {
     }
   }, []);
 
-  // Glitch phrase rotator timer
+  // High-Speed Dynamic Services Typewriter Animation
+  // Type speed: ~35ms per character (rapid word typing)
+  // Delete speed: ~18ms per character (ultra-fast backspacing)
+  // Read pause: ~1100ms (snappy display before erasing)
+  // Switch pause: ~150ms (quick transition to the next word)
+  const TYPE_SPEED = 35;
+  const DELETE_SPEED = 18;
+  const READ_PAUSE = 1100;
+  const SWITCH_PAUSE = 150;
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setGlitchIdx((prev) => (prev + 1) % GLITCH_PHRASES.length);
-    }, 3800);
-    return () => clearInterval(timer);
-  }, []);
+    let timer;
+    const currentPhrase = GLITCH_PHRASES[phraseIdx];
+
+    if (!isDeleting) {
+      if (typewriterText.length < currentPhrase.length) {
+        timer = setTimeout(() => {
+          setTypewriterText(currentPhrase.slice(0, typewriterText.length + 1));
+        }, TYPE_SPEED);
+      } else {
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, READ_PAUSE);
+      }
+    } else {
+      if (typewriterText.length > 0) {
+        timer = setTimeout(() => {
+          setTypewriterText(currentPhrase.slice(0, typewriterText.length - 1));
+        }, DELETE_SPEED);
+      } else {
+        timer = setTimeout(() => {
+          setIsDeleting(false);
+          setPhraseIdx((prev) => (prev + 1) % GLITCH_PHRASES.length);
+        }, SWITCH_PAUSE);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [typewriterText, isDeleting, phraseIdx]);
 
   const handleNextGlitch = () => {
-    setGlitchIdx((prev) => (prev + 1) % GLITCH_PHRASES.length);
+    if (!isDeleting) {
+      setIsDeleting(true);
+    } else {
+      setTypewriterText('');
+      setIsDeleting(false);
+      setPhraseIdx((prev) => (prev + 1) % GLITCH_PHRASES.length);
+    }
     window.dispatchEvent(new CustomEvent('ck:next'));
   };
-
-  const currentGlitchPhrase = GLITCH_PHRASES[glitchIdx];
 
   return (
     <>
@@ -390,14 +428,13 @@ export default function CyberSecurityPage() {
                   <span className="hero-gradient-text">Solutions</span><br />
                   <span className="hero-by-line" onClick={handleNextGlitch} style={{ cursor: 'pointer' }}>
                     <span
-                      className="cyber-glitch-wrapper"
+                      className={`ci-hero-rotator ci-typewriter-rotator ${isDeleting ? 'is-deleting' : 'is-typing'}`}
                       title="Explore Cyber Security Services (Click to cycle)"
                     >
-                      <span className="cyber-glitch-text" data-text={currentGlitchPhrase}>
-                        {currentGlitchPhrase}
+                      <span className="ci-grad-text ci-typewriter-text">
+                        {typewriterText || '\u00A0'}
                       </span>
-                      <span className="cyber-cursor" aria-hidden="true">_</span>
-                      <span className="cyber-scan-bar" aria-hidden="true"></span>
+                      <span className="ci-typewriter-cursor" aria-hidden="true"></span>
                     </span>
                   </span>
                 </h1>

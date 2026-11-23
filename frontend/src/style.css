@@ -1158,12 +1158,14 @@ button {
     margin-top: 4px;
 }
 
-.hero-by-line .cyber-glitch-wrapper {
+.hero-by-line .cyber-glitch-wrapper,
+.hero-by-line .ci-typewriter-rotator {
     margin-left: 0;
     max-width: 100%;
 }
 
-.hero-by-line .cyber-glitch-text {
+.hero-by-line .cyber-glitch-text,
+.hero-by-line .ci-typewriter-text {
     font-size: inherit;
     font-weight: 800;
     line-height: inherit;
