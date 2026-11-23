@@ -18,7 +18,7 @@ export default function AboutPage() {
     getSections().then(setSections).catch(() => {});
   }, []);
 
-  const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
+  const homeUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber' : '/cyber-intelligence?section=forensics';
   const contactUrl = `/contact?section=${activeTrack}`;
 
   return (

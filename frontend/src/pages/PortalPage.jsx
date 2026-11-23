@@ -108,9 +108,9 @@ export default function PortalPage() {
             data-track="cyber"
             tabIndex="0"
             role="region"
-            aria-label="Cyber Intelligence Services"
+            aria-label="Cyber Security Services"
             onMouseEnter={() => setActiveCard('cyber')}
-            onClick={() => handleSelectTrack('cyber', '/digital-forensics?section=cyber')}
+            onClick={() => handleSelectTrack('cyber', '/cyber-security?section=cyber')}
           >
             {/* Background Visual & Overlay */}
             <div className="split-card-bg">
@@ -151,10 +151,10 @@ export default function PortalPage() {
                   type="button"
                   className="split-cta-circle"
                   id="cyberCtaBtn"
-                  aria-label="Explore Cyber Intelligence"
+                  aria-label="Explore Cyber Security"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleSelectTrack('cyber', '/digital-forensics?section=cyber');
+                    handleSelectTrack('cyber', '/cyber-security?section=cyber');
                   }}
                 >
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -167,10 +167,10 @@ export default function PortalPage() {
                   className="split-cta-label"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleSelectTrack('cyber', '/digital-forensics?section=cyber');
+                    handleSelectTrack('cyber', '/cyber-security?section=cyber');
                   }}
                 >
-                  Explore Cyber Intelligence <span>➔</span>
+                  Explore Cyber Security <span>➔</span>
                 </button>
               </div>
             </div>

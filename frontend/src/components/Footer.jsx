@@ -52,11 +52,11 @@ export default function Footer({ settings = {}, sections: propSections }) {
   const showTeam = (settings.show_team !== false && settings.show_team !== 0 && settings.show_team !== '0') && isSectionVisible(sections, 'show_team');
   const showTestimonials = (settings.show_testimonials !== false && settings.show_testimonials !== 0 && settings.show_testimonials !== '0') && isSectionVisible(sections, 'show_testimonials');
 
-  const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
+  const homeUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber' : '/cyber-intelligence?section=forensics';
   const aboutUrl = `/about?section=${activeTrack}`;
   const teamUrl = `/team?section=${activeTrack}`;
   const contactUrl = `/contact?section=${activeTrack}`;
-  const servicesUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber#services' : '/cyber-intelligence?section=forensics#ci-services';
+  const servicesUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber#services' : '/cyber-intelligence?section=forensics#ci-services';
 
   return (
     <footer className="footer">
@@ -145,8 +145,8 @@ export default function Footer({ settings = {}, sections: propSections }) {
               <Link to={homeUrl}>Home</Link>
               <Link to={aboutUrl}>About Us</Link>
               {showTeam && <Link to={teamUrl}>Our Team</Link>}
-              <Link to="/cyber-intelligence?section=cyber">Cyber Intelligence</Link>
-              <Link to="/digital-forensics?section=forensics">Digital Forensics</Link>
+              <Link to="/cyber-security?section=cyber">Cyber Security</Link>
+              <Link to="/cyber-intelligence?section=forensics">Digital Forensics</Link>
               <a href="#services">Services</a>
               <Link to={contactUrl}>Contact &amp; Consultation</Link>
             </div>

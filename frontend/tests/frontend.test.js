@@ -134,9 +134,9 @@ describe('Frontend API Client & Helper Logic Test Suite', () => {
 
   it('should verify track URL switching logic', () => {
     const resolveHomeUrl = (activeTrack) =>
-      activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
+      activeTrack === 'cyber' ? '/cyber-security?section=cyber' : '/cyber-intelligence?section=forensics';
 
-    assert.strictEqual(resolveHomeUrl('cyber'), '/digital-forensics?section=cyber');
+    assert.strictEqual(resolveHomeUrl('cyber'), '/cyber-security?section=cyber');
     assert.strictEqual(resolveHomeUrl('forensics'), '/cyber-intelligence?section=forensics');
   });
 

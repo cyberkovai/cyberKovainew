@@ -46,7 +46,7 @@ export default function LegalPage({ defaultKey = 'privacy' }) {
     { key: 'disclosure', path: '/security-disclosure', icon: '🛡️', name: 'Security Disclosure' },
   ];
 
-  const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
+  const homeUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber' : '/cyber-intelligence?section=forensics';
 
   return (
     <>

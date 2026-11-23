@@ -124,7 +124,7 @@ export default function TeamPage() {
       .catch(() => { });
   }, []);
 
-  const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
+  const homeUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber' : '/cyber-intelligence?section=forensics';
   const aboutUrl = `/about?section=${activeTrack}`;
   const contactUrl = `/contact?section=${activeTrack}`;
 

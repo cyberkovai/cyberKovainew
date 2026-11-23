@@ -150,15 +150,15 @@ export default function Header({ settings = {} }) {
   }, [location]);
 
   // URLs depending on track
-  const homeUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber' : '/cyber-intelligence?section=forensics';
-  const servicesUrl = activeTrack === 'cyber' ? '/digital-forensics?section=cyber#services' : '/cyber-intelligence?section=forensics#ci-services';
+  const homeUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber' : '/cyber-intelligence?section=forensics';
+  const servicesUrl = activeTrack === 'cyber' ? '/cyber-security?section=cyber#services' : '/cyber-intelligence?section=forensics#ci-services';
   const aboutUrl = `/about?section=${activeTrack}`;
   const teamUrl = `/team?section=${activeTrack}`;
   const contactUrl = `/contact?section=${activeTrack}`;
 
   const isHomeActive = location.pathname === '/' ||
-    (activeTrack === 'cyber' && location.pathname.includes('digital-forensics')) ||
-    (activeTrack === 'forensics' && location.pathname.includes('cyber-intelligence'));
+    (activeTrack === 'cyber' && (location.pathname.includes('cyber-security') || location.pathname.includes('cybersecurity'))) ||
+    (activeTrack === 'forensics' && (location.pathname.includes('cyber-intelligence') || location.pathname.includes('digital-forensics') || location.pathname.includes('investigation') || location.pathname.includes('forensics')));
   const isServicesActive = location.pathname.includes('/services');
   const isAboutActive = location.pathname.includes('/about');
   const isTeamActive = location.pathname.includes('/team');

@@ -297,7 +297,7 @@ export default function AdminFaqs() {
                 Preview Investigation FAQs ➔
               </a>
               <a
-                href={`${import.meta.env.BASE_URL}digital-forensics#faq`}
+                href={`${import.meta.env.BASE_URL}cyber-security#faq`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary btn-sm"
@@ -378,7 +378,7 @@ export default function AdminFaqs() {
                       </div>
                     </div>
                     <p className="faq-track-desc">
-                      Displays on <code>digital-forensics.php#faq</code> (VAPT, Cloud, Audits)
+                      Displays on <code>cyber-security.php#faq</code> (VAPT, Cloud, Audits)
                     </p>
                   </label>
 

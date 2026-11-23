@@ -270,7 +270,7 @@ export default function AdminClients() {
               Preview Investigation ➔
             </a>
             <a
-              href={`${import.meta.env.BASE_URL}digital-forensics#clients`}
+              href={`${import.meta.env.BASE_URL}cyber-security#clients`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"

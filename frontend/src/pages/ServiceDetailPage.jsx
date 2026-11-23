@@ -151,10 +151,10 @@ export default function ServiceDetailPage() {
   }, [categorySlug, activeTrack]);
 
   const homeUrl = activeSection === 'cyber'
-    ? '/digital-forensics?section=cyber'
+    ? '/cyber-security?section=cyber'
     : '/cyber-intelligence?section=forensics';
   const servicesUrl = activeSection === 'cyber'
-    ? '/digital-forensics?section=cyber#services'
+    ? '/cyber-security?section=cyber#services'
     : '/cyber-intelligence?section=forensics#ci-services';
   const breadcrumbServicesUrl = categorySlug === 'digital-investigations'
     ? '/cyber-intelligence?section=forensics#ci-services'

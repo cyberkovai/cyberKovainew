@@ -8,7 +8,7 @@ const SECTION_REGISTRY = [
   {
     key: 'cyber',
     group_title: 'Cyber Security Page',
-    group_file: 'digital-forensics.php',
+    group_file: 'cyber-security.php',
     group_icon: '🛡️',
     group_desc: 'Show or hide individual sections on the main Cyber Security landing page.',
     sections: [

@@ -268,7 +268,7 @@ export default function AdminAccreditations() {
             <a href={`${import.meta.env.BASE_URL}cyber-intelligence#credentials`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Digital Investigation page">
               Preview Investigation ➔
             </a>
-            <a href={`${import.meta.env.BASE_URL}digital-forensics#credentials`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Cyber Security page">
+            <a href={`${import.meta.env.BASE_URL}cyber-security#credentials`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title="Preview on Cyber Security page">
               Preview Cyber ➔
             </a>
           </>

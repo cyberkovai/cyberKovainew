@@ -378,7 +378,7 @@ export default function AdminCyberServices() {
               ❓ Cyber Security FAQs
             </Link>
             <a
-              href={`${import.meta.env.BASE_URL}digital-forensics#cyber-services`}
+              href={`${import.meta.env.BASE_URL}cyber-security#cyber-services`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"

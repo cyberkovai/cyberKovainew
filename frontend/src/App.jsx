@@ -32,6 +32,15 @@ import AdminSectionVisibility from './admin/AdminSectionVisibility';
 import AdminSettings from './admin/AdminSettings';
 import AdminProfile from './admin/AdminProfile';
 
+function DigitalForensicsRoute() {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  if (searchParams.get('section') === 'cyber') {
+    return <Navigate to={`/cyber-security${location.search}`} replace />;
+  }
+  return <ForensicsPage />;
+}
+
 function ProtectedAdminRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -55,19 +64,27 @@ export default function App() {
       <Route path="/index.php" element={<PortalPage />} />
 
       {/* Cyber Security Track */}
-      <Route path="/digital-forensics" element={<CyberSecurityPage />} />
-      <Route path="/digital-forensics.php" element={<CyberSecurityPage />} />
-      <Route path="/digitalforensics" element={<CyberSecurityPage />} />
-      <Route path="/digitalforensics.php" element={<CyberSecurityPage />} />
-      <Route path="/digital-forensics/services" element={<CyberSecurityPage />} />
-      <Route path="/digitalforensics/services" element={<CyberSecurityPage />} />
+      <Route path="/cyber-security" element={<CyberSecurityPage />} />
+      <Route path="/cyber-security.php" element={<CyberSecurityPage />} />
+      <Route path="/cybersecurity" element={<CyberSecurityPage />} />
+      <Route path="/cybersecurity.php" element={<CyberSecurityPage />} />
+      <Route path="/cyber-security/services" element={<CyberSecurityPage />} />
+      <Route path="/cybersecurity/services" element={<CyberSecurityPage />} />
 
       {/* Forensics Track */}
+      <Route path="/digital-forensics" element={<DigitalForensicsRoute />} />
+      <Route path="/digital-forensics.php" element={<DigitalForensicsRoute />} />
+      <Route path="/digitalforensics" element={<DigitalForensicsRoute />} />
+      <Route path="/digitalforensics.php" element={<DigitalForensicsRoute />} />
+      <Route path="/digital-forensics/services" element={<ForensicsPage />} />
+      <Route path="/digitalforensics/services" element={<ForensicsPage />} />
       <Route path="/cyber-intelligence" element={<ForensicsPage />} />
       <Route path="/cyber-intelligence.php" element={<ForensicsPage />} />
       <Route path="/cyber-intelligence/services" element={<ForensicsPage />} />
       <Route path="/investigation" element={<ForensicsPage />} />
       <Route path="/investigation.php" element={<ForensicsPage />} />
+      <Route path="/forensics" element={<ForensicsPage />} />
+      <Route path="/forensics.php" element={<ForensicsPage />} />
 
       {/* About Us & Team */}
       <Route path="/about" element={<AboutPage />} />
@@ -83,6 +100,8 @@ export default function App() {
       {/* Service Detail Dynamic Pages */}
       <Route path="/services/:slug" element={<ServiceDetailPage />} />
       <Route path="/services/:slug.php" element={<ServiceDetailPage />} />
+      <Route path="/cyber-security/services/:slug" element={<ServiceDetailPage />} />
+      <Route path="/cybersecurity/services/:slug" element={<ServiceDetailPage />} />
       <Route path="/digital-forensics/services/:slug" element={<ServiceDetailPage />} />
       <Route path="/cyber-intelligence/services/:slug" element={<ServiceDetailPage />} />
       <Route path="/investigation/services/:slug" element={<ServiceDetailPage />} />

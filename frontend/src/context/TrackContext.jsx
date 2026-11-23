@@ -12,8 +12,8 @@ export const TrackProvider = ({ children }) => {
     const params = new URLSearchParams(location.search);
     const sec = params.get('section') || params.get('track');
     if (sec && (sec === 'cyber' || sec === 'forensics')) return sec;
-    if (location.pathname.includes('cyber-intelligence')) return 'forensics';
-    if (location.pathname.includes('digital-forensics')) return 'cyber';
+    if (location.pathname.includes('cyber-security') || location.pathname.includes('cybersecurity')) return 'cyber';
+    if (location.pathname.includes('cyber-intelligence') || location.pathname.includes('digital-forensics') || location.pathname.includes('investigation') || location.pathname.includes('forensics')) return 'forensics';
     const saved = localStorage.getItem('ck_section');
     return saved === 'forensics' ? 'forensics' : 'cyber';
   };
@@ -27,12 +27,12 @@ export const TrackProvider = ({ children }) => {
       setActiveTrack(sec);
       localStorage.setItem('ck_section', sec);
       document.cookie = `ck_section=${sec}; path=/; max-age=2592000`;
-    } else if (location.pathname.includes('cyber-intelligence')) {
-      setActiveTrack('forensics');
-      localStorage.setItem('ck_section', 'forensics');
-    } else if (location.pathname.includes('digital-forensics')) {
+    } else if (location.pathname.includes('cyber-security') || location.pathname.includes('cybersecurity')) {
       setActiveTrack('cyber');
       localStorage.setItem('ck_section', 'cyber');
+    } else if (location.pathname.includes('cyber-intelligence') || location.pathname.includes('digital-forensics') || location.pathname.includes('investigation') || location.pathname.includes('forensics')) {
+      setActiveTrack('forensics');
+      localStorage.setItem('ck_section', 'forensics');
     }
   }, [location]);
 
